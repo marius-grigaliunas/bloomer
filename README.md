@@ -1,50 +1,97 @@
-# Welcome to your Expo app 👋
+# Plant care app - Bloomer
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## react.native  + expo app + appwrite
 
-## Get started
+### features
+ - Authentication
+ - Plant Gallery
+ - Plant Detail View
+ - Camera Integration
+ - Image Processing
+ - Notification Management
+ - Plant Identification
+ - Care Calendar
 
-1. Install dependencies
+## Plan
 
-   ```bash
-   npm install
-   ```
+### Week 1: Setup & Planning (Mar 10-16)
 
-2. Start the app
+- **Days 1-2:** Project setup and environment configuration
+	 - [...] Watch react native tutorials
+	- [x] Set up React Native with Expo
+    - [...] Create Appwrite account and project
+    - [...] Configure development environment
+- **Days 3-4:** Database schema design
+    - Design Appwrite Collections for Users
+    - Design Plant Collection with care requirements
+    - Design WateringSchedule Collection
+- **Days 5-7:** API planning
+    - [...] Research OpenAI Vision API for plant identification
+    - Create API key and test with sample images
+    - Map out required Appwrite functions and endpoints
 
-   ```bash
-    npx expo start
-   ```
+### Week 2: Appwrite Integration & Authentication (Mar 17-23)
 
-In the output, you'll find options to open the app in a
+- **Days 1-2:** Authentication setup
+    - Implement Appwrite Auth for user registration and login
+    - Set up email verification
+    - Configure OAuth providers (optional)
+- **Days 3-5:** Database collections setup
+    - Create database collections in Appwrite Console
+    - Set up security rules and permissions
+    - Create indexes for efficient queries
+- **Days 6-7:** Storage configuration
+    - Set up Appwrite Storage buckets for plant images
+    - Configure file permissions
+    - Test upload and retrieval
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Week 3: Basic Mobile App (Mar 24-30)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Days 1-2:** App navigation and UI skeleton
+    - Set up React Navigation
+    - Create basic screen components
+- **Days 3-4:** Authentication screens
+    - Implement login/signup UI
+    - Connect to Appwrite Auth SDK
+- **Days 5-7:** Plant list and detail screens
+    - Create plant listing component
+    - Build plant detail view
+    - Implement add/edit plant functionality with Appwrite Database SDK
 
-## Get a fresh project
+### Week 4: Core Features (Mar 31-Apr 6)
 
-When you're ready, run:
+- **Days 1-3:** Camera integration
+    - Implement image capture functionality
+    - Set up image upload to Appwrite Storage
+    - Create feedback UI for processing
+- **Days 4-7:** Plant identification with AI
+    - Create Appwrite Function to call OpenAI Vision API
+    - Implement response parsing to extract structured data
+    - Build results display component
+    - Create "add identified plant to collection" flow
 
-```bash
-npm run reset-project
-```
+### Week 5: Scheduling and Notifications (Apr 7-13)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- **Days 1-3:** Watering schedule UI
+    - Create schedule view and calendar
+    - Implement schedule creation/editing with Appwrite Database
+- **Days 4-5:** Notification system
+    - Set up scheduled Appwrite Functions for notifications
+    - Configure push notification service (like Firebase or Expo Notifications)
+    - Connect notifications to user preferences
+- **Days 6-7:** Testing and debugging
+    - Test full user journeys
+    - Fix critical bugs
 
-## Learn more
+### Week 6: Polish and Launch Prep (Apr 14-20)
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Days 1-2:** UI polish
+    - Refine styling and transitions
+    - Implement loading states
+- **Days 3-4:** Performance optimization
+    - Image caching
+    - Optimize Appwrite queries
+- **Days 5-7:** Final testing and documentation
+    - User testing
+    - Create README and documentation
+    - Prepare for deployment
