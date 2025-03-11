@@ -3,8 +3,8 @@ import React from 'react'
 
 const identify = () => {
   return (
-    <View>
-      <Text>identify</Text>
+    <View className='flex justify-center items-center w-full h-full'>
+      <Text className='text-3xl'>This is for the plant identification/search section</Text>
     </View>
   )
 }

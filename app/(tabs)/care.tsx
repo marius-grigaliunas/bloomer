@@ -3,8 +3,8 @@ import React from 'react'
 
 const care = () => {
   return (
-    <View className='w-100 h-100 flex justify-center items-center'>
-      <Text text-3xl>This is for the plant care section</Text>
+    <View className='flex justify-center items-center w-full h-full'>
+      <Text className='text-3xl'>This is for the plant care section</Text>
     </View>
   )
 }

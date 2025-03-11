@@ -15,7 +15,7 @@ const TabIcon = ({focused, icon, title} : TabIconProps) => {
         return (
             <ImageBackground
                 source={images.highlight}
-                className='flex flex-row w-full flex-1 min-w-[112px] min-h-14 
+                className='flex flex-row w-full flex-1 min-w-[112px] min-h-16 
                 mt-4 justify-center items-center rounded-full overflow-hidden'
             >
                 <Image source={icon} tintColor="#151312" className='size-5'/>
@@ -35,11 +35,18 @@ const TabIcon = ({focused, icon, title} : TabIconProps) => {
 
 const _layout = () => {
   return (
-    <Tabs>
+    <Tabs
+        screenOptions={{
+            tabBarShowLabel: false,
+            tabBarItemStyle: {
+                width: '100%',
+            }
+        }}
+    >
         <Tabs.Screen
             name='index'
             options={{
-                title: "",
+                title: "Home",
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
                     <TabIcon focused={focused} title='Home' icon={icons.home}/>
@@ -49,7 +56,7 @@ const _layout = () => {
         <Tabs.Screen
             name='care'
             options={{
-                title: "",
+                title: "Care",
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
                     <TabIcon focused={focused} title='Care' icon={icons.arrow}/>
@@ -59,7 +66,7 @@ const _layout = () => {
         <Tabs.Screen
             name='identify'
             options={{
-                title: "",
+                title: "Identify",
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
                     <TabIcon focused={focused} title='Identify' icon={icons.search}/>
@@ -69,7 +76,7 @@ const _layout = () => {
         <Tabs.Screen
             name='profile'
             options={{
-                title: "",
+                title: "Profile",
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
                     <TabIcon focused={focused} title='Profile' icon={icons.person}/>

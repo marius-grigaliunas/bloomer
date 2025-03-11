@@ -3,8 +3,8 @@ import React from 'react'
 
 const profile = () => {
   return (
-    <View>
-      <Text>profile</Text>
+    <View className='flex justify-center items-center w-full h-full'>
+      <Text className='text-3xl'>This is for the Profile section</Text>
     </View>
   )
 }
