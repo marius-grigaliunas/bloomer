@@ -17,14 +17,14 @@
 ### Week 1: Setup & Planning (Mar 10-16)
 
 - **Days 1-2:** Project setup and environment configuration
-	 - [ ] Watch react native tutorials
+	- [ ] Watch react native tutorials
 	- [x] Set up React Native with Expo
-    - [ ] Create Appwrite account and project
-    - [ ] Configure development environment
+    - [x] Create Appwrite account and project
+    - [x] Configure development environment
 - **Days 3-4:** Database schema design
-    - Design Appwrite Collections for Users
-    - Design Plant Collection with care requirements
-    - Design WateringSchedule Collection
+    - [ ] Design Appwrite Collections for Users
+    - [ ] Design Plant Collection with care requirements
+    - [ ] Design WateringSchedule Collection
 - **Days 5-7:** API planning
     - [ ] Research OpenAI Vision API for plant identification
     - Create API key and test with sample images
@@ -33,9 +33,9 @@
 ### Week 2: Appwrite Integration & Authentication (Mar 17-23)
 
 - **Days 1-2:** Authentication setup
-    - Implement Appwrite Auth for user registration and login
-    - Set up email verification
-    - Configure OAuth providers (optional)
+    - [ ] Implement Appwrite Auth for user registration and login
+    - [ ] Set up google verification
+    - [ ] Configure OAuth providers (optional)
 - **Days 3-5:** Database collections setup
     - Create database collections in Appwrite Console
     - Set up security rules and permissions
