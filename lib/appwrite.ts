@@ -4,14 +4,15 @@ import * as WebBrowser from 'expo-web-browser'
 
 
 export const config = {
-    platform: 'com.margri.restate',
+    platform: 'com.margri.bloomer',
     endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
     projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
 }
 
-export const client = new Client();
+console.log('Endpoint:', process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT);
+console.log('Project ID:', process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID);
 
-client
+export const client = new Client()
     .setEndpoint(config.endpoint!)
     .setProject(config.projectId!)
     .setPlatform(config.platform!)
@@ -42,7 +43,7 @@ export async function login () {
         if(!secret || !userId) throw new Error("Failed to get secret/userId");
 
         const session = await account.createSession(userId, secret);
-        if(!session) throw new Error("Fao;ed to login");
+        if(!session) throw new Error("Failed to login");
 
         return true;
 
