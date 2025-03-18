@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { Text, View } from "react-native";
-import SignIn from './sign-in';
+import SignIn from '../../sign-in';
 
 export default function Index() {
   return (

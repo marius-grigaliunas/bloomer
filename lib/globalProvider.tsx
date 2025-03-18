@@ -12,10 +12,10 @@ interface User {
 }
 
 interface GlobalContextType {
-    isLogged: boolean;
+    isLoggedIn: boolean;
     user: User | null;
     loading: boolean;
-    refetch: (newParams: Record<string, string | number>) => Promise<void>}
+    refetch: (newParams?: Record<string, string | number>) => Promise<void>}
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
@@ -25,19 +25,22 @@ interface GlobalProviderProps {
 
 export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
     const {
-        data: user = null as User | null,
+        data: user,
         loading,
         refetch,
     } = useAppwrite({
         callFunction: getCurrentUser,
     });
 
-    const isLogged = !!user;
+    const isLoggedIn = !!user;
+
+    console.log(JSON.stringify(user, null, 2));
+    console.log("user data should be above here")
 
     return (
         <GlobalContext.Provider
             value={{
-                isLogged,
+                isLoggedIn,
                 user,
                 loading,
                 refetch,

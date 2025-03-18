@@ -1,24 +1,15 @@
 import { Stack } from "expo-router";
 import './global.css'
+import GlobalProvider from "@/lib/globalProvider";
 
 export default function RootLayout() {
   
   return (
-  <Stack 
-    screenOptions={{headerShown: false}}
-    > 
-    <Stack.Screen 
-      name="(tabs)"
-      options={{
-        headerShown: false,
-      }}
-    />
-    <Stack.Screen 
-      name="plants/[id]"
-      options={{
-        headerShown: false,
-      }}
-    />
-  </Stack>
+    <GlobalProvider>
+      <Stack 
+        screenOptions={{headerShown: false}}
+        > 
+      </Stack>
+    </GlobalProvider>
   )
 }
