@@ -33,13 +33,13 @@
 ### Week 2: Appwrite Integration & Authentication (Mar 17-23)
 
 - **Days 1-2:** Authentication setup
-    - [ ] Implement Appwrite Auth for user registration and login
-    - [ ] Set up google verification
-    - [ ] Configure OAuth providers (optional)
+    - [x] Implement Appwrite Auth for user registration and login
+    - [x] Set up google verification
+    - [x] Configure OAuth providers (optional)
 - **Days 3-5:** Database collections setup
-    - Create database collections in Appwrite Console
-    - Set up security rules and permissions
-    - Create indexes for efficient queries
+    - [ ] Create database collections in Appwrite Console
+    - [ ] Set up security rules and permissions
+    - [ ] Create indexes for efficient queries
 - **Days 6-7:** Storage configuration
     - Set up Appwrite Storage buckets for plant images
     - Configure file permissions
@@ -53,7 +53,7 @@
     - [ ] Create basic screen components
 - **Days 3-4:** Authentication screens
     - Implement login/signup UI
-    - Connect to Appwrite Auth SDK
+    - [x] Connect to Appwrite Auth SDK
 - **Days 5-7:** Plant list and detail screens
     - Create plant listing component
     - Build plant detail view
