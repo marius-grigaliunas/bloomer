@@ -63,10 +63,12 @@ export async function logout () {
     }
 }
 
-export async function getCurrentUser() {
+export async function getCurrentUser () {
     try {
         const response = await account.get()
 
+
+        
         if(response.$id) {
             const userAvatar = avatar.getInitials(response.name);
 
