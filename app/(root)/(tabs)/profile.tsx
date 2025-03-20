@@ -1,18 +1,22 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { getCurrentUser, logout } from '@/lib/appwrite'
 import { useGlobalContext } from '@/lib/globalProvider'
 
-const profile = async () => {
 
-  const { refetch, loading, isLoggedIn } = useGlobalContext()
-  
-  let user = null
-  
-  if(isLoggedIn) {
-    user = await getCurrentUser()
-  }
+const Profile = () => {
+
+  const { refetch, loading, isLoggedIn, user: contextUser } = useGlobalContext();
+  const [ currentUser, setCurrentUser ] = useState(contextUser);
+
+  useEffect(() => {
+    if(isLoggedIn) {
+      getCurrentUser().then(userData => {
+        setCurrentUser(userData)
+      })
+    }
+  }, [isLoggedIn])
 
   const handleSignOut = async () => {
     const result = await logout();
@@ -31,8 +35,8 @@ const profile = async () => {
             <ScrollView contentContainerStyle={{height: "auto"}} >
               <View className='flex justify-center items-center mt-20 bg-primary-dark
               p-10 rounded-xl '>
-                <Text className='text-xl text-text-secondary'>{user?.name}</Text>
-                <Text className='text-xl text-text-secondary'>{user?.email}</Text>
+                <Text className='text-xl text-text-secondary'>{currentUser?.name}</Text>
+                <Text className='text-xl text-text-secondary'>{currentUser?.email}</Text>
               </View>
               <View className='flex justify-center items-center'>
                   <TouchableOpacity onPress={handleSignOut}
@@ -60,4 +64,4 @@ const profile = async () => {
   }
 }
 
-export default profile
+export default Profile

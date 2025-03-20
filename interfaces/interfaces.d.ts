@@ -1,7 +1,7 @@
 import { Account, Models } from 'react-native-appwrite';
 
-export interface User extends Models.User{
-
+export interface User extends Models.User<Models.Preferences>{
+  avatar?: string;
 }
 
 /*
