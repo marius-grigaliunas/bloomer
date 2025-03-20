@@ -1,7 +1,7 @@
 import { Account, Avatars, Client, OAuthProvider } from "react-native-appwrite"
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
-
+import { User } from "@/interfaces/interfaces"
 
 export const config = {
     platform: 'com.margri.bloomer',
@@ -63,12 +63,12 @@ export async function logout () {
     }
 }
 
-export async function getCurrentUser () {
+export async function getCurrentUser(): Promise<User | null> {
     try {
         const response = await account.get()
 
 
-        
+
         if(response.$id) {
             const userAvatar = avatar.getInitials(response.name);
 
@@ -84,4 +84,6 @@ export async function getCurrentUser () {
         console.error(error)
         return null;
     }
+
+    return null;
 }
