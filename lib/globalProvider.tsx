@@ -2,14 +2,7 @@
 import React, { Children, createContext, ReactNode, useContext } from "react";
 import { getCurrentUser, avatar } from './appwrite';
 import { useAppwrite } from "./useAppwrite";
-import { Redirect } from "expo-router";
-
-interface User {
-    $id: string;
-    name: string;
-    email: string;
-    avatar: string;
-}
+import { User } from "@/interfaces/interfaces";
 
 interface GlobalContextType {
     isLoggedIn: boolean;
@@ -28,8 +21,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         data: user,
         loading,
         refetch,
-    } = useAppwrite({
-        callFunction: getCurrentUser,
+    } = useAppwrite<User | null, Record<string, string | number>>({
+        callFunction: async () => getCurrentUser(),
+        params: {},
     });
 
     const isLoggedIn = !!user;
