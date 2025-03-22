@@ -20,6 +20,18 @@ export const client = new Client()
 export const avatar = new Avatars(client)
 export const account = new Account(client)
 
+export async function AnnonymousLogin() {
+    try {
+        const session = await account.createAnonymousSession();
+
+        if(!session) throw new Error("Failed to create an annonymous Session")
+    } catch (error) {
+        
+        console.error(error)
+        return false;
+    }
+}
+
 export async function login () {
     try {
         const redirectUri = Linking.createURL("/");
@@ -67,23 +79,22 @@ export async function getCurrentUser(): Promise<User | null> {
     try {
         const response = await account.get()
 
-
-
         if(response.$id) {
             const userAvatar = avatar.getInitials(response.name);
 
             return {
-                 
-
                 ...response,
                 avatar: userAvatar.toString(),
             }
         }
 
-    } catch (error) {
+        return null;
+    } catch (error: any) {
+        if(error?.code === 401 || error?.type === "user_unauthorized") {
+            return null;
+        }
+        
         console.error(error)
         return null;
     }
-
-    return null;
 }

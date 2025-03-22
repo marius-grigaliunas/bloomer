@@ -1,5 +1,5 @@
 
-import React, { Children, createContext, ReactNode, useContext } from "react";
+import React, { Children, createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { getCurrentUser, avatar } from './appwrite';
 import { useAppwrite } from "./useAppwrite";
 import { User } from "@/interfaces/interfaces";
@@ -17,6 +17,8 @@ interface GlobalProviderProps {
 }
 
 export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
+    const isInitializedRef = useRef(false);
+    
     const {
         data: user,
         loading,
@@ -24,21 +26,36 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
     } = useAppwrite<User | null, Record<string, string | number>>({
         callFunction: async () => getCurrentUser(),
         params: {},
+        skip: isInitializedRef.current,
     });
 
-    const isLoggedIn = !!user;
+    useEffect(() => {
+        if(!loading && !isInitializedRef.current) {
+            isInitializedRef.current = true;
+        }
+    }, [loading])
 
-    console.log(JSON.stringify(user, null, 2));
-    console.log("user data should be above here")
+    const isLoggedIn = React.useMemo(() => !!user, [user]);
+
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+        console.log('Auth state:', {
+            user: user ? 'logged in' : 'not logged in',
+            loading,
+            initialized: isInitializedRef.current
+        });
+    }
+
+    const memoizedValue = React.useMemo(() => ({
+        isLoggedIn,
+        user,
+        loading,
+        refetch,
+    }), [isLoggedIn, user, loading, refetch]);
 
     return (
         <GlobalContext.Provider
-            value={{
-                isLoggedIn,
-                user,
-                loading,
-                refetch,
-            }}
+            value={memoizedValue}
         >
             {children}
         </GlobalContext.Provider>
