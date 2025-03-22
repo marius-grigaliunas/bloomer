@@ -42,8 +42,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         console.log('Auth state:', {
             user: user ? 'logged in' : 'not logged in',
             loading,
-            initialized: isInitializedRef.current
+            initialized: isInitializedRef.current,
         });
+        console.log(JSON.stringify(user, null, 2));
     }
 
     const memoizedValue = React.useMemo(() => ({

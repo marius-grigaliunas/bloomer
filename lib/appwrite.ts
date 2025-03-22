@@ -25,6 +25,8 @@ export async function AnnonymousLogin() {
         const session = await account.createAnonymousSession();
 
         if(!session) throw new Error("Failed to create an annonymous Session")
+        
+        return true;
     } catch (error) {
         
         console.error(error)

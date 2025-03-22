@@ -35,7 +35,7 @@ const Profile = () => {
             <ScrollView contentContainerStyle={{height: "auto"}} >
               <View className='flex justify-center items-center mt-20 bg-primary-dark
               p-10 rounded-xl '>
-                <Text className='text-xl text-text-secondary'>{currentUser?.name}</Text>
+                <Text className='text-xl text-text-secondary'>{currentUser?.name ? currentUser?.name : "Guest"}</Text>
                 <Text className='text-xl text-text-secondary'>{currentUser?.email}</Text>
               </View>
               <View className='flex justify-center items-center'>
