@@ -4,33 +4,47 @@
     "slug": "bloomer",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo-noname-500x500.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/logo-500x500.png",
+      "backgroundColor": "#121F12",
+      "resizeMode": "contain"
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "splash": {
+        "image": "./assets/images/logo-500x500.png",
+        "backgroundColor": "#121F12",
+        "resizeMode": "contain"
+      },
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/logo-noname-500x500.png",
+        "backgroundColor": "#121F12"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logo-noname-500x500.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/logo-500x500.png",
+          "backgroundColor": "#121F12",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "dark": {
+            "image": "./assets/images/logo-500x500.png",
+            "backgroundColor": "#121F12"
+          },
+          "imageWidth" : 200
         }
       ]
     ],

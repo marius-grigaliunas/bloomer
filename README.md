@@ -52,12 +52,12 @@
     - [ ] Set up React Navigation
     - [ ] Create basic screen components
 - **Days 3-4:** Authentication screens
-    - Implement login/signup UI
+    - [ ] Implement login/signup UI
     - [x] Connect to Appwrite Auth SDK
 - **Days 5-7:** Plant list and detail screens
-    - Create plant listing component
-    - Build plant detail view
-    - Implement add/edit plant functionality with Appwrite Database SDK
+    - [ ] Create plant listing component
+    - [ ] Build plant detail view
+    - [ ] Implement add/edit plant functionality with Appwrite Database SDK
 
 ### Week 4: Core Features (Mar 31-Apr 6)
 

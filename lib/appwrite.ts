@@ -2,6 +2,7 @@ import { Account, Avatars, Client, OAuthProvider } from "react-native-appwrite"
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
 import { User } from "@/interfaces/interfaces"
+import { SplashScreen } from "expo-router"
 
 export const config = {
     platform: 'com.margri.bloomer',

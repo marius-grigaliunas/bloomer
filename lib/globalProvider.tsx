@@ -3,6 +3,7 @@ import React, { Children, createContext, ReactNode, useContext, useEffect, useRe
 import { getCurrentUser, avatar } from './appwrite';
 import { useAppwrite } from "./useAppwrite";
 import { User } from "@/interfaces/interfaces";
+import { SplashScreen } from "expo-router";
 
 interface GlobalContextType {
     isLoggedIn: boolean;
@@ -16,9 +17,10 @@ interface GlobalProviderProps {
     children: ReactNode;
 }
 
+
 export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
     const isInitializedRef = useRef(false);
-    
+
     const {
         data: user,
         loading,
@@ -30,10 +32,10 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
     });
 
     useEffect(() => {
-        if(!loading && !isInitializedRef.current) {
+        if (!loading && !isInitializedRef.current) {
             isInitializedRef.current = true;
         }
-    }, [loading])
+    }, [loading]);
 
     const isLoggedIn = React.useMemo(() => !!user, [user]);
 
