@@ -31,7 +31,7 @@ const Profile = () => {
 
 
   if(isLoggedIn) { return (
-        <SafeAreaView className="bg-background-lighter h-full">
+        <SafeAreaView className="bg-background-primary h-full">
             <ScrollView contentContainerStyle={{height: "auto"}} >
               <View className='flex justify-center items-center mt-20 bg-primary-dark
               p-10 rounded-xl '>
@@ -41,7 +41,7 @@ const Profile = () => {
               <View className='flex justify-center items-center'>
                   <TouchableOpacity onPress={handleSignOut}
                       className="bg-primary shadow-emerald-50 shadow-md rounded-full
-                          w-80 h-20 mt-20 border-accent-moss border-2 flex justify-center items-center"
+                          w-80 h-20 mt-20 border-accent border-2 flex justify-center items-center"
                   >
                       <View>
                           <Text className='text-2xl text-text-primary'>Sign Out</Text>
@@ -53,7 +53,7 @@ const Profile = () => {
     )
   } else{
     return (
-      <SafeAreaView className="bg-background-lighter h-full">
+      <SafeAreaView className="bg-background-primary h-full">
         <ScrollView contentContainerStyle={{height: "auto"}} >
           <View className='flex justify-center items-center w-full h-full'>
             <Text className='text-5xl text-white flex justify-center items-center text-center mt-96'>Please Sign in to see the profile section </Text>

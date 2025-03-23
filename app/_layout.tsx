@@ -6,7 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import colors from "@/constants/colors";
-import { LoadingScreen } from "./loadingScreen";
+import { LoadingScreen } from "../components/loadingScreen";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,12 +47,12 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background.DEFAULT }} onLayout={onLayoutRootView}>
+    <View style={{ flex: 1, backgroundColor: colors.background.primary }} onLayout={onLayoutRootView}>
       <GlobalProvider>
         <StatusBar style="light" />
         <Stack screenOptions={{
            headerShown: false, 
-            contentStyle: { backgroundColor: colors.background.DEFAULT }   
+            contentStyle: { backgroundColor: colors.background.primary }   
            }} 
         />
       </GlobalProvider>

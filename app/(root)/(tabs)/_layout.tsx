@@ -17,10 +17,11 @@ const TabIcon = ({focused, icon, title} : TabIconProps) => {
             <View
                 className='flex flex-row w-full flex-1 min-w-[112px] min-h-16 
                 mt-4 justify-center items-center rounded-full overflow-hidden
-                bg-primary border border-accent-leaf'
+                bg-primary-medium '
             >
-                <Image source={icon} tintColor="#151312" className='size-5'/>
-                <Text className=' text-base font-semibold ml-2' >
+                <Image source={icon} tintColor={colors.text.primary} className='size-5'/>
+                <Text className='text-text-primary
+                 text-base font-semibold ml-2' >
                     {title}
                 </Text>
             </View>
@@ -28,7 +29,7 @@ const TabIcon = ({focused, icon, title} : TabIconProps) => {
     } else {
         return (
             <View className='size-full justify-center items-center mt-4 rounded-full'>
-                <Image source={icon} tintColor="#A8B5DB" className='size-5'/>
+                <Image source={icon} tintColor={colors.text.secondary} className='size-5'/>
             </View>
         )
     }
@@ -46,7 +47,7 @@ const _layout = () => {
                 alignItems: 'center'
             },
             tabBarStyle: {
-                backgroundColor: colors.primary.muted,
+                backgroundColor: colors.primary.deep,
                 borderRadius: 50,
                 marginHorizontal: 20,
                 marginBottom: 20,
@@ -54,7 +55,6 @@ const _layout = () => {
                 position: 'absolute',
                 overflow: "hidden",
                 borderWidth: 1,
-                borderColor: colors.accent.leaf
             }
         }}
     >
