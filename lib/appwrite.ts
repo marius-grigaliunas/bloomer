@@ -10,9 +10,6 @@ export const config = {
     projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
 }
 
-console.log('Endpoint:', process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT);
-console.log('Project ID:', process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID);
-
 export const client = new Client()
     .setEndpoint(config.endpoint!)
     .setProject(config.projectId!)

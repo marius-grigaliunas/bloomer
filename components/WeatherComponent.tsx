@@ -51,14 +51,13 @@ const WeatherComponent = () => {
             ) : !weather ? (<Text className='text-l text-text-primary'>Weather loading</Text>) :
             (
                 <View className='flex flex-row justify-between items-center'>
-                    <Text className='text-3xl text-text-primary '>{weather.location} </Text>
-                    <Text className='text-2xl text-text-primary mx-6'>{weather.temperature}</Text>
+                    <Text className='text-2xl text-text-primary '>{weather.location} </Text>
                     <Image 
-                        style={{ width: 50, height: 50 }}  // Add explicit dimensions
+                        style={{ width: 50, height: 50 }}  
                         source={{ uri: `https:${weather.descriptionIcon}`}}
                         onError={(error) => console.error('Image loading error:', error.nativeEvent.error)}
-                        onLoad={() => console.log('Image loaded successfully')}
                     />
+                    <Text className='text-2xl text-text-primary'>{weather.temperature.toFixed(0)}°C</Text>
                 </View>
             )}
         </View>

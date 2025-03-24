@@ -29,9 +29,22 @@ export default function Index() {
           <Text className="text-text-primary text-2xl mx-4">Welcome 
             {currentUser?.name ? " " + currentUser?.name.split(' ')[0] : " Guest" }
           </Text>
-          <View className="h-20 w-44 flex justify-center items-center">
+          <View className="h-20 w-44 flex justify-center items-center rounded-full
+           bg-background-primary shadow-md shadow-primary-medium">
               <WeatherComponent/>
           </View>
+        </View>
+        <View className="border border-white h-80">
+          <View className="border border-white h-20">
+            <Text className="text-3x text-text-primary">Health status</Text>
+          </View>
+          <Text className="text-3x text-text-primary">You should take care of these today</Text>
+        </View>
+        <View className="border border-white h-96">
+          <Text className="text-3x text-text-primary">My plants</Text>
+        </View>
+        <View className="border border-white h-96">
+          <Text className="text-3x text-text-primary">Don't forget about these tommorow</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
