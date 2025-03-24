@@ -4,8 +4,6 @@ import { login, AnnonymousLogin } from '@/lib/appwrite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalContext } from '@/lib/globalProvider';
 import { Redirect } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import GoogleButton from '@/components/googleButton';
 
 const SignIn = () => {
     const { refetch, loading, isLoggedIn } = useGlobalContext()

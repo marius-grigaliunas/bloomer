@@ -29,7 +29,7 @@ const colors = {
     // Main background colors (dark theme)
     background: {
       primary: '#0F0D23',
-      surface: '#1A172F'
+      surface: '#2A254B'
     },
     
     primary: {

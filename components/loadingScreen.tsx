@@ -12,8 +12,8 @@ export const LoadingScreen = () => (
   }}>
     <RotatingImage
         image={require("../assets/images/logo-noname-500x500.png")}
-        width={200}
-        height={200}
+        width={50}
+        height={50}
     />
   </View>
 );
