@@ -1,3 +1,4 @@
+import HealthBar from "@/components/HealthBar";
 import WeatherComponent from "@/components/WeatherComponent";
 import { getCurrentUser } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
@@ -35,9 +36,7 @@ export default function Index() {
           </View>
         </View>
         <View className="border border-white h-80">
-          <View className="border border-white h-20">
-            <Text className="text-3x text-text-primary">Health status</Text>
-          </View>
+          <HealthBar/>
           <Text className="text-3x text-text-primary">You should take care of these today</Text>
         </View>
         <View className="border border-white h-96">
