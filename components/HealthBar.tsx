@@ -2,16 +2,19 @@ import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import colors from '@/constants/colors';
 
-const HealthBar = () => {
+interface HealthBarProps {
+    numberOfPlants: number;
+    plantsThatNeedCare: number;
+}
+
+const HealthBar = ({numberOfPlants, plantsThatNeedCare}:HealthBarProps) => {
     const [healthStatus, setHealthStatus] = useState<string>("bad");
     const [healthColor, setHealthColor] = useState<string>(colors.secondary.deep);
 
-    const numberOfPlants = 5;
-    const plantsNeedCare = 4;
 
     useEffect(() => {
-         const CalculateHealth = (numberOfPlants: number, plantsNeedCare: number) => {
-            const result = plantsNeedCare / numberOfPlants;
+         const CalculateHealth = (plantCount: number, plantsNeedCare: number) => {
+            const result = plantsNeedCare / plantCount;
 
             if(result < 0.33) {
                 setHealthStatus("good");
@@ -39,32 +42,32 @@ const HealthBar = () => {
             }
         }
 
-         CalculateHealth(numberOfPlants, plantsNeedCare);
+         CalculateHealth(numberOfPlants, plantsThatNeedCare);
          CheckColor(healthStatus);
 
-    }, [healthStatus, plantsNeedCare])
+    }, [healthStatus, numberOfPlants, plantsThatNeedCare])
 
     return (
-        <View className="h-20 rounded-xl p-4 " 
+        <View className=" rounded-xl p-4 " 
         style={{backgroundColor: `${healthColor}`}}
         >
-            <View className="mx-4 h-20 flex flex-row justify-around items-center ">
+            <View className="mx-4 h-24 flex flex-row justify-around items-center ">
                 {
                     healthStatus === "bad" ? (
                         <Text className='text-3xl text-text-primary'>
-                            Hey! {plantsNeedCare} Plants need your attention!  
+                            Hey! {plantsThatNeedCare} Plants need your attention!  
                         </Text>
                     ) : healthStatus === "normal" ? (
                         <Text className='text-3xl text-text-primary'>
-                            {plantsNeedCare} Plants need your attention.
+                            {plantsThatNeedCare} Plants need your attention.
                         </Text>
-                    ) : plantsNeedCare > 0 ? (plantsNeedCare > 1) ? (
+                    ) : plantsThatNeedCare > 0 ? (plantsThatNeedCare > 1) ? (
                         <Text className='text-3xl text-text-primary'>
-                            Great! Only {plantsNeedCare} Plants need your attention.  
+                            Great! Only {plantsThatNeedCare} Plants need your attention.  
                         </Text>
                     ) : (
                         <Text className='text-3xl text-text-primary'>
-                            Great! Only {plantsNeedCare} Plant need your attention.  
+                            Great! Only {plantsThatNeedCare} Plant need your attention.  
                         </Text>
                     ) : (
                         <Text className='text-3xl text-text-primary'>

@@ -1,4 +1,5 @@
 import HealthBar from "@/components/HealthBar";
+import UrgentCare from "@/components/UrgentCare";
 import WeatherComponent from "@/components/WeatherComponent";
 import { getCurrentUser } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
@@ -10,6 +11,10 @@ export default function Index() {
 
   const { isLoggedIn, user: contextUser } = useGlobalContext();
   const [ currentUser, setCurrentUser ] = useState(contextUser);
+  const [ plantCount, setPlantCount ] = useState<number>(5);
+  const [ plantsNeedCare, setPlantsNeedCare ] = useState<number>(1);
+
+
 
   useEffect(() => {
     if(isLoggedIn) {
@@ -35,9 +40,14 @@ export default function Index() {
               <WeatherComponent/>
           </View>
         </View>
-        <View className="border border-white h-80">
-          <HealthBar/>
-          <Text className="text-3x text-text-primary">You should take care of these today</Text>
+        <View className="border border-white flex flex-1 gap-2">
+          <HealthBar
+            numberOfPlants={plantCount}
+            plantsThatNeedCare={plantsNeedCare}
+          />
+          <UrgentCare 
+            plantsThatNeedCare={plantsNeedCare}
+          />
         </View>
         <View className="border border-white h-96">
           <Text className="text-3x text-text-primary">My plants</Text>
