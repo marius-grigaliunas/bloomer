@@ -48,11 +48,11 @@
 ### Week 3: Basic Mobile App (Mar 24-30)
 
 - **Days 1-2:** App navigation and UI skeleton
-    - [ ] Design The UI
+    - [...] Design The UI
     - [ ] Set up React Navigation
     - [ ] Create basic screen components
 - **Days 3-4:** Authentication screens
-    - [ ] Implement login/signup UI
+    - [x] Implement login/signup UI
     - [x] Connect to Appwrite Auth SDK
 - **Days 5-7:** Plant list and detail screens
     - [ ] Create plant listing component
