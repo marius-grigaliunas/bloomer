@@ -1,4 +1,5 @@
 import HealthBar from "@/components/HealthBar";
+import MyPlants from "@/components/MyPlants";
 import { PlantCardProps } from "@/components/PlantCard";
 import UrgentCare from "@/components/UrgentCare";
 import WeatherComponent from "@/components/WeatherComponent";
@@ -51,9 +52,9 @@ export default function Index() {
             plantsThatNeedCare={plantsNeedCare}
           />
         </View>
-        <View className="h-72 bg-background-surface rounded-2xl">
-          <Text className="text-3x text-text-primary">My plants</Text>
-        </View>
+        <MyPlants
+          myPlants={plants}
+        />
         <View className="h-72 bg-background-surface rounded-2xl">
           <Text className="text-3x text-text-primary">Don't forget about these tommorow</Text>
         </View>

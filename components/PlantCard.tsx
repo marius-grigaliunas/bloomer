@@ -11,7 +11,7 @@ const PlantCard = ({photo, name}: PlantCardProps) => {
 
     return (
         <View className='mr-1 flex justify-start items-start shadow-md shadow-secondary-medium
-            bg-background-surface rounded-2xl h-56'>
+            bg-background-surface rounded-2xl h-52'>
             <Image 
                 source={photo}
                 className='w-32 h-32 rounded-xl border border-accent'
