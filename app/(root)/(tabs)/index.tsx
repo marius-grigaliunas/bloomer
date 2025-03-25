@@ -1,9 +1,10 @@
 import HealthBar from "@/components/HealthBar";
 import MyPlants from "@/components/MyPlants";
 import { PlantCardProps } from "@/components/PlantCard";
+import PlantsForLater from "@/components/PlantsForLater";
 import UrgentCare from "@/components/UrgentCare";
 import WeatherComponent from "@/components/WeatherComponent";
-import { plants, plantsNeedAttention } from "@/constants/mockData";
+import { mockPlants, plantsForLater, plantsNeedAttention } from "@/constants/mockData";
 import { getCurrentUser } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
 import { useEffect, useState } from "react";
@@ -14,8 +15,9 @@ export default function Index() {
 
   const { isLoggedIn, user: contextUser } = useGlobalContext();
   const [ currentUser, setCurrentUser ] = useState(contextUser);
-  const [ plantCount, setPlantCount ] = useState<PlantCardProps[]>(plants);
+  const [ plants, setPlants ] = useState<PlantCardProps[]>(mockPlants);
   const [ plantsNeedCare, setPlantsNeedCare ] = useState<PlantCardProps[]>(plantsNeedAttention);
+  const [ plantsNeedCareLater, setPlantsNeedCareLater ] = useState<PlantCardProps[]>(plantsForLater);
 
 
 
@@ -55,9 +57,9 @@ export default function Index() {
         <MyPlants
           myPlants={plants}
         />
-        <View className="h-72 bg-background-surface rounded-2xl">
-          <Text className="text-3x text-text-primary">Don't forget about these tommorow</Text>
-        </View>
+        <PlantsForLater
+          plantsForLater={plantsNeedCareLater}
+        />
         <View className="h-72 bg-background-primary rounded-2xl">
 
         </View>

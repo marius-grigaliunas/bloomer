@@ -1,4 +1,4 @@
-export const plants = [
+export const mockPlants = [
     {
         $id: "0",
         photo: require("../assets/images/basilicum.png"),
@@ -53,3 +53,16 @@ export const plantsNeedAttention = [
         name: "Jerry"
     }
 ] 
+
+export const plantsForLater = [
+    {
+        $id: "0",
+        photo: require("../assets/images/basilicum.png"),
+        name: "Basil"
+    },
+    {
+        $id: "1",
+        photo: require("../assets/images/basilicum.png"),
+        name: "Basil 2"
+    },
+]
