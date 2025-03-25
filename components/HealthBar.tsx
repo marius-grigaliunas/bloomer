@@ -48,14 +48,14 @@ const HealthBar = ({numberOfPlants, plantsThatNeedCare}:HealthBarProps) => {
     }, [healthStatus, numberOfPlants, plantsThatNeedCare])
 
     return (
-        <View className=" rounded-xl p-4 " 
+        <View className=" rounded-xl shadow-lg shadow-slate-50" 
         style={{backgroundColor: `${healthColor}`}}
         >
-            <View className="mx-4 h-24 flex flex-row justify-around items-center ">
+            <View className="mx-2 h-10 flex flex-row justify-start items-center ">
                 {
                     healthStatus === "bad" ? (
                         <Text className='text-3xl text-text-primary'>
-                            Hey! {plantsThatNeedCare} Plants need your attention!  
+                            {plantsThatNeedCare} Plants need your attention!  
                         </Text>
                     ) : healthStatus === "normal" ? (
                         <Text className='text-3xl text-text-primary'>
@@ -63,11 +63,11 @@ const HealthBar = ({numberOfPlants, plantsThatNeedCare}:HealthBarProps) => {
                         </Text>
                     ) : plantsThatNeedCare > 0 ? (plantsThatNeedCare > 1) ? (
                         <Text className='text-3xl text-text-primary'>
-                            Great! Only {plantsThatNeedCare} Plants need your attention.  
+                            Only {plantsThatNeedCare} Plants need your attention.  
                         </Text>
                     ) : (
                         <Text className='text-3xl text-text-primary'>
-                            Great! Only {plantsThatNeedCare} Plant need your attention.  
+                            Only {plantsThatNeedCare} Plant needs your attention.  
                         </Text>
                     ) : (
                         <Text className='text-3xl text-text-primary'>
@@ -75,6 +75,7 @@ const HealthBar = ({numberOfPlants, plantsThatNeedCare}:HealthBarProps) => {
                         </Text>
                     )
                 }
+                <Text className='ml-3 text-3xl text-text-primary'>{plantsThatNeedCare}/{numberOfPlants}</Text>
             </View>
         </View>
     )

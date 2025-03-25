@@ -1,6 +1,8 @@
 import HealthBar from "@/components/HealthBar";
+import { PlantCardProps } from "@/components/PlantCard";
 import UrgentCare from "@/components/UrgentCare";
 import WeatherComponent from "@/components/WeatherComponent";
+import { plants, plantsNeedAttention } from "@/constants/mockData";
 import { getCurrentUser } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
 import { useEffect, useState } from "react";
@@ -11,8 +13,8 @@ export default function Index() {
 
   const { isLoggedIn, user: contextUser } = useGlobalContext();
   const [ currentUser, setCurrentUser ] = useState(contextUser);
-  const [ plantCount, setPlantCount ] = useState<number>(5);
-  const [ plantsNeedCare, setPlantsNeedCare ] = useState<number>(1);
+  const [ plantCount, setPlantCount ] = useState<PlantCardProps[]>(plants);
+  const [ plantsNeedCare, setPlantsNeedCare ] = useState<PlantCardProps[]>(plantsNeedAttention);
 
 
 
@@ -40,20 +42,23 @@ export default function Index() {
               <WeatherComponent/>
           </View>
         </View>
-        <View className="border border-white flex flex-1 gap-2">
+        <View className="flex flex-1 gap-1">
           <HealthBar
-            numberOfPlants={plantCount}
-            plantsThatNeedCare={plantsNeedCare}
+            numberOfPlants={plants.length}
+            plantsThatNeedCare={plantsNeedCare.length}
           />
           <UrgentCare 
             plantsThatNeedCare={plantsNeedCare}
           />
         </View>
-        <View className="border border-white h-96">
+        <View className="h-72 bg-background-surface rounded-2xl">
           <Text className="text-3x text-text-primary">My plants</Text>
         </View>
-        <View className="border border-white h-96">
+        <View className="h-72 bg-background-surface rounded-2xl">
           <Text className="text-3x text-text-primary">Don't forget about these tommorow</Text>
+        </View>
+        <View className="h-72 bg-background-primary rounded-2xl">
+
         </View>
       </ScrollView>
     </SafeAreaView>
