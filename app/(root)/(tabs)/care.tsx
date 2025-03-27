@@ -14,7 +14,7 @@ const care = () => {
 
   let year = date.getFullYear();
   let month = date.getMonth();
-  let today = date.getDay();
+  let today = date.getDate();
 
   console.log("todya iis - ", today)
       
