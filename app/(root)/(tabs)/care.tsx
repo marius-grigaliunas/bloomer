@@ -6,22 +6,16 @@ const care = () => {
 
     const [calendarElements, setCalendarElements] = useState<ReactNode[]>([])
 
-    const addCalendarElements = (item: ReactNode) => {
-        setCalendarElements([...calendarElements, item]);
-    }
-
   const date = new Date();
 
   let year = date.getFullYear();
   let month = date.getMonth();
   let today = date.getDate();
-
-  console.log("todya iis - ", today)
-      
+        
   const months = ["January", "February", "March", "April", "May", "June", "July", "August",
         "September", "October", "November", "December"];
       
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];    
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       
   const dateDate = `${today}-${month}-${year}`;
   let selectedDate = `${today}-${month}-${year}`;
@@ -33,11 +27,6 @@ const care = () => {
       return `${days[date.getDay()]}, ${day} ${months[month]} ${year}`;
   };
 
-    
-    //selectedMonth ? selectedMonth.textContent = months[month] : 'undefined';
-    //selectedYear  ? selectedYear.textContent = year.toString() : 'undefined';
-    //currentFullDate ? currentFullDate.textContent = getFormattedFullDate(new Date())
-    //: 'undefined';
     
     const generateCalendar = () => {
         const newElements: ReactNode[] = [];
@@ -52,6 +41,32 @@ const care = () => {
         let dayFirst = new Date(year, month, 1).getDay();
         //get the name of the last day of the month
         let dayLast = new Date(year, month, dateLast).getDay();
+
+        days.slice(1).map(day => {
+            const element = (
+                <View key={day}
+                    className='border border-text-primary text-text-primary p-1 w-[14.28%]'
+                >
+                    <Text className='text-text-primary'>
+                        {day.slice(0, 2)}
+                    </Text>    
+                </View>
+            );
+
+            newElements.push(element);
+        })
+
+        const elementSun = (
+            <View key={days[0]}
+                className='border border-text-primary text-text-primary p-1 w-[14.28%]'
+            >
+                <Text className='text-text-primary'>
+                    {days[0].slice(0, 2)}
+                </Text>    
+            </View>
+        );
+
+        newElements.push(elementSun);
 
         for(let i = 1; i <= dateLast; i++) {
                 let day = new Date(year, month, i).getDay();
@@ -144,8 +159,6 @@ const care = () => {
             } else {
                 if(i === today && month.toString() == dateDate.split('-')[1]) {
                     //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month}-${year}" class="day today workday">${i}</div>`);
-                    console.log(i);
-                    console.log(today)
                     
                     const element = (
                         <View key={`${i}-${month}-${year}`}
