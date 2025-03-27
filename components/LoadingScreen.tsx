@@ -1,7 +1,7 @@
 import { View, ActivityIndicator, Image } from 'react-native';
 import React from 'react';
 import colors from '@/constants/colors';
-import RotatingImage from './rotatingImage';
+import RotatingImage from './RotatingImage';
 
 export const LoadingScreen = () => (
   <View style={{ 
