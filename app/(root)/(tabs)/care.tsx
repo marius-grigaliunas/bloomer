@@ -15,6 +15,8 @@ const care = () => {
   let year = date.getFullYear();
   let month = date.getMonth();
   let today = date.getDay();
+
+  console.log("todya iis - ", today)
       
   const months = ["January", "February", "March", "April", "May", "June", "July", "August",
         "September", "October", "November", "December"];
@@ -75,9 +77,9 @@ const care = () => {
                         // </div>`); 
                         const element = (
                             <View key={`${lastMonthDate + j}-${month === 0 ? 11 : month-1}-${month === 0? year-- : year}`}
-                                className='border border-text-secondary text-text-secondary'
+                                className='border border-text-secondary text-text-secondary p-1 w-[14.28%]'
                             >
-                                <Text className='text-text-primary'>
+                                <Text className='text-text-secondary'>
                                     {lastMonthDate + j}
                                 </Text>    
                             </View>
@@ -93,9 +95,9 @@ const care = () => {
                         // </div>`);
                         const element = (
                             <View key={`${lastMonthDate + j}-${month === 0 ? 11 : month-1}-${month === 0? year-- : year}`}
-                                className='border border-text-primary'
+                                className='border border-text-primary p-1 w-[14.28%]'
                             >
-                                <Text className='text-text-primary'>
+                                <Text className='text-text-secondary'>
                                     {lastMonthDate + j}
                                 </Text>
                             </View>
@@ -110,15 +112,64 @@ const care = () => {
         // if day is weekend day name different classes for coloring
             if(day === 0 || day === 6) {
                 if(i === today && month.toString() == dateDate.split('-')[1]) {
-                    //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month}-${year}" class="day today weekend">${i}</div>`);
+                    //calendar.insertAdjacentHTML('beforeend', `
+                    // <div id="${i}-${month}-${year}" 
+                    //  class="day today weekend"
+                    // >
+                    // ${i}
+                    // </div>`);
+                    const element = (
+                        <View key={`${i}-${month}-${year}`}
+                            className='border border-text-primary p-1 w-[14.28%]'
+                        >
+                            <Text className='text-text-primary'>
+                                {i}
+                            </Text>
+                        </View>
+                    )
+                    newElements.push(element);
                 } else {
                     //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month}-${year}" class="day weekend">${i}</div>`);
+                    const element = (    
+                        <View key={`${i}-${month}-${year}`}
+                            className='border border-text-primary p-1 w-[14.28%]'
+                        >
+                            <Text className='text-text-secondary'>
+                                {i}
+                            </Text>
+                        </View>
+                    )
+                    newElements.push(element);
                 } 
             } else {
                 if(i === today && month.toString() == dateDate.split('-')[1]) {
                     //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month}-${year}" class="day today workday">${i}</div>`);
+                    console.log(i);
+                    console.log(today)
+                    
+                    const element = (
+                        <View key={`${i}-${month}-${year}`}
+                            className='border border-text-primary bg-accent p-1 w-[14.28%]'
+                        >
+                            <Text className='text-text-primary'>
+                                {i}
+                            </Text>
+                        </View>
+                    )
+                    newElements.push(element)
                 } else {
                     //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month}-${year}" class="day workday">${i}</div>`);
+                const element = (
+                    <View key={`${i}-${month}-${year}`}
+                        className='border border-text-primary p-1 w-[14.28%]'
+                        >
+                        <Text className='text-text-primary'>
+                            {i}
+                        </Text>
+                    </View>
+                )
+                newElements.push(element);
+                
                 }
             }
         }
@@ -128,8 +179,28 @@ const care = () => {
             for(let i = dayLast + 1; i <= 7; i++) {
                 if(i === 6 || i === 7) {
                     //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}" class="day weekend next-month">${i - dayLast}</div>`); 
+                    const element = (
+                        <View key={`${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}`}
+                            className='border border-text-secondary text-text-secondary p-1 w-[14.28%]'
+                        >
+                            <Text className='text-text-secondary'>
+                                {i - dayLast}
+                            </Text>    
+                        </View>
+                    )
+                    newElements.push(element);
                 } else {
                     //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}" class="day workday next-month">${i - dayLast}</div>`);
+                    const element = (
+                        <View key={`${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}`}
+                            className='border border-text-secondary text-text-secondary p-1 w-[14.28%]'
+                        >
+                            <Text className='text-text-secondary'>
+                                {i - dayLast}
+                            </Text>    
+                        </View>
+                    )
+                    newElements.push(element);
                 }
             }
         }
@@ -159,7 +230,7 @@ const care = () => {
             {getFormattedFullDate(new Date())}
           </Text>
         </View>
-        <View className='flex justify-center items-center'>
+        <View className='flex flex-1 flex-row w-full flex-wrap items-center justify-center'>
             {calendarElements}
         </View>
       </ScrollView>
