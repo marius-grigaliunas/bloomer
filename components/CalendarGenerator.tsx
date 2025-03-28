@@ -1,233 +1,155 @@
-import { View, Text } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import React, { ReactNode, useEffect, useState } from 'react'
+import { 
+    CurrentMonthWeekday, 
+    CurrentMonthWeekend, 
+    PreviousMonthDay, 
+    NextMonthDay,
+    HeaderDay 
+} from './CalendarDay'
 
 const CalendarGenerator = () => {
-
     const [calendarElements, setCalendarElements] = useState<ReactNode[]>([])
-
-    const date = new Date();
-  
-    let year = date.getFullYear();
-    let month = date.getMonth();
-    let today = date.getDate();
-          
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August",
-          "September", "October", "November", "December"];
-        
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        
-    const dateDate = `${today}-${month}-${year}`;
-    let selectedDate = `${today}-${month}-${year}`;
-
-  
-      
-      const generateCalendar = () => {
-          const newElements: ReactNode[] = [];
-  
-  
-          //get the last date of the previous month
-          let dateLast_MonthPrev = new Date(year, month, 0).getDate();
-          //get the last date of the month
-          let dateLast = new Date(year, month+1, 0).getDate();
-          
-          // get the name of the first day of the month. 0 - sunday, 1- monday ...
-          let dayFirst = new Date(year, month, 1).getDay();
-          //get the name of the last day of the month
-          let dayLast = new Date(year, month, dateLast).getDay();
-  
-          days.slice(1).map(day => {
-              const element = (
-                  <View key={day}
-                      className='border border-text-primary text-text-primary p-1 w-[14.28%]'
-                  >
-                      <Text className='text-text-primary'>
-                          {day.slice(0, 2)}
-                      </Text>    
-                  </View>
-              );
-  
-              newElements.push(element);
-          })
-  
-          const elementSun = (
-              <View key={days[0]}
-                  className='border border-text-primary text-text-primary p-1 w-[14.28%]'
-              >
-                  <Text className='text-text-primary'>
-                      {days[0].slice(0, 2)}
-                  </Text>    
-              </View>
-          );
-  
-          newElements.push(elementSun);
-  
-          for(let i = 1; i <= dateLast; i++) {
-                  let day = new Date(year, month, i).getDay();
-              
-              // if first day of the months isn't monday fill it with the last month's dates
-              if(i === 1 && day !== 1) {
-                  let lastMonthDate;
-              
-                  if(day !== 0) {
-                      lastMonthDate = dateLast_MonthPrev - day + 1;
-                  } else {
-                      lastMonthDate = dateLast_MonthPrev - 7 + 1;
-                      dayFirst = 7;
-                  }
-              
-                  for(let j = 1; j < dayFirst; j++) {
-                      if(j === 6) {
-                          //calendar.insertAdjacentHTML('beforeend', `
-                          // <div id="${lastMonthDate + j}-${month === 0 ? 11 : month-1}-${month === 0? year-- : year}" 
-                          //  class="day weekend last-month"
-                          // >
-                          // ${lastMonthDate + j}
-                          // </div>`); 
-                          const element = (
-                              <View key={`${lastMonthDate + j}-${month === 0 ? 11 : month-1}-${month === 0? year-- : year}`}
-                                  className='border border-text-secondary text-text-secondary p-1 w-[14.28%]'
-                              >
-                                  <Text className='text-text-secondary'>
-                                      {lastMonthDate + j}
-                                  </Text>    
-                              </View>
-                          )
-                          newElements.push(element);
-                      } else {
-                          //calendar.insertAdjacentHTML('beforeend', `
-                          // <div 
-                          //  id="${lastMonthDate + j}-${month === 0 ? 11 : month-1}-${month === 0? year-- : year}"  
-                          //  class="day workday last-month"
-                          // >
-                          //  ${lastMonthDate + j}
-                          // </div>`);
-                          const element = (
-                              <View key={`${lastMonthDate + j}-${month === 0 ? 11 : month-1}-${month === 0? year-- : year}`}
-                                  className='border border-text-primary p-1 w-[14.28%]'
-                              >
-                                  <Text className='text-text-secondary'>
-                                      {lastMonthDate + j}
-                                  </Text>
-                              </View>
-                          )
-  
-                          newElements.push(element);
-                      }        
-                  }
-              
-              }
-  
-          // if day is weekend day name different classes for coloring
-              if(day === 0 || day === 6) {
-                  if(i === today && month.toString() == dateDate.split('-')[1]) {
-                      //calendar.insertAdjacentHTML('beforeend', `
-                      // <div id="${i}-${month}-${year}" 
-                      //  class="day today weekend"
-                      // >
-                      // ${i}
-                      // </div>`);
-                      const element = (
-                          <View key={`${i}-${month}-${year}`}
-                              className='border border-text-primary p-1 w-[14.28%]'
-                          >
-                              <Text className='text-text-primary'>
-                                  {i}
-                              </Text>
-                          </View>
-                      )
-                      newElements.push(element);
-                  } else {
-                      //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month}-${year}" class="day weekend">${i}</div>`);
-                      const element = (    
-                          <View key={`${i}-${month}-${year}`}
-                              className='border border-text-primary p-1 w-[14.28%]'
-                          >
-                              <Text className='text-text-secondary'>
-                                  {i}
-                              </Text>
-                          </View>
-                      )
-                      newElements.push(element);
-                  } 
-              } else {
-                  if(i === today && month.toString() == dateDate.split('-')[1]) {
-                      //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month}-${year}" class="day today workday">${i}</div>`);
-                      
-                      const element = (
-                          <View key={`${i}-${month}-${year}`}
-                              className='border border-text-primary bg-accent p-1 w-[14.28%]'
-                          >
-                              <Text className='text-text-primary'>
-                                  {i}
-                              </Text>
-                          </View>
-                      )
-                      newElements.push(element)
-                  } else {
-                      //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month}-${year}" class="day workday">${i}</div>`);
-                  const element = (
-                      <View key={`${i}-${month}-${year}`}
-                          className='border border-text-primary p-1 w-[14.28%]'
-                          >
-                          <Text className='text-text-primary'>
-                              {i}
-                          </Text>
-                      </View>
-                  )
-                  newElements.push(element);
-                  
-                  }
-              }
-          }
-      
-          //if the last day of the month isn't sunday, fill the rest of the week with the next month dates 
-          if(dayLast !== 0) {
-              for(let i = dayLast + 1; i <= 7; i++) {
-                  if(i === 6 || i === 7) {
-                      //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}" class="day weekend next-month">${i - dayLast}</div>`); 
-                      const element = (
-                          <View key={`${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}`}
-                              className='border border-text-secondary text-text-secondary p-1 w-[14.28%]'
-                          >
-                              <Text className='text-text-secondary'>
-                                  {i - dayLast}
-                              </Text>    
-                          </View>
-                      )
-                      newElements.push(element);
-                  } else {
-                      //calendar.insertAdjacentHTML('beforeend', `<div id="${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}" class="day workday next-month">${i - dayLast}</div>`);
-                      const element = (
-                          <View key={`${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}`}
-                              className='border border-text-secondary text-text-secondary p-1 w-[14.28%]'
-                          >
-                              <Text className='text-text-secondary'>
-                                  {i - dayLast}
-                              </Text>    
-                          </View>
-                      )
-                      newElements.push(element);
-                  }
-              }
-          }
-  
-          setCalendarElements(newElements);
-      };
-  
     
-      useEffect(() => {
-          generateCalendar();
-  
-          return () => setCalendarElements([]);
-      }, [])
-  
-      
+    const date = new Date();
+    const todayYear = date.getFullYear();
+    const todayMonth = date.getMonth();
+    const today = date.getDate();
+    const todayDate = `${today}-${todayMonth}-${todayYear}`;
+    
+    const [selectedMonth, setSelectedMonth] = useState(todayMonth);
+    const [selectedYear, setSelectedYear] = useState(todayYear);
+    
+    
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-  return (
-    <View className='flex flex-1 flex-row w-full flex-wrap items-center justify-center'>
-        {calendarElements}
-    </View>
-  )
+    const generateCalendar = () => {
+        const newElements: ReactNode[] = [];
+    
+        // Add header days
+        days.slice(1).forEach(day => {
+            newElements.push(<HeaderDay key={day} day={day} />);
+        });
+        newElements.push(<HeaderDay key={days[0]} day={days[0]} />);
+
+        // Calendar generation logic using new components
+        const dateLast_MonthPrev = new Date(selectedYear, selectedMonth, 0).getDate();
+        const dateLast = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+        const dayFirst = new Date(selectedYear, selectedMonth, 1).getDay();
+        const dayLast = new Date(selectedYear, selectedMonth, dateLast).getDay();
+
+        // Previous month days
+        if (dayFirst !== 1) {
+            const lastMonthDate = dayFirst !== 0 
+                ? dateLast_MonthPrev - dayFirst + 1 
+                : dateLast_MonthPrev - 7 + 1;
+
+            for (let j = 1; j < (dayFirst || 7); j++) {
+                newElements.push(
+                    <PreviousMonthDay
+                        key={`prev-${j}`}
+                        dayKey={`${lastMonthDate + j}-${selectedMonth === 0 ? 11 : selectedMonth-1}-${selectedMonth === 0 ? selectedYear-1 : selectedYear}`}
+                        day={lastMonthDate + j}
+                        month={selectedMonth === 0 ? 11 : selectedMonth-1}
+                        year={selectedMonth === 0 ? selectedYear-1 : selectedYear}
+                    />
+                );
+            }
+        }
+
+        // Current month days
+        for (let i = 1; i <= dateLast; i++) {
+            const day = new Date(selectedYear, selectedMonth, i).getDay();
+            const isToday = i === today && selectedMonth.toString() === todayDate.split('-')[1];
+            
+            if (day === 0 || day === 6) {
+                newElements.push(
+                    <CurrentMonthWeekend
+                        key={`current-${i}`}
+                        dayKey={`${i}-${selectedMonth}-${selectedYear}`}
+                        day={i}
+                        isToday={isToday}
+                        month={selectedMonth}
+                        year={selectedYear}
+                    />
+                );
+            } else {
+                newElements.push(
+                    <CurrentMonthWeekday
+                        key={`current-${i}`}
+                        dayKey={`${i}-${selectedMonth}-${selectedYear}`}
+                        day={i}
+                        isToday={isToday}
+                        month={selectedMonth}
+                        year={selectedYear}
+                    />
+                );
+            }
+        }
+
+        // Next month days
+        if (dayLast !== 0) {
+            for (let i = 1; i <= 7 - dayLast; i++) {
+                newElements.push(
+                    <NextMonthDay
+                        key={`next-${i}`}
+                        dayKey={`${i}-${selectedMonth === 11 ? 0 : selectedMonth+1}-${selectedMonth === 11 ? selectedYear+1 : selectedYear}`}
+                        day={i}
+                        month={selectedMonth === 11 ? 0 : selectedMonth+1}
+                        year={selectedMonth === 11 ? selectedYear+1 : selectedYear}
+                    />
+                );
+            }
+        }
+
+        setCalendarElements(newElements);
+    };
+
+    const NextMonth = () => {
+        setSelectedMonth(prev => prev+1)
+    }
+
+    const PreviousMonth = () => {
+        setSelectedMonth(prev => prev-1)
+    }
+
+    useEffect(() => {
+        generateCalendar();
+        return () => setCalendarElements([]);
+    }, [selectedMonth, selectedYear]);
+
+    return (
+        <View>
+            <View className="flex flex-row justify-around w-screen h-16  
+                      rounded-2xl items-center bg-background-surface mt-2
+                      " 
+            >
+                <TouchableOpacity
+                    onPress={PreviousMonth}
+                    onLongPress={PreviousMonth}
+                    className='bg-secondary-deep w-10 h-10 flex justify-center items-center'
+                >
+                    <Text className='text-3xl text-text-primary'
+                    >
+                        {"<"}
+                    </Text>
+                </TouchableOpacity>
+                <Text className='text-4xl text-text-primary' >{selectedMonth}</Text>
+                <TouchableOpacity
+                    onPress={NextMonth}
+                    className='bg-secondary-deep w-10 h-10 flex justify-center items-center'
+                >
+                    <Text className='text-3xl text-text-primary'
+                    >
+                        {">"}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+            <View className='flex flex-row flex-wrap w-full mt-2'>
+                {calendarElements}
+            </View>
+        </View>
+    );
 }
 
 export default CalendarGenerator

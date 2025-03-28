@@ -31,6 +31,9 @@ const care = () => {
           </Text>
         </View>
         <CalendarGenerator />
+        <View className="h-72 bg-background-primary rounded-2xl">
+
+        </View>
       </ScrollView>
     </SafeAreaView>
   )
