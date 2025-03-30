@@ -22,6 +22,8 @@ const CalendarGenerator = () => {
     
     
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August",
+                "September", "October", "November", "December"];
 
     const generateCalendar = () => {
         const newElements: ReactNode[] = [];
@@ -106,11 +108,21 @@ const CalendarGenerator = () => {
     };
 
     const NextMonth = () => {
-        setSelectedMonth(prev => prev+1)
+        if(selectedMonth === 11) {
+            setSelectedMonth(0);
+            setSelectedYear(prev => prev+1);
+        } else {
+            setSelectedMonth(prev => prev+1);
+        }
     }
 
     const PreviousMonth = () => {
-        setSelectedMonth(prev => prev-1)
+        if(selectedMonth === 0) {
+            setSelectedMonth(11);
+            setSelectedYear(prev => prev-1);
+        } else {
+            setSelectedMonth(prev => prev-1);
+        }
     }
 
     useEffect(() => {
@@ -134,7 +146,10 @@ const CalendarGenerator = () => {
                         {"<"}
                     </Text>
                 </TouchableOpacity>
-                <Text className='text-4xl text-text-primary' >{selectedMonth}</Text>
+                <View className='flex flex-row'>
+                    <Text className='text-4xl text-text-primary' >{months[selectedMonth]}</Text>
+                    <Text className='text-4xl text-text-primary' >{selectedYear}</Text>
+                </View>
                 <TouchableOpacity
                     onPress={NextMonth}
                     className='bg-secondary-deep w-10 h-10 flex justify-center items-center'
