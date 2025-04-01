@@ -6,8 +6,7 @@ import CalendarGenerator from '@/components/CalendarGenerator';
 const care = () => {
 
     const getFormattedFullDate = (date: Date) : string => {
-        const months = ["January", "February", "March", "April", "May", "June", "July", "August",
-            "September", "October", "November", "December"];
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
           
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
