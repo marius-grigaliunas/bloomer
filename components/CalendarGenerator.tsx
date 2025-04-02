@@ -62,7 +62,7 @@ const CalendarGenerator = () => {
         // Current month days
         for (let i = 1; i <= dateLast; i++) {
             const day = new Date(selectedYear, selectedMonth, i).getDay();
-            const isToday = i === today && selectedMonth.toString() === todayDate.split('-')[1];
+            const isToday = i === today && selectedMonth.toString() === todayDate.split('-')[1] && selectedYear.toString() === todayDate.split('-')[2];
             
             if (day === 0 || day === 6) {
                 newElements.push(
@@ -132,27 +132,25 @@ const CalendarGenerator = () => {
 
     return (
         <View>
-            <View className="flex flex-row justify-around w-screen h-16  
-                      rounded-2xl items-center bg-background-surface mt-2
-                      " 
+            <View className="flex flex-row justify-center w-screen h-16 rounded-2xl items-center bg-background-surface mt-2 " 
             >
                 <TouchableOpacity
                     onPress={PreviousMonth}
                     onLongPress={PreviousMonth}
-                    className='bg-secondary-deep w-10 h-10 flex justify-center items-center'
+                    className='bg-primary-deep w-10 h-10 rounded-full flex justify-center items-center'
                 >
                     <Text className='text-3xl text-text-primary'
                     >
                         {"<"}
                     </Text>
                 </TouchableOpacity>
-                <View className='flex flex-row'>
-                    <Text className='text-4xl text-text-primary' >{months[selectedMonth]}</Text>
-                    <Text className='text-4xl text-text-primary' >{selectedYear}</Text>
+                <View className='w-64 flex flex-row justify-center'>
+                    <Text className='w-8/12 text-4xl text-text-primary text-center' >{months[selectedMonth]}</Text>
+                    <Text className='w-4/12 text-4xl text-text-primary text-center ' >{selectedYear}</Text>
                 </View>
                 <TouchableOpacity
                     onPress={NextMonth}
-                    className='bg-secondary-deep w-10 h-10 flex justify-center items-center'
+                    className='bg-primary-deep w-10 h-10 rounded-full flex justify-center items-center'
                 >
                     <Text className='text-3xl text-text-primary'
                     >
