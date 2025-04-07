@@ -1,4 +1,4 @@
-import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal } from 'react-native'
+import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal, TouchableOpacity } from 'react-native'
 import React, { useRef, useState, useEffect } from 'react'
 import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
@@ -11,6 +11,7 @@ const { width, height } = Dimensions.get('window');
 
 const identify = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showCamera, setShowCamera] = useState(true); // Start with camera view
   const [cameraPermission, requestCameraPermission] = ExpoCamera.useCameraPermissions();
   const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
   const ref = useRef<ExpoCamera.CameraView>(null);
@@ -80,8 +81,19 @@ const identify = () => {
     }
   }
 
+  const handleIdentify = () => {
+    // Handle identification logic here
+    console.log('Identifying plants...');
+  };
+
+  const switchToSearch = () => {
+    setShowCamera(false);
+    setImageUris(Array(5).fill(null));
+    setCurrentImageIndex(0);
+  };
+
   const renderCamera = () => (
-    <View style={{ width: width, height: height * 0.66, backgroundColor: colors.background.primary}}>
+    <View style={{ width: width, height: height * 0.8, backgroundColor: colors.background.primary}}>
       <ExpoCamera.CameraView 
         style={{ flex: 1 }}
         facing={'back'}
@@ -101,7 +113,7 @@ const identify = () => {
   );
 
   const renderPicture = () => (
-    <View style={{ width: width, height: height * 0.66}}>
+    <View style={{ width: width, height: height * 0.8}}>
       {/* Display only the current image */}
       {imageUris[currentImageIndex] && (
         <Image 
@@ -167,20 +179,49 @@ const identify = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
       <View style={{ flex: 1 }}>
-        <View className="h-24 bg-background-primary rounded-2xl">
-        
-        </View>
-        {imageUris[currentImageIndex] ? renderPicture() : renderCamera()}
-        <View className='mt-10 w-full px-4'>
-          <SearchBar
-            placeholder='Search for your plant'
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-        <View className="h-72 bg-background-primary rounded-2xl">
-        
-        </View>
+        {showCamera ? (
+          // Camera view
+          <View className="flex-1">
+            {imageUris[currentImageIndex] ? renderPicture() : renderCamera()}
+            <View className="px-4 mt-1 space-y-4">
+              <Pressable 
+                className={`p-4 rounded-xl ${imageUris.every(uri => uri !== null) ? 'bg-secondary-medium' : 'bg-gray-400'}`}
+                onPress={handleIdentify}
+                disabled={!imageUris.every(uri => uri !== null)}
+              >
+                <Text className="text-white text-center text-lg font-semibold">
+                  Identify ({imageUris.filter(uri => uri !== null).length}/5 photos)
+                </Text>
+              </Pressable>
+              <TouchableOpacity 
+                className="bg-secondary-deep p-4 mt-3 rounded-xl"
+                onPress={switchToSearch}
+              >
+                <Text className="text-text-primary text-center">
+                  Search your plant instead
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          // Search view
+          <View className="flex-1 mt-10 px-4 pt-8">
+            <Pressable 
+              className="bg-secondary-medium p-4 rounded-xl mb-4"
+              onPress={() => setShowCamera(true)}
+            >
+              <Text className="text-white text-center text-lg font-semibold">
+                Identify with camera
+              </Text>
+            </Pressable>
+            <SearchBar
+              placeholder='Search for your plant'
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+        )}
+        {/* Keep only the replace camera modal */}
         <Modal
           visible={showReplaceCamera}
           animationType="slide"
