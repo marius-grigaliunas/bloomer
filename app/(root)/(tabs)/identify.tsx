@@ -1,4 +1,4 @@
-import { View, Text, Button, Pressable, Image, SafeAreaView, Alert } from 'react-native'
+import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal } from 'react-native'
 import React, { useRef, useState, useEffect } from 'react'
 import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
@@ -16,8 +16,9 @@ const identify = () => {
   const ref = useRef<ExpoCamera.CameraView>(null);
   const [imageUris, setImageUris] = useState<string[]>(Array(5).fill(null));
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [cameraActive, setCameraActive] = useState(true);
+  const [dummyState, setDummyState] = useState(false); // Add a dummy state
   const maxImages = 5;
+  const [showReplaceCamera, setShowReplaceCamera] = useState(false);
 
   useEffect(() => {
     requestMediaPermission();
@@ -43,7 +44,6 @@ const identify = () => {
         if (currentImageIndex < maxImages - 1) {
           setCurrentImageIndex(currentImageIndex + 1);
         } else {
-          setCameraActive(false);
         }
       }
     } catch (error) {
@@ -53,6 +53,10 @@ const identify = () => {
   }
 
   const replacePicture = async () => {
+    setShowReplaceCamera(true);
+  }
+
+  const handleReplacePicture = async () => {
     try {
       if (!mediaPermission?.granted) {
         console.log("No media permission");
@@ -62,13 +66,13 @@ const identify = () => {
 
       const photo = await ref.current?.takePictureAsync();
       if (photo?.uri) {
-        // Save to media library
         await MediaLibrary.saveToLibraryAsync(photo.uri);
         setImageUris(prevUris => {
           const newUris = [...prevUris];
           newUris[currentImageIndex] = photo.uri;
           return newUris;
         });
+        setShowReplaceCamera(false);
       }
     } catch (error) {
       console.error("Error replacing picture:", error);
@@ -87,13 +91,9 @@ const identify = () => {
         <View className='absolute bottom-10 w-full flex-row justify-center'>
           <Pressable 
             onPress={takePicture}
-            disabled={!cameraActive}
             className='w-20 h-20 rounded-full bg-white border-4 border-secondary-medium'
           >
             <View className='flex-1 rounded-full m-1 bg-secondary-medium' />
-            {!cameraActive && (
-              <Text className='absolute text-xs text-red-500'>All Images Taken</Text>
-            )}
           </Pressable>
         </View>
       </ExpoCamera.CameraView>
@@ -102,18 +102,14 @@ const identify = () => {
 
   const renderPicture = () => (
     <View style={{ width: width, height: height * 0.66}}>
-      {imageUris.map((uri, index) => {
-        if (uri === null) return null; // Skip null URIs
-        return (
-          <View key={index} style={{ display: index === currentImageIndex ? 'flex' : 'none', width: '100%', height: '100%' }}>
-            <Image 
-              source={{ uri }}
-              style={{ width: '100%', height: '100%' }}
-              resizeMode='cover'
-            />
-          </View>
-        );
-      })}
+      {/* Display only the current image */}
+      {imageUris[currentImageIndex] && (
+        <Image 
+          source={{ uri: imageUris[currentImageIndex] }}
+          style={{ width: '100%', height: '100%' }}
+          resizeMode='cover'
+        />
+      )}
       <View className='absolute bottom-10 w-full flex-row justify-around'>
         <Pressable 
           className='bg-secondary-medium p-4 rounded-full'
@@ -127,7 +123,6 @@ const identify = () => {
         <Pressable 
           className='bg-secondary-medium p-4 rounded-full'
           onPress={replacePicture}
-          disabled={cameraActive}
         >
           <AntDesign name="camera" size={32} color="white" />
         </Pressable>
@@ -175,7 +170,7 @@ const identify = () => {
         <View className="h-24 bg-background-primary rounded-2xl">
         
         </View>
-        {!cameraActive ? renderPicture() : renderCamera()}
+        {imageUris[currentImageIndex] ? renderPicture() : renderCamera()}
         <View className='mt-10 w-full px-4'>
           <SearchBar
             placeholder='Search for your plant'
@@ -186,6 +181,35 @@ const identify = () => {
         <View className="h-72 bg-background-primary rounded-2xl">
         
         </View>
+        <Modal
+          visible={showReplaceCamera}
+          animationType="slide"
+          onRequestClose={() => setShowReplaceCamera(false)}
+        >
+          <View style={{ flex: 1, backgroundColor: colors.background.primary }}>
+            <ExpoCamera.CameraView 
+              style={{ flex: 1 }}
+              facing={'back'}
+              ref={ref}
+              mode={'picture'}
+            >
+              <View className='absolute bottom-10 w-full flex-row justify-around'>
+                <Pressable 
+                  onPress={() => setShowReplaceCamera(false)}
+                  className='bg-secondary-medium p-4 rounded-full'
+                >
+                  <AntDesign name="close" size={32} color="white" />
+                </Pressable>
+                <Pressable 
+                  onPress={handleReplacePicture}
+                  className='w-20 h-20 rounded-full bg-white border-4 border-secondary-medium'
+                >
+                  <View className='flex-1 rounded-full m-1 bg-secondary-medium' />
+                </Pressable>
+              </View>
+            </ExpoCamera.CameraView>
+          </View>
+        </Modal>
       </View>
     </SafeAreaView>
   );
