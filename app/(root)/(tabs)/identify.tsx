@@ -1,64 +1,117 @@
-import { View, Text, Button, Pressable } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import { View, Text, Button, Pressable, Image, SafeAreaView } from 'react-native'
+import React, { useRef, useState, useEffect } from 'react'
 import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
-import { Permission } from 'react-native-appwrite'
-
+import AntDesign from '@expo/vector-icons/AntDesign';
+import colors from '@/constants/colors';
+import * as MediaLibrary from 'expo-media-library';
 
 const identify = () => {
-
   const [searchQuery, setSearchQuery] = useState("");
   const [cameraPermission, requestCameraPermission] = ExpoCamera.useCameraPermissions();
-  const ref = useRef<ExpoCamera.CameraView>(null)
+  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
+  const ref = useRef<ExpoCamera.CameraView>(null);
   const [uri, setUri] = useState<string | null>(null);
 
+  useEffect(() => {
+    requestMediaPermission();
+  }, []);
+
   const takePicture = async () => {
-    const photo = await ref.current?.takePictureAsync();
-    setUri(photo?.uri ?? null);
+    try {
+      if (!mediaPermission?.granted) {
+        console.log("No media permission");
+        return;
+      }
+
+      const photo = await ref.current?.takePictureAsync();
+      if (photo?.uri) {
+        // Save to media library
+        await MediaLibrary.saveToLibraryAsync(photo.uri);
+        setUri(photo.uri);
+      }
+    } catch (error) {
+      console.error("Error taking picture:", error);
+    }
   }
 
+  const renderCamera = () => (
+    <View style={{ height: 600 , backgroundColor: colors.background.primary }}>
+      <ExpoCamera.CameraView 
+        style={{ flex: 1 }}
+        facing={'back'}
+        ref={ref}
+        mode={'picture'}
+      >
+        <View className='absolute bottom-10 w-full flex-row justify-center'>
+          <Pressable 
+            onPress={takePicture}
+            className='w-20 h-20 rounded-full bg-white border-4 border-secondary-medium'
+          >
+            <View className='flex-1 rounded-full m-1 bg-secondary-medium' />
+          </Pressable>
+        </View>
+      </ExpoCamera.CameraView>
+    </View>
+  );
 
-  if(!cameraPermission) {
-    return null;
-  }
+  const renderPicture = () => (
+    <View style={{ height:600,  }}>
+      <Image 
+        source={{ uri: uri || '' }}
+        style={{ flex: 1 }}
+        resizeMode='cover'
+      />
+      <Pressable 
+        className='absolute bottom-10 self-center bg-secondary-medium p-4 rounded-full'
+        onPress={() => setUri(null)}
+      >
+        <AntDesign name="camera" size={32} color="white" />
+      </Pressable>
+    </View>
+  );
 
-  if(!cameraPermission?.granted) {
+  // Check both permissions
+  if (!cameraPermission || !mediaPermission) {
     return (
-      <View >
-        <Text className='text-3xl text-text-primary'>We need your permission to show the camera</Text>
-        <Button onPress={requestCameraPermission} title="grant permission" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.primary }}>
+        <Text className='text-3xl text-text-primary'>Loading permissions...</Text>
+      </View>
+    );
+  }
+
+  if (!cameraPermission.granted || !mediaPermission.granted) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.primary }}>
+        <Text className='text-3xl text-text-primary mb-4'>We need camera and media permissions</Text>
+        <Button 
+          onPress={async () => {
+            await requestCameraPermission();
+            await requestMediaPermission();
+          }} 
+          title="Grant permissions" 
+        />
       </View>
     );
   }
 
   return (
-    <View className='flex justify-start items-center w-full h-full bg-background-primary'>
-      <ExpoCamera.CameraView 
-        className='flex' 
-        facing={'back'}
-        ref={ref}
-        mode={'picture'}
-        mute={true}
-        responsiveOrientationWhenOrientationLocked
-      >
-        <View className='flex bg-transparent h-4/6 w-screen rounded-full'>
-          <Pressable onPress={takePicture}/>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
+      <View style={{ flex: 1 }}>
+        {uri ? renderPicture() : renderCamera()}
+        <View className='mt-10 w-full px-4'>
+          <SearchBar
+            placeholder='Search for your plant'
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
         </View>
-      </ExpoCamera.CameraView>
-      <View className='flex justify-center items-center w-screen mt-5'>
-        <SearchBar
-          placeholder='Search for your plant'
-          value={searchQuery}
-          onChangeText={(text: string) => setSearchQuery(text)}
-        />
-        <Text
-          className='text-3xl text-text-primary'
-        >
-          {searchQuery}
-        </Text>
+        <View className="h-72 bg-background-primary rounded-2xl">
+        
+        </View>
       </View>
-    </View>
-  )
+    </SafeAreaView>
+  );
 }
 
-export default identify
+export default identify;
