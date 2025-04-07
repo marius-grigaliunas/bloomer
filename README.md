@@ -26,7 +26,7 @@
     - [ ] Design Plant Collection with care requirements
     - [ ] Design WateringSchedule Collection
 - **Days 5-7:** API planning
-    - [ ] Research OpenAI Vision API for plant identification
+    - [x] Research PlantApi for plant identification
     - Create API key and test with sample images
     - Map out required Appwrite functions and endpoints
 
@@ -48,9 +48,9 @@
 ### Week 3: Basic Mobile App (Mar 24-30)
 
 - **Days 1-2:** App navigation and UI skeleton
-    - [...] Design The UI
-    - [ ] Set up React Navigation
-    - [ ] Create basic screen components
+    - [x] Design The UI
+    - [x] Set up React Navigation
+    - [x] Create basic screen components
 - **Days 3-4:** Authentication screens
     - [x] Implement login/signup UI
     - [x] Connect to Appwrite Auth SDK
@@ -63,10 +63,9 @@
 
 - **Days 1-3:** Camera integration
     - Implement image capture functionality
-    - Set up image upload to Appwrite Storage
-    - Create feedback UI for processing
+    - Send captured images to pl@nt.net api
+    - build the result view
 - **Days 4-7:** Plant identification with AI
-    - Create Appwrite Function to call OpenAI Vision API
     - Implement response parsing to extract structured data
     - Build results display component
     - Create "add identified plant to collection" flow
