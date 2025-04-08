@@ -17,7 +17,6 @@ const identify = () => {
   const ref = useRef<ExpoCamera.CameraView>(null);
   const [imageUris, setImageUris] = useState<string[]>(Array(5).fill(null));
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [dummyState, setDummyState] = useState(false); // Add a dummy state
   const maxImages = 5;
   const [showReplaceCamera, setShowReplaceCamera] = useState(false);
 
