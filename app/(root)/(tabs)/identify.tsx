@@ -6,6 +6,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import colors from '@/constants/colors';
 import * as FileSystem from 'expo-file-system';
 import { Dimensions } from 'react-native';
+import { PlantIdentificationResponse, identifyPlants } from '@/lib/services/plantNetService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -18,6 +19,14 @@ const identify = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const maxImages = 5;
   const [showReplaceCamera, setShowReplaceCamera] = useState(false);
+
+  // Add loading state
+  const [isIdentifying, setIsIdentifying] = useState(false);
+  const [identificationError, setIdentificationError] = useState<string | null>(null);
+  const [bestMatch, setBestMatch] = useState<string>("")
+  const [commonName, setCommonName] = useState<string>("")
+  const [confidence, setConfidence] = useState<number>(0)
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     // Store the URIs that exist when the effect runs
@@ -95,9 +104,43 @@ const identify = () => {
     }
   }
 
-  const handleIdentify = () => {
-    // Handle identification logic here
-    console.log('Identifying plants...');
+  const handleIdentify = async () => {
+    try {
+      setIsIdentifying(true);
+      setIdentificationError(null);
+      
+      // Filter out null values and get valid URIs
+      const validImageUris = imageUris.filter((uri): uri is string => uri !== null);
+      
+      if (validImageUris.length === 0) {
+        throw new Error('No images to identify');
+      }
+
+      const results = await identifyPlants(validImageUris);
+      
+      setBestMatch(results.bestMatch);
+      setCommonName(results.commonName ?? '');
+      setConfidence(results.confidence);
+      setShowResults(true); // Show results after successful identification
+
+      console.log(results)
+
+    } catch (error) {
+      console.error('Identification failed:', error);
+      setIdentificationError(error instanceof Error ? error.message : 'Failed to identify plants');
+    } finally {
+      setIsIdentifying(false);
+    }
+  };
+
+  const resetIdentification = () => {
+    setShowResults(false);
+    setImageUris(Array(5).fill(null));
+    setCurrentImageIndex(0);
+    setBestMatch('');
+    setCommonName('');
+    setConfidence(0);
+    setIdentificationError(null);
   };
 
   const switchToSearch = () => {
@@ -166,6 +209,40 @@ const identify = () => {
     </View>
   );
 
+  const renderResults = () => (
+    <View className="flex-1 p-4 bg-background-surface rounded-xl m-4">
+      <View className="space-y-4">
+        <Text className="text-text-primary text-2xl font-bold">Results</Text>
+        
+        <View className="space-y-2">
+          <Text className="text-text-primary text-xl">Scientific Name:</Text>
+          <Text className="text-text-secondary text-lg">{bestMatch}</Text>
+        </View>
+
+        {commonName && (
+          <View className="space-y-2">
+            <Text className="text-text-primary text-xl">Common Name:</Text>
+            <Text className="text-text-secondary text-lg">{commonName}</Text>
+          </View>
+        )}
+
+        <View className="space-y-2">
+          <Text className="text-text-primary text-xl">Confidence:</Text>
+          <Text className="text-text-secondary text-lg">{(confidence * 100).toFixed(1)}%</Text>
+        </View>
+
+        <TouchableOpacity 
+          className="bg-secondary-medium p-4 rounded-xl mt-8"
+          onPress={resetIdentification}
+        >
+          <Text className="text-text-primary text-center text-lg font-semibold">
+            Identify Another Plant
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   // Check camera permission
   if (!cameraPermission) {
     return (
@@ -192,7 +269,9 @@ const identify = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
       <View style={{ flex: 1 }}>
-        {showCamera ? (
+        {showResults ? (
+          renderResults()
+        ) : showCamera ? (
           // Camera view
           <View className="flex-1">
             {imageUris[currentImageIndex] ? renderPicture() : renderCamera()}
@@ -200,12 +279,17 @@ const identify = () => {
               <Pressable 
                 className={`p-4 rounded-xl ${imageUris.every(uri => uri !== null) ? 'bg-secondary-medium' : 'bg-gray-400'}`}
                 onPress={handleIdentify}
-                disabled={!imageUris.every(uri => uri !== null)}
+                disabled={!imageUris.every(uri => uri !== null) || isIdentifying}
               >
                 <Text className="text-white text-center text-lg font-semibold">
-                  Identify ({imageUris.filter(uri => uri !== null).length}/5 photos)
+                  {isIdentifying ? 'Identifying...' : `Identify (${imageUris.filter(uri => uri !== null).length}/5 photos)`}
                 </Text>
               </Pressable>
+              {identificationError && (
+                <Text className="text-red-500 text-center mt-2">
+                  {identificationError}
+                </Text>
+              )}
               <TouchableOpacity 
                 className="bg-secondary-deep p-4 mt-3 rounded-xl"
                 onPress={switchToSearch}
