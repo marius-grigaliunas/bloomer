@@ -47,27 +47,43 @@ export async function identifyPlants(imageUris: string[]):Promise<PlantIdentific
 
             // Print the raw response to the console for debugging
         console.log('PlantNet API raw response:', JSON.stringify(responseJSON, null, 2));
+
+            // You can also log specific nested objects to inspect them
+        if (responseJSON.results && responseJSON.results.length > 0) {
+        console.log('First result details:', JSON.stringify(responseJSON.results[0], null, 2));
+        }
         
         // Extract only the needed information
         let bestMatch = '';
         let commonName = null;
         let confidence = 0;
         
-        // Check if bestMatch field exists directly in the response
-        if (responseJSON.bestMatch) {
-          bestMatch = responseJSON.bestMatch;
-        } 
-        // Otherwise use the top result with highest score
-        else if (responseJSON.results && responseJSON.results.length > 0) {
-          const topResult = responseJSON.results[0];
-          bestMatch = topResult.species.scientificNameWithoutAuthor;
-          confidence = topResult.score;
+    // Get the bestMatch directly if available
+    if (responseJSON.bestMatch) {
+        bestMatch = responseJSON.bestMatch;
+      }
+      
+      // Get details from the top result
+      if (responseJSON.results && responseJSON.results.length > 0) {
+        const topResult = responseJSON.results[0];
         
-          // Get the first common name if available
-          if (topResult.species.commonNames && topResult.species.commonNames.length > 0) {
-            commonName = topResult.species.commonNames[0];
-          }
+        // If we didn't get a bestMatch, use the scientific name from the top result
+        if (!bestMatch && topResult.species && topResult.species.scientificName) {
+          bestMatch = topResult.species.scientificName;
         }
+        
+        // Get the confidence score
+        if (topResult.score !== undefined) {
+          confidence = topResult.score;
+        }
+        
+        // Get the first common name if available
+        if (topResult.species && 
+            topResult.species.commonNames && 
+            topResult.species.commonNames.length > 0) {
+          commonName = topResult.species.commonNames[0];
+        }
+      }
 
         return {
           bestMatch,
