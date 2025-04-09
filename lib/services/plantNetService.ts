@@ -2,7 +2,7 @@ import * as FileSystem from 'expo-file-system';
 
 export interface PlantIdentificationResponse {
     bestMatch: string;
-    commonName: string | null;
+    commonNames: string[] | null;
     confidence: number;
     rawResponse: any; // This will hold the complete response
 }
@@ -55,7 +55,7 @@ export async function identifyPlants(imageUris: string[]):Promise<PlantIdentific
         
         // Extract only the needed information
         let bestMatch = '';
-        let commonName = null;
+        let commonNames = [''];
         let confidence = 0;
         
     // Get the bestMatch directly if available
@@ -81,13 +81,13 @@ export async function identifyPlants(imageUris: string[]):Promise<PlantIdentific
         if (topResult.species && 
             topResult.species.commonNames && 
             topResult.species.commonNames.length > 0) {
-          commonName = topResult.species.commonNames[0];
+          commonNames = topResult.species.commonNames;
         }
       }
 
         return {
           bestMatch,
-          commonName,
+          commonNames,
           confidence,
           rawResponse: responseJSON
         };

@@ -24,7 +24,7 @@ const identify = () => {
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [identificationError, setIdentificationError] = useState<string | null>(null);
   const [bestMatch, setBestMatch] = useState<string>("")
-  const [commonName, setCommonName] = useState<string>("")
+  const [commonNames, setCommonNames] = useState<string[]>([""])
   const [confidence, setConfidence] = useState<number>(0)
   const [showResults, setShowResults] = useState(false);
 
@@ -119,7 +119,7 @@ const identify = () => {
       const results = await identifyPlants(validImageUris);
       
       setBestMatch(results.bestMatch);
-      setCommonName(results.commonName ?? '');
+      setCommonNames(results.commonNames ?? ['']);
       setConfidence(results.confidence);
       setShowResults(true); // Show results after successful identification
 
@@ -138,7 +138,7 @@ const identify = () => {
     setImageUris(Array(5).fill(null));
     setCurrentImageIndex(0);
     setBestMatch('');
-    setCommonName('');
+    setCommonNames(['']);
     setConfidence(0);
     setIdentificationError(null);
   };
@@ -219,10 +219,16 @@ const identify = () => {
           <Text className="text-text-secondary text-lg">{bestMatch}</Text>
         </View>
 
-        {commonName && (
+        {commonNames && (
           <View className="space-y-2">
-            <Text className="text-text-primary text-xl">Common Name:</Text>
-            <Text className="text-text-secondary text-lg">{commonName}</Text>
+            <Text className="text-text-primary text-xl">Common Names:</Text>
+            {
+              commonNames.map(name => {
+                return (
+                  <Text className="text-text-primary text-lg">{name}</Text>
+                )
+              })
+            }
           </View>
         )}
 

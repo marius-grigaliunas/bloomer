@@ -1,13 +1,8 @@
 import { View, Text, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as ExpoLocation from 'expo-location'
+import { WeatherProps, getWeather } from '@/lib/services/weatherApiService'
 
-interface WeatherProps {
-    location: string
-    temperature: number;
-    description: string;
-    descriptionIcon: string; 
-}
 
 const WeatherComponent = () => {
     const [weather, setWeather] = useState<WeatherProps | null>(null);
@@ -17,29 +12,15 @@ const WeatherComponent = () => {
         (async () => {
             const {status} = await ExpoLocation.requestForegroundPermissionsAsync();
             if(status !== 'granted') {
-                setErrorMessage("Location acess denied");
+                setErrorMessage("Location access denied");
                 return
             } 
 
-            const location = await ExpoLocation.getCurrentPositionAsync({});
-            const {latitude, longitude} = location.coords;
-
-            try {
-                const weatherUrl = `${process.env.EXPO_PUBLIC_WEATHERAPI_ENDPOINT}key=${process.env.EXPO_PUBLIC_WEATHERAPI_API_KEY}&q=${latitude},${longitude}&aqi=no`                 
-                const response = await fetch(weatherUrl);
-
-                const data = await response.json();
-                const weatherData = {
-                    location: data.location.name,
-                    temperature: data.current.temp_c,
-                    description: data.current.condition.text,
-                    descriptionIcon: data.current.condition.icon
-                };
-
-                setWeather(weatherData);
-            } catch (error) {
-                console.error(error);
-                setErrorMessage("Failed to get weather data");
+            const result = await getWeather();
+            if (typeof result === 'string') {
+                setErrorMessage(result);
+            } else {
+                setWeather(result);
             }
         })();
     }, []);
