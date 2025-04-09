@@ -4,7 +4,7 @@ import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import colors from '@/constants/colors';
-import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from 'expo-file-system';
 import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -13,7 +13,6 @@ const identify = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCamera, setShowCamera] = useState(true); // Start with camera view
   const [cameraPermission, requestCameraPermission] = ExpoCamera.useCameraPermissions();
-  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
   const ref = useRef<ExpoCamera.CameraView>(null);
   const [imageUris, setImageUris] = useState<string[]>(Array(5).fill(null));
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -21,29 +20,39 @@ const identify = () => {
   const [showReplaceCamera, setShowReplaceCamera] = useState(false);
 
   useEffect(() => {
-    requestMediaPermission();
+    // Store the URIs that exist when the effect runs
+    const currentUris = [...imageUris];
+    
+    return () => {
+      // Synchronously start deletion of all files
+      currentUris.forEach(uri => {
+        if (uri) {
+          FileSystem.deleteAsync(uri, { idempotent: true })
+            .catch(error => console.log('Error cleaning up temp file:', error));
+        }
+      });
+    };
   }, []);
 
   const takePicture = async () => {
     try {
-      if (!mediaPermission?.granted) {
-        console.log("No media permission");
-        Alert.alert("Permission Denied", "Please grant media permission to save photos.");
-        return;
-      }
-
       const photo = await ref.current?.takePictureAsync();
       if (photo?.uri) {
-        // Save to media library
-        await MediaLibrary.saveToLibraryAsync(photo.uri);
+        // Move the photo to temporary directory
+        const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}.jpg`;
+        await FileSystem.moveAsync({
+          from: photo.uri,
+          to: tempUri
+        });
+
         setImageUris(prevUris => {
           const newUris = [...prevUris];
-          newUris[currentImageIndex] = photo.uri;
+          newUris[currentImageIndex] = tempUri;
           return newUris;
         });
+        
         if (currentImageIndex < maxImages - 1) {
           setCurrentImageIndex(currentImageIndex + 1);
-        } else {
         }
       }
     } catch (error) {
@@ -58,18 +67,24 @@ const identify = () => {
 
   const handleReplacePicture = async () => {
     try {
-      if (!mediaPermission?.granted) {
-        console.log("No media permission");
-        Alert.alert("Permission Denied", "Please grant media permission to replace photos.");
-        return;
-      }
-
       const photo = await ref.current?.takePictureAsync();
       if (photo?.uri) {
-        await MediaLibrary.saveToLibraryAsync(photo.uri);
+        // Delete existing temporary file if it exists
+        const oldUri = imageUris[currentImageIndex];
+        if (oldUri) {
+          await FileSystem.deleteAsync(oldUri, { idempotent: true });
+        }
+
+        // Move new photo to temporary directory
+        const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}.jpg`;
+        await FileSystem.moveAsync({
+          from: photo.uri,
+          to: tempUri
+        });
+
         setImageUris(prevUris => {
           const newUris = [...prevUris];
-          newUris[currentImageIndex] = photo.uri;
+          newUris[currentImageIndex] = tempUri;
           return newUris;
         });
         setShowReplaceCamera(false);
@@ -151,8 +166,8 @@ const identify = () => {
     </View>
   );
 
-  // Check both permissions
-  if (!cameraPermission || !mediaPermission) {
+  // Check camera permission
+  if (!cameraPermission) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.primary }}>
         <Text className='text-3xl text-text-primary'>Loading permissions...</Text>
@@ -160,14 +175,13 @@ const identify = () => {
     );
   }
 
-  if (!cameraPermission.granted || !mediaPermission.granted) {
+  if (!cameraPermission.granted) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.primary }}>
-        <Text className='text-3xl text-text-primary mb-4'>We need camera and media permissions</Text>
+        <Text className='text-3xl text-text-primary mb-4'>We need camera permissions</Text>
         <Button 
           onPress={async () => {
             await requestCameraPermission();
-            await requestMediaPermission();
           }} 
           title="Grant permissions" 
         />

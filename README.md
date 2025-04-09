@@ -63,7 +63,7 @@
 
 - **Days 1-3:** Camera integration
     - Implement image capture functionality
-    - Send captured images to pl@nt.net api
+    - Send captured images to pl@nt.net api, for now direct api call, later needs a protected api route
     - build the result view
 - **Days 4-7:** Plant identification with AI
     - Implement response parsing to extract structured data
