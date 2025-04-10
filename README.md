@@ -62,13 +62,14 @@
 ### Week 4: Core Features (Mar 31-Apr 6)
 
 - **Days 1-3:** Camera integration
-    - Implement image capture functionality
-    - Send captured images to pl@nt.net api, for now direct api call, later needs a protected api route
-    - build the result view
-- **Days 4-7:** Plant identification with AI
-    - Implement response parsing to extract structured data
-    - Build results display component
-    - Create "add identified plant to collection" flow
+    - [x] Implement image capture functionality
+    - [x] Send captured images to pl@nt.net api, for now direct api call,
+    - [ ] later needs a protected api route
+    - [...] build the result view
+- **Days 4-7:** Plant care with AI
+    - [...] Implement response parsing to extract structured data
+    - [...] Build results display component
+    - [...] Create "add identified plant to collection" flow
 
 ### Week 5: Scheduling and Notifications (Apr 7-13)
 
@@ -95,3 +96,4 @@
     - User testing
     - Create README and documentation
     - Prepare for deployment
+    - Deploy

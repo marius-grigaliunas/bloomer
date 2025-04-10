@@ -27,6 +27,7 @@ export default function Index() {
         setCurrentUser(userData)
       })
     }
+
   }, [isLoggedIn])
   
   return (

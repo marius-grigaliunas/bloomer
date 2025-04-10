@@ -7,6 +7,9 @@ import colors from '@/constants/colors';
 import * as FileSystem from 'expo-file-system';
 import { Dimensions } from 'react-native';
 import { PlantIdentificationResponse, identifyPlants } from '@/lib/services/plantNetService';
+import { getPlantCareInfo, PlantCareInfo } from '@/lib/services/chutesService/deepseekService';
+import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,6 +30,7 @@ const identify = () => {
   const [commonNames, setCommonNames] = useState<string[]>([""])
   const [confidence, setConfidence] = useState<number>(0)
   const [showResults, setShowResults] = useState(false);
+  const [plantCareInfo, setPlantCareInfo] = useState<PlantCareInfo | null>(null);
 
   useEffect(() => {
     // Store the URIs that exist when the effect runs
@@ -118,12 +122,20 @@ const identify = () => {
 
       const results = await identifyPlants(validImageUris);
       
-      setBestMatch(results.bestMatch);
-      setCommonNames(results.commonNames ?? ['']);
+      
+      // Store results in variables first
+      const scientificName = results.bestMatch;
+      const plantCommonNames = results.commonNames ?? [''];
+      
+      // Update state
+      setBestMatch(scientificName);
+      setCommonNames(plantCommonNames);
       setConfidence(results.confidence);
-      setShowResults(true); // Show results after successful identification
+      setShowResults(true);
 
-      console.log(results)
+      // Call getPlantCareInfo with the actual values, not the state
+      const careInfo = await getPlantCareInfo(scientificName, plantCommonNames);
+      setPlantCareInfo(careInfo || null);
 
     } catch (error) {
       console.error('Identification failed:', error);
@@ -133,20 +145,59 @@ const identify = () => {
     }
   };
 
-  const resetIdentification = () => {
-    setShowResults(false);
-    setImageUris(Array(5).fill(null));
-    setCurrentImageIndex(0);
-    setBestMatch('');
-    setCommonNames(['']);
-    setConfidence(0);
-    setIdentificationError(null);
+  const resetIdentification = async () => {
+    try {
+      // Delete all existing images first
+      const deletePromises = imageUris.map(uri => {
+        if (uri) {
+          return FileSystem.deleteAsync(uri, { idempotent: true })
+            .catch(error => console.log('Error deleting file:', error));
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all(deletePromises);
+      
+      // Reset all states only after files are deleted
+      setShowResults(false);
+      setImageUris(Array(5).fill(null));
+      setCurrentImageIndex(0);
+      setBestMatch('');
+      setCommonNames(['']);
+      setConfidence(0);
+      setIdentificationError(null);
+      setShowCamera(true);
+    } catch (error) {
+      console.error('Error resetting identification:', error);
+    }
   };
 
-  const switchToSearch = () => {
-    setShowCamera(false);
-    setImageUris(Array(5).fill(null));
-    setCurrentImageIndex(0);
+  const switchToSearch = async () => {
+    await resetIdentification(); // This already sets showCamera to true
+    setShowCamera(false); // Then we set it to false for search view
+  };
+
+  // Create a new function for switching back to camera
+  const switchToCamera = async () => {
+    try {
+      // First, delete any existing images
+      const deletePromises = imageUris.map(uri => {
+        if (uri) {
+          return FileSystem.deleteAsync(uri, { idempotent: true })
+            .catch(error => console.log('Error deleting file:', error));
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all(deletePromises);
+      
+      // Then reset all states
+      setImageUris(Array(5).fill(null));
+      setCurrentImageIndex(0);
+      setShowCamera(true);
+    } catch (error) {
+      console.error('Error switching to camera:', error);
+    }
   };
 
   const renderCamera = () => (
@@ -210,7 +261,7 @@ const identify = () => {
   );
 
   const renderResults = () => (
-    <View className="flex-1 p-4 bg-background-surface rounded-xl m-4">
+    <View className="flex-1 p-4 bg-background-surface rounded-xl m-1 mt-10">
       <View className="space-y-4">
         <Text className="text-text-primary text-2xl font-bold">Results</Text>
         
@@ -223,9 +274,9 @@ const identify = () => {
           <View className="space-y-2">
             <Text className="text-text-primary text-xl">Common Names:</Text>
             {
-              commonNames.map(name => {
+              commonNames.map((name, index) => {
                 return (
-                  <Text className="text-text-primary text-lg">{name}</Text>
+                  <Text key={index} className="text-text-primary text-lg">{name}</Text>
                 )
               })
             }
@@ -236,6 +287,8 @@ const identify = () => {
           <Text className="text-text-primary text-xl">Confidence:</Text>
           <Text className="text-text-secondary text-lg">{(confidence * 100).toFixed(1)}%</Text>
         </View>
+
+        <PlantCareInfoComponent plantCareInfo={plantCareInfo} />
 
         <TouchableOpacity 
           className="bg-secondary-medium p-4 rounded-xl mt-8"
@@ -311,7 +364,7 @@ const identify = () => {
           <View className="flex-1 mt-10 px-4 pt-8">
             <Pressable 
               className="bg-secondary-medium p-4 rounded-xl mb-4"
-              onPress={() => setShowCamera(true)}
+              onPress={switchToCamera} // Changed from setShowCamera(true)
             >
               <Text className="text-white text-center text-lg font-semibold">
                 Identify with camera

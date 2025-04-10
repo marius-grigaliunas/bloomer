@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { getCurrentUser, logout } from '@/lib/appwrite'
 import { useGlobalContext } from '@/lib/globalProvider'
+import { testChutesConnection } from "@/lib/services/chutesService/testChutesConnection";
+
 
 
 const Profile = () => {
@@ -45,6 +47,16 @@ const Profile = () => {
                   >
                       <View>
                           <Text className='text-2xl text-text-primary'>Sign Out</Text>
+                      </View>
+                  </TouchableOpacity>
+              </View>
+              <View className='flex justify-center items-center'>
+                  <TouchableOpacity onPress={testChutesConnection}
+                      className="bg-primary shadow-emerald-50 shadow-md rounded-full
+                          w-80 h-20 mt-20 border-accent border-2 flex justify-center items-center"
+                  >
+                      <View>
+                          <Text className='text-2xl text-text-primary'>Test</Text>
                       </View>
                   </TouchableOpacity>
               </View>
