@@ -27,7 +27,7 @@
     - [ ] Design WateringSchedule Collection
 - **Days 5-7:** API planning
     - [x] Research PlantApi for plant identification
-    - Create API key and test with sample images
+    - [x] Create API key and test with sample images
     - Map out required Appwrite functions and endpoints
 
 ### Week 2: Appwrite Integration & Authentication (Mar 17-23)
@@ -41,9 +41,7 @@
     - [ ] Set up security rules and permissions
     - [ ] Create indexes for efficient queries
 - **Days 6-7:** Storage configuration
-    - Set up Appwrite Storage buckets for plant images
     - Configure file permissions
-    - Test upload and retrieval
 
 ### Week 3: Basic Mobile App (Mar 24-30)
 
@@ -96,4 +94,4 @@
     - User testing
     - Create README and documentation
     - Prepare for deployment
-    - Deploy
+    - Deploy 
