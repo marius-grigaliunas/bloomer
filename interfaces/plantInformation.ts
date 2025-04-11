@@ -1,12 +1,10 @@
 import { create } from 'zustand'
 import { PlantCareInfo } from '@/lib/services/chutesService/deepseekService'
+import { Plant } from './interfaces';
 
 interface PlantInformation {
     identifiedPlant: {
-        scientificName: string;
-        commonNames: string[];
-        confidence: number;
-        careInfo: PlantCareInfo | null;
+        plant: Plant;
       } | null;
       setIdentifiedPlant: (plant: any) => void;
       clearIdentifiedPlant: () => void;

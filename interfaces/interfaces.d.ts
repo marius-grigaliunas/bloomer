@@ -4,6 +4,13 @@ export interface User extends Models.User<Models.Preferences>{
   avatar?: string;
 }
 
+export interface Plant {
+  scientificName: string;
+  commonNames: string[];
+  confidence: number;
+  careInfo: PlantCareInfo | null;
+}
+
 /*
 $id: string;
   $createdAt: string;

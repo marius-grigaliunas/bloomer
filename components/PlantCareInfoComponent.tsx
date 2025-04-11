@@ -1,45 +1,85 @@
-import { View, Text } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { PlantCareInfo } from '@/lib/services/chutesService/deepseekService'
+import { Plant } from '@/interfaces/interfaces';
+import { usePlantInformation } from '@/interfaces/plantInformation';
+import { router } from 'expo-router';
 
-interface PlantCareInfoComponentProps {
-  plantCareInfo: PlantCareInfo| null;
+interface plantComponentProps {
+  plant: Plant| null;
 }
 
-const PlantCareInfoComponent: React.FC<PlantCareInfoComponentProps> = ({ plantCareInfo }) => {
-  if (!plantCareInfo) return null;
+const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
+  if (!plant) return null;
+
+  const handleResetIdentification = () => {
+    usePlantInformation(state => state.clearIdentifiedPlant);
+    router.replace('/(root)/(tabs)/identify');
+  }
+
+  const { scientificName, commonNames, confidence, careInfo } = plant;
 
   return (
     <View>
+      <View className="flex-1 p-4 bg-background-surface rounded-xl m-1 mt-10">
         <View className="space-y-4">
-          <Text className="text-text-primary text-2xl font-bold">Care Instructions</Text>
-
-          <View className="space-y-2"></View>
-            <Text className="text-text-primary text-xl">Watering:</Text>
-            <Text className="text-text-secondary text-lg">{plantCareInfo.wateringFrequency}</Text>
+          <Text className="text-text-primary text-2xl font-bold">Results</Text>
+          <View className="space-y-2">
+            <Text className="text-text-primary text-xl">Scientific Name:</Text>
+            <Text className="text-text-secondary text-lg">{scientificName}</Text>
           </View>
+
+          {commonNames && (
+            <View className="space-y-2">
+              <Text className="text-text-primary text-xl">Common Names:</Text>
+              {
+                commonNames.map((name, index) => {
+                  return (
+                    <Text key={index} className="text-text-primary text-lg">{name}</Text>
+                  )
+                })
+              }
+            </View>
+          )}
 
           <View className="space-y-2">
-            <Text className="text-text-primary text-xl">Light Requirements:</Text>
-            <Text className="text-text-secondary text-lg">{plantCareInfo.lightRequirements}</Text>
+            <Text className="text-text-primary text-xl">Confidence:</Text>
+            <Text className="text-text-secondary text-lg">{(confidence * 100).toFixed(1)}%</Text>
           </View>
 
-          <View className="space-y-2">
-            <Text className="text-text-primary text-xl">SoilPreferences:</Text>
-            <Text className="text-text-secondary text-lg">{plantCareInfo.soilPreferences}</Text>
-          </View>
-
-          <View className="space-y-2">
-            <Text className="text-text-primary text-xl">Common Issues:</Text>
-            <Text className="text-text-secondary text-lg">{plantCareInfo.commonIssues}</Text>
-          </View>
-
-          <View className="space-y-2">
-            <Text className="text-text-primary text-xl">Additional Care:</Text>
-            <Text className="text-text-secondary text-lg">{plantCareInfo.specialNotes}</Text>
-          </View>
+          <TouchableOpacity 
+            className="bg-secondary-medium p-4 rounded-xl mt-8"
+            onPress={handleResetIdentification}
+          >
+            <Text className="text-text-primary text-center text-lg font-semibold">
+              Identify Another Plant
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View className="space-y-4">
+        <Text className="text-text-primary text-2xl font-bold">Care Instructions</Text>
+        <View className="space-y-2"></View>
+          <Text className="text-text-primary text-xl">Watering:</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo.wateringFrequency}</Text>
+        </View>
+        <View className="space-y-2">
+          <Text className="text-text-primary text-xl">Light Requirements:</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo.lightRequirements}</Text>
+        </View>
+        <View className="space-y-2">
+          <Text className="text-text-primary text-xl">SoilPreferences:</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo.soilPreferences}</Text>
+        </View>
+        <View className="space-y-2">
+          <Text className="text-text-primary text-xl">Common Issues:</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo.commonIssues}</Text>
+        </View>
+        <View className="space-y-2">
+          <Text className="text-text-primary text-xl">Additional Care:</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo.specialNotes}</Text>
+        </View>
     </View>
   )
 }
 
-export default PlantCareInfoComponent
+export default plantComponent

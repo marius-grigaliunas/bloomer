@@ -6,10 +6,10 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import colors from '@/constants/colors';
 import * as FileSystem from 'expo-file-system';
 import { Dimensions } from 'react-native';
-import { PlantIdentificationResponse, identifyPlants } from '@/lib/services/plantNetService';
-import { getPlantCareInfo, PlantCareInfo } from '@/lib/services/chutesService/deepseekService';
-import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
-
+import { identifyPlants } from '@/lib/services/plantNetService';
+import { getPlantCareInfo } from '@/lib/services/chutesService/deepseekService';
+import { usePlantInformation } from '@/interfaces/plantInformation';
+import { router } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,11 +26,6 @@ const identify = () => {
   // Add loading state
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [identificationError, setIdentificationError] = useState<string | null>(null);
-  const [bestMatch, setBestMatch] = useState<string>("")
-  const [commonNames, setCommonNames] = useState<string[]>([""])
-  const [confidence, setConfidence] = useState<number>(0)
-  const [showResults, setShowResults] = useState(false);
-  const [plantCareInfo, setPlantCareInfo] = useState<PlantCareInfo | null>(null);
 
   useEffect(() => {
     // Store the URIs that exist when the effect runs
@@ -121,21 +116,18 @@ const identify = () => {
       }
 
       const results = await identifyPlants(validImageUris);
-      
-      
-      // Store results in variables first
       const scientificName = results.bestMatch;
       const plantCommonNames = results.commonNames ?? [''];
-      
-      // Update state
-      setBestMatch(scientificName);
-      setCommonNames(plantCommonNames);
-      setConfidence(results.confidence);
-      setShowResults(true);
-
-      // Call getPlantCareInfo with the actual values, not the state
       const careInfo = await getPlantCareInfo(scientificName, plantCommonNames);
-      setPlantCareInfo(careInfo || null);
+
+      usePlantInformation.getState().setIdentifiedPlant({
+        scientificName,
+        commonNames: plantCommonNames,
+        confidence: results.commonNames,
+        careInfo
+      })
+
+      router.push(`/plants/${encodeURIComponent(scientificName)}`)
 
     } catch (error) {
       console.error('Identification failed:', error);
@@ -159,12 +151,8 @@ const identify = () => {
       await Promise.all(deletePromises);
       
       // Reset all states only after files are deleted
-      setShowResults(false);
       setImageUris(Array(5).fill(null));
       setCurrentImageIndex(0);
-      setBestMatch('');
-      setCommonNames(['']);
-      setConfidence(0);
       setIdentificationError(null);
       setShowCamera(true);
     } catch (error) {
@@ -177,7 +165,6 @@ const identify = () => {
     setShowCamera(false); // Then we set it to false for search view
   };
 
-  // Create a new function for switching back to camera
   const switchToCamera = async () => {
     try {
       // First, delete any existing images
@@ -260,48 +247,6 @@ const identify = () => {
     </View>
   );
 
-  const renderResults = () => (
-    <View className="flex-1 p-4 bg-background-surface rounded-xl m-1 mt-10">
-      <View className="space-y-4">
-        <Text className="text-text-primary text-2xl font-bold">Results</Text>
-        
-        <View className="space-y-2">
-          <Text className="text-text-primary text-xl">Scientific Name:</Text>
-          <Text className="text-text-secondary text-lg">{bestMatch}</Text>
-        </View>
-
-        {commonNames && (
-          <View className="space-y-2">
-            <Text className="text-text-primary text-xl">Common Names:</Text>
-            {
-              commonNames.map((name, index) => {
-                return (
-                  <Text key={index} className="text-text-primary text-lg">{name}</Text>
-                )
-              })
-            }
-          </View>
-        )}
-
-        <View className="space-y-2">
-          <Text className="text-text-primary text-xl">Confidence:</Text>
-          <Text className="text-text-secondary text-lg">{(confidence * 100).toFixed(1)}%</Text>
-        </View>
-
-        <PlantCareInfoComponent plantCareInfo={plantCareInfo} />
-
-        <TouchableOpacity 
-          className="bg-secondary-medium p-4 rounded-xl mt-8"
-          onPress={resetIdentification}
-        >
-          <Text className="text-text-primary text-center text-lg font-semibold">
-            Identify Another Plant
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
   // Check camera permission
   if (!cameraPermission) {
     return (
@@ -328,9 +273,7 @@ const identify = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
       <View style={{ flex: 1 }}>
-        {showResults ? (
-          renderResults()
-        ) : showCamera ? (
+        {showCamera ? (
           // Camera view
           <View className="flex-1">
             {imageUris[currentImageIndex] ? renderPicture() : renderCamera()}
@@ -338,7 +281,7 @@ const identify = () => {
               <Pressable 
                 className={`p-4 rounded-xl ${imageUris.every(uri => uri !== null) ? 'bg-secondary-medium' : 'bg-gray-400'}`}
                 onPress={handleIdentify}
-                disabled={!imageUris.every(uri => uri !== null) || isIdentifying}
+                disabled={!imageUris.some(uri => uri !== null) || isIdentifying}
               >
                 <Text className="text-white text-center text-lg font-semibold">
                   {isIdentifying ? 'Identifying...' : `Identify (${imageUris.filter(uri => uri !== null).length}/5 photos)`}
@@ -364,7 +307,7 @@ const identify = () => {
           <View className="flex-1 mt-10 px-4 pt-8">
             <Pressable 
               className="bg-secondary-medium p-4 rounded-xl mb-4"
-              onPress={switchToCamera} // Changed from setShowCamera(true)
+              onPress={switchToCamera}
             >
               <Text className="text-white text-center text-lg font-semibold">
                 Identify with camera
@@ -377,7 +320,7 @@ const identify = () => {
             />
           </View>
         )}
-        {/* Keep only the replace camera modal */}
+        {/* Replace camera modal */}
         <Modal
           visible={showReplaceCamera}
           animationType="slide"
