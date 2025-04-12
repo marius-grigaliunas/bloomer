@@ -13,6 +13,8 @@ import { router } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
+const DEV_MODE = process.env.NODE_ENV === 'development';
+
 const identify = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCamera, setShowCamera] = useState(true); // Start with camera view
@@ -43,32 +45,38 @@ const identify = () => {
   }, []);
 
   const takePicture = async () => {
-    try {
-      const photo = await ref.current?.takePictureAsync();
-      if (photo?.uri) {
-        // Add timestamp to make filename unique
-        const timestamp = new Date().getTime();
-        const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}_${timestamp}.jpg`;
-        await FileSystem.moveAsync({
-          from: photo.uri,
-          to: tempUri
-        });
-  
-        setImageUris(prevUris => {
-          const newUris = [...prevUris];
-          newUris[currentImageIndex] = tempUri;
-          return newUris;
-        });
-        
-        if (currentImageIndex < maxImages - 1) {
-          setCurrentImageIndex(currentImageIndex + 1);
+      try {
+        if (!ref.current || !ref.current.takePictureAsync) {
+          throw new Error("Camera reference is not properly initialized.");
         }
+  
+        const photo = await ref.current.takePictureAsync();
+        if (photo?.uri) {
+          // Add timestamp to make filename unique
+          const timestamp = new Date().getTime();
+          const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}_${timestamp}.jpg`;
+          await FileSystem.moveAsync({
+            from: photo.uri,
+            to: tempUri
+          });
+  
+          setImageUris(prevUris => {
+            const newUris = [...prevUris];
+            newUris[currentImageIndex] = tempUri;
+            return newUris;
+          });
+  
+          if (currentImageIndex < maxImages - 1) {
+            setCurrentImageIndex(currentImageIndex + 1);
+          }
+        } else {
+          throw new Error("Photo URI is not available.");
+        }
+      } catch (error) {
+        console.error("Error taking picture:", error);
+        Alert.alert("Error", "Failed to take picture. Please try again.");
       }
-    } catch (error) {
-      console.error("Error taking picture:", error);
-      Alert.alert("Error", "Failed to take picture. Please try again.");
-    }
-  };
+    };
 
   const replacePicture = async () => {
     setShowReplaceCamera(true);
@@ -128,7 +136,7 @@ const identify = () => {
       usePlantInformation.getState().setIdentifiedPlant({
         scientificName,
         commonNames: plantCommonNames,
-        confidence: results.commonNames,
+        confidence: results.confidence,
         careInfo
       })
 
@@ -185,7 +193,7 @@ const identify = () => {
     try {
       await resetIdentification();      
       setShowCamera(true);
-      
+
     } catch (error) {
       console.error('Error switching to camera:', error);
       // Reset states anyway as fallback
@@ -278,6 +286,26 @@ const identify = () => {
     );
   }
 
+  const handleQuickTest = () => {
+    const testPlantData = {
+      plant: {
+        scientificName: "Ocimum basilicum",
+        commonNames: ["Sweet Basil", "Common Basil"],
+        confidence: 0.95,
+        careInfo: {
+          wateringFrequency: 3,
+          lightRequirements: "Full sun to partial shade",
+          soilPreferences: "Well-draining, rich soil",
+          commonIssues: ["Leaf spots", "Root rot", "Aphids"],
+          specialNotes: ["Pinch off flower buds to promote leaf growth", "Harvest regularly"]
+        }
+      }
+    };
+
+    usePlantInformation.getState().setIdentifiedPlant(testPlantData.plant);
+    router.push(`/plants/${encodeURIComponent(testPlantData.plant.scientificName)}`);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
       <View style={{ flex: 1 }}>
@@ -326,6 +354,16 @@ const identify = () => {
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
+            {DEV_MODE && (
+              <TouchableOpacity 
+                className="bg-danger p-4 rounded-xl mt-4"
+                onPress={handleQuickTest}
+              >
+                <Text className="text-text-primary text-center font-bold">
+                  DEV: Quick Test Plant Details
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
         {/* Replace camera modal */}

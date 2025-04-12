@@ -1,17 +1,25 @@
 import { create } from 'zustand'
-import { PlantCareInfo } from '@/lib/services/chutesService/deepseekService'
 import { Plant } from './interfaces';
 
 interface PlantInformation {
-    identifiedPlant: {
-        plant: Plant;
-      } | null;
-      setIdentifiedPlant: (plant: any) => void;
-      clearIdentifiedPlant: () => void;
+  identifiedPlant: {
+    plant: Plant;
+  } | null;
+  setIdentifiedPlant: (plant: Plant) => void;
+  clearIdentifiedPlant: () => void;
 }
 
 export const usePlantInformation = create<PlantInformation>((set) => ({
-    identifiedPlant: null,
-    setIdentifiedPlant: (plant) => set({identifiedPlant: plant}),
-    clearIdentifiedPlant: () => set({identifiedPlant: null }),  
-}))
+  identifiedPlant: null,
+  setIdentifiedPlant: (plant) => set({ 
+    identifiedPlant: { 
+      plant: {
+        scientificName: plant.scientificName,
+        commonNames: plant.commonNames,
+        confidence: plant.confidence,
+        careInfo: plant.careInfo
+      } 
+    } 
+  }),
+  clearIdentifiedPlant: () => set({ identifiedPlant: null }),
+}));

@@ -25,29 +25,22 @@ interface ChutesResponse {
     };
   }
 
-function parseDeepseekResponse(response: ChutesResponse):PlantCareInfo | null {
+  function parseDeepseekResponse(response: ChutesResponse):PlantCareInfo | null {
     try {
-        // The actual content is in response.choices[0].message.content
-        // And it's wrapped in ```json ... ``` markdown format
         const jsonContent = response.choices[0].message.content;
-        
-        // Extract just the JSON part between the backticks
         const jsonMatch = jsonContent.match(/```json\n([\s\S]*)\n```/);
         
         if (jsonMatch && jsonMatch[1]) {
-            // Parse the extracted JSON
             const parsedData = JSON.parse(jsonMatch[1]);
             
-            // Return the specific fields you need
             return {
-                wateringFrequency: parsedData["Watering frequency (in days)"],
-                lightRequirements: parsedData["Light requirements"],
-                soilPreferences: parsedData["Soil preferences"],
-                commonIssues: parsedData["Common issues"],
-                specialNotes: parsedData["Special notes"]
+                wateringFrequency: parsedData.watering_frequency_days,
+                lightRequirements: parsedData.light_requirements,
+                soilPreferences: parsedData.soil_preferences,
+                commonIssues: parsedData.common_issues,
+                specialNotes: parsedData.special_notes
             };
         } else {
-            // If we couldn't extract the JSON with regex
             console.log("Could not extract JSON from response");
             return null;
         }

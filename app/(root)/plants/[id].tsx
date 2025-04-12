@@ -1,6 +1,6 @@
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '@/constants/colors';
@@ -10,7 +10,7 @@ const PlantDetails = () => {
   const { id } = useLocalSearchParams();
   const identifiedPlant = usePlantInformation((state) => state.identifiedPlant);
   
-  if(!identifiedPlant) {
+  if(!identifiedPlant || !identifiedPlant.plant) {
     return (
       <SafeAreaView>
         <Text className='text-danger text-3xl'>Sorry! Plant not found</Text>
@@ -18,10 +18,36 @@ const PlantDetails = () => {
     );
   }
 
+  const handleResetIdentification = () => {
+    usePlantInformation.getState().clearIdentifiedPlant(); // Correct - this calls the function
+    router.replace('/(root)/(tabs)/identify');
+  }
+
+  const { scientificName, commonNames, confidence, careInfo } = identifiedPlant.plant;
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
-      <ScrollView className="flex-1 p-4">
+      <ScrollView className="flex-1">
+        <View className='w-screen flex justify-center items-center mx-3 mt-5'>
+          <Text className='text-3xl text-secondary-medium'>{scientificName}</Text>
+        </View>
         <PlantCareInfoComponent plant={identifiedPlant.plant} />
+        <TouchableOpacity 
+          className="bg-secondary-deep p-4 mt-3 rounded-xl"
+          onPress={handleResetIdentification}
+        >
+          <Text className="text-text-primary text-center">
+            Add this plant to your Garden
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          className="bg-primary-deep p-4 mt-3 rounded-xl"
+          onPress={handleResetIdentification}
+        >
+          <Text className="text-text-primary text-center">
+            Identify another plant
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   )
