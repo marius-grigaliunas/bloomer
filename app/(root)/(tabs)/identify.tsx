@@ -46,13 +46,14 @@ const identify = () => {
     try {
       const photo = await ref.current?.takePictureAsync();
       if (photo?.uri) {
-        // Move the photo to temporary directory
-        const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}.jpg`;
+        // Add timestamp to make filename unique
+        const timestamp = new Date().getTime();
+        const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}_${timestamp}.jpg`;
         await FileSystem.moveAsync({
           from: photo.uri,
           to: tempUri
         });
-
+  
         setImageUris(prevUris => {
           const newUris = [...prevUris];
           newUris[currentImageIndex] = tempUri;
@@ -67,7 +68,7 @@ const identify = () => {
       console.error("Error taking picture:", error);
       Alert.alert("Error", "Failed to take picture. Please try again.");
     }
-  }
+  };
 
   const replacePicture = async () => {
     setShowReplaceCamera(true);
@@ -80,16 +81,20 @@ const identify = () => {
         // Delete existing temporary file if it exists
         const oldUri = imageUris[currentImageIndex];
         if (oldUri) {
-          await FileSystem.deleteAsync(oldUri, { idempotent: true });
+          const fileInfo = await FileSystem.getInfoAsync(oldUri);
+          if (fileInfo.exists) {
+            await FileSystem.deleteAsync(oldUri, { idempotent: true });
+          }
         }
-
-        // Move new photo to temporary directory
-        const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}.jpg`;
+  
+        // Add timestamp to make filename unique
+        const timestamp = new Date().getTime();
+        const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}_${timestamp}.jpg`;
         await FileSystem.moveAsync({
           from: photo.uri,
           to: tempUri
         });
-
+  
         setImageUris(prevUris => {
           const newUris = [...prevUris];
           newUris[currentImageIndex] = tempUri;
@@ -101,7 +106,7 @@ const identify = () => {
       console.error("Error replacing picture:", error);
       Alert.alert("Error", "Failed to replace picture. Please try again.");
     }
-  }
+  };
 
   const handleIdentify = async () => {
     try {
@@ -139,51 +144,54 @@ const identify = () => {
 
   const resetIdentification = async () => {
     try {
-      // Delete all existing images first
-      const deletePromises = imageUris.map(uri => {
+      for (const uri of imageUris) {
         if (uri) {
-          return FileSystem.deleteAsync(uri, { idempotent: true })
-            .catch(error => console.log('Error deleting file:', error));
+          try {
+            const fileInfo = await FileSystem.getInfoAsync(uri);
+            if (fileInfo.exists) {
+              await FileSystem.deleteAsync(uri, { idempotent: true });
+            }
+          } catch (error) {
+            console.log('Error checking/deleting file:', error);
+          }
         }
-        return Promise.resolve();
-      });
-
-      await Promise.all(deletePromises);
-      
-      // Reset all states only after files are deleted
+      }
+  
+      // Reset states only after confirming deletions
       setImageUris(Array(5).fill(null));
       setCurrentImageIndex(0);
       setIdentificationError(null);
-      setShowCamera(true);
+
     } catch (error) {
       console.error('Error resetting identification:', error);
     }
   };
 
   const switchToSearch = async () => {
-    await resetIdentification(); // This already sets showCamera to true
-    setShowCamera(false); // Then we set it to false for search view
+    try {  
+      await resetIdentification(); 
+      setShowCamera(false);
+      
+    } catch (error) {
+      console.error('Error switching to camera:', error);
+      // Reset states anyway as fallback
+      setImageUris(Array(5).fill(null));
+      setCurrentImageIndex(0);
+      setShowCamera(true);
+    }
   };
 
   const switchToCamera = async () => {
     try {
-      // First, delete any existing images
-      const deletePromises = imageUris.map(uri => {
-        if (uri) {
-          return FileSystem.deleteAsync(uri, { idempotent: true })
-            .catch(error => console.log('Error deleting file:', error));
-        }
-        return Promise.resolve();
-      });
-
-      await Promise.all(deletePromises);
+      await resetIdentification();      
+      setShowCamera(true);
       
-      // Then reset all states
+    } catch (error) {
+      console.error('Error switching to camera:', error);
+      // Reset states anyway as fallback
       setImageUris(Array(5).fill(null));
       setCurrentImageIndex(0);
       setShowCamera(true);
-    } catch (error) {
-      console.error('Error switching to camera:', error);
     }
   };
 
