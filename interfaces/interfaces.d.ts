@@ -11,6 +11,61 @@ export interface Plant {
   careInfo: PlantCareInfo | null;
 }
 
+export interface DatabaseUserType {
+  // Core User Identity
+  userId: string;
+  email: string;
+  displayName?: string;
+  createdAt: Date;
+  lastLogin?: Date;
+  
+  // App Preferences
+  notificationsEnabled: boolean;
+  reminderTime?: Date;
+  timezone?: string;
+  reminderAdvanceTime?: number;
+  
+  // Profile Information
+  profilePicture?: string;
+  
+  // User Preferences
+  unitSystem: 'metric' | 'imperial';
+  mondayFirstDayOfWeek: boolean;
+  temperatureUnit: 'celsius' | 'fahrenheit';
+}
+
+export interface DatabasePlantType {
+  // Plant Identity
+  plantId: string;
+  ownerId: string;
+  nickname: string;
+  scientificName: string;
+  commonNames?: string[];
+  imageUrl: string;
+  
+  // Care Requirements
+  wateringFrequency: number; // Days between watering
+  lastWatered?: Date;
+  nextWateringDate?: Date;
+  lightRequirements: 'low' | 'medium' | 'high' | 'direct';
+  soilPreferences?: string;
+  humidity: 'low' | 'medium' | 'high';
+  
+  // Temperature Range
+  minTemperature?: number;
+  maxTemperature?: number;
+  
+  // Tracking & History
+  dateAdded?: Date;
+  wateringHistory?: Date[];
+  
+  // Notes & Issues
+  commonIssues?: string[];
+  notes?: string[];
+  careInstructions?: string[];
+}
+
+
 /*
 $id: string;
   $createdAt: string;

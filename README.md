@@ -65,8 +65,8 @@
     - [ ] later needs a protected api route
     - [...] build the result view
 - **Days 4-7:** Plant care with AI
-    - [...] Implement response parsing to extract structured data
-    - [...] Build results display component
+    - [x] Implement response parsing to extract structured data
+    - [x] Build results display component
     - [...] Create "add identified plant to collection" flow
 
 ### Week 5: Scheduling and Notifications (Apr 7-13)
