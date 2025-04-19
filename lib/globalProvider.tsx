@@ -39,8 +39,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
 
     const isLoggedIn = React.useMemo(() => !!user, [user]);
 
-    // Only log in development
-    /*if (process.env.NODE_ENV === 'development') {
+    /*// Only log in development
+    if (process.env.NODE_ENV === 'development') {
         console.log('Auth state:', {
             user: user ? 'logged in' : 'not logged in',
             loading,

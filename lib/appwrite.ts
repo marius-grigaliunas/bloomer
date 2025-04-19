@@ -1,8 +1,9 @@
-import { Account, Avatars, Client, OAuthProvider } from "react-native-appwrite"
+import { Account, Avatars, Client, Databases, ID, Models, OAuthProvider, Query } from "react-native-appwrite"
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
 import { User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
+import { DatabaseUserType } from '../interfaces/interfaces';
 
 export const config = {
     platform: 'com.margri.bloomer',
@@ -15,8 +16,12 @@ export const client = new Client()
     .setProject(config.projectId!)
     .setPlatform(config.platform!)
 
-export const avatar = new Avatars(client)
-export const account = new Account(client)
+export const avatar = new Avatars(client);
+export const account = new Account(client);
+export const databases = new Databases(client);
+
+const databaseId = `${process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID}`;
+const collectionId = `${process.env.EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID}`;
 
 export async function AnnonymousLogin() {
     try {
@@ -82,6 +87,22 @@ export async function getCurrentUser(): Promise<User | null> {
         if(response.$id) {
             const userAvatar = avatar.getInitials(response.name);
 
+            try {
+                const existingUser = await databases.listDocuments(
+                    databaseId,
+                    collectionId,
+                    [
+                        Query.equal('userId', response.$id)
+                    ]
+                );
+
+                if(existingUser.documents.length === 0) {
+                    await createNewDatabaseUser(response, userAvatar.toString());
+                }
+            } catch(error) {
+                console.error("Failed to create new user:", error);
+            }
+
             return {
                 ...response,
                 avatar: userAvatar.toString(),
@@ -95,6 +116,31 @@ export async function getCurrentUser(): Promise<User | null> {
         }
         
         console.error(error)
+        return null;
+    }
+}
+
+export const createNewDatabaseUser = async (user: User, profilePic: string) => {
+
+    try {
+        const newUser = await databases.createDocument(
+            databaseId,
+            collectionId,
+            ID.unique(),
+            {
+                userId: user.$id,
+                email: user.email,
+                createdAt: new Date(user.$createdAt),
+                notificationsEnabled: true,
+                profilePicture: profilePic,
+                unitSystem: 'metric',
+                mondayFirstDayOfWeek: true,
+                temperatureUnit: 'celsius'
+            }
+        );
+        return newUser;
+    } catch (error) {
+        console.error('Error creating database user:', error);
         return null;
     }
 }
