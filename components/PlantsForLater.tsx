@@ -8,11 +8,14 @@ interface PlantsForLaterProps {
 
 const PlantsForLater = ({plantsForLater}: PlantsForLaterProps) => {
     
+    if(plantsForLater.length === 0) {
+        return <View></View>;
+    }
     
     return (
         <View className='bg-background-surface h-64 rounded-2xl'>
             <View className='flex justify-center items-center rounded-xl bg-primary-medium '>
-                <Text className='text-3xl text-text-primary'>Don't forget about these tomorrow</Text>
+                <Text className='text-3xl text-text-primary'>Take care of these soon</Text>
             </View>
             <ScrollView horizontal={true} className='flex mt-2'>
                     {plantsForLater.map((plant) => (

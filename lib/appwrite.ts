@@ -21,7 +21,8 @@ export const account = new Account(client);
 export const databases = new Databases(client);
 
 const databaseId = `${process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID}`;
-const collectionId = `${process.env.EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID}`;
+const usersCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID}`;
+const plantsCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_PLANTS_COLLECTION_ID}`;
 
 export async function AnnonymousLogin() {
     try {
@@ -90,7 +91,7 @@ export async function getCurrentUser(): Promise<User | null> {
             try {
                 const existingUser = await databases.listDocuments(
                     databaseId,
-                    collectionId,
+                    usersCollectionId,
                     [
                         Query.equal('userId', response.$id)
                     ]
@@ -125,7 +126,7 @@ export const createNewDatabaseUser = async (user: User, profilePic: string) => {
     try {
         const newUser = await databases.createDocument(
             databaseId,
-            collectionId,
+            usersCollectionId,
             ID.unique(),
             {
                 userId: user.$id,
@@ -140,7 +141,44 @@ export const createNewDatabaseUser = async (user: User, profilePic: string) => {
         );
         return newUser;
     } catch (error) {
-        console.error('Error creating database user:', error);
+        console.error("Error creating database user:", error);
         return null;
+    }
+}
+
+export const getUserPlants = async (userId: string) => {
+    try {
+        const userPlants = databases.listDocuments(
+            databaseId,
+            plantsCollectionId,
+            [
+                Query.equal("ownerID", userId),
+                Query.orderDesc("dateAdded")
+            ]
+        );
+
+        return (await userPlants).documents.map(document => ({
+            $id: document.$id,
+            photo: { uri: document.imageUrl }, // Convert URL to photo prop format
+            name: document.nickname,
+            scientificName: document.scientificName,
+            commonNames: document.commonNames,
+            wateringFrequency: document.wateringFrequency,
+            lastWatered: document.lastWatered,
+            nextWateringDate: document.nextWateringDate,
+            lightRequirements: document.lightRequirements,
+            soilPreferences: document.soilPreferences,
+            humidity: document.humidity,
+            minTemperature: document.minTemperature,
+            maxTemperature: document.maxTemperature,
+            dateAdded: document.dateAdded,
+            wateringHistory: document.wateringHistory,
+            commonIssues: document.commonIssues,
+            notes: document.notes,
+            careInstructions: document.careInstructions
+        }))
+
+    } catch (error) {
+        console.log("Error fetching user plants:", error);
     }
 }

@@ -11,6 +11,9 @@ const HealthBar = ({numberOfPlants, plantsThatNeedCare}:HealthBarProps) => {
     const [healthStatus, setHealthStatus] = useState<string>("bad");
     const [healthColor, setHealthColor] = useState<string>(colors.secondary.deep);
 
+    if(numberOfPlants === 0) {
+        return <View></View>;
+    }
 
     useEffect(() => {
          const CalculateHealth = (plantCount: number, plantsNeedCare: number) => {
