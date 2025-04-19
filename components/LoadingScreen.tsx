@@ -6,7 +6,7 @@ import RotatingImage from './RotatingImage';
 export const LoadingScreen = () => (
   <View style={{ 
     flex: 1, 
-    backgroundColor: '#121F12',
+    backgroundColor: 'transparent',
     justifyContent: 'center', 
     alignItems: 'center' 
   }}>

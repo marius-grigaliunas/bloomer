@@ -1,9 +1,10 @@
 import { View, Text, ScrollView } from 'react-native'
 import React from 'react'
-import PlantCard, { PlantCardProps } from './PlantCard'
+import PlantCard from './PlantCard'
+import { DatabasePlantType } from '@/interfaces/interfaces';
 
 interface PlantsForLaterProps {
-    plantsForLater: PlantCardProps[];
+    plantsForLater: DatabasePlantType[];
 }
 
 const PlantsForLater = ({plantsForLater}: PlantsForLaterProps) => {
@@ -20,10 +21,8 @@ const PlantsForLater = ({plantsForLater}: PlantsForLaterProps) => {
             <ScrollView horizontal={true} className='flex mt-2'>
                     {plantsForLater.map((plant) => (
                         <PlantCard
-                            key={plant.$id}
-                            $id={plant.$id}
-                            photo={plant.photo}
-                            name={plant.name}                            
+                            key={plant.plantId + "key"}
+                            {...plant}                            
                         />
                     ))}
             </ScrollView>

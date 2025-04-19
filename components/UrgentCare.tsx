@@ -1,9 +1,10 @@
 import { View, Text, ScrollView } from 'react-native'
 import React from 'react'
-import PlantCard, { PlantCardProps } from './PlantCard';
+import PlantCard from './PlantCard';
+import { DatabasePlantType } from '@/interfaces/interfaces';
 
 interface UrgentCareProps {
-    plantsThatNeedCare : PlantCardProps[];
+    plantsThatNeedCare : DatabasePlantType[];
 }
 
 const UrgentCare = ({plantsThatNeedCare}: UrgentCareProps) => {
@@ -19,10 +20,8 @@ const UrgentCare = ({plantsThatNeedCare}: UrgentCareProps) => {
             <ScrollView horizontal={true} className='flex mt-2'>
                     {plantsThatNeedCare.map((plant) => (
                         <PlantCard
-                            key={plant.$id}
-                            $id={plant.$id}
-                            photo={plant.photo}
-                            name={plant.name}                            
+                            key={plant.plantId + "key"}
+                            {...plant}                            
                         />
                     ))}
             </ScrollView>

@@ -50,7 +50,11 @@ export default function Index() {
               <WeatherComponent/>
           </View>
         </View>
-        {loading ? (<LoadingScreen/>) :(
+        {loading ? (
+          <View className="mt-10">
+            <LoadingScreen/>
+          </View>
+        ) : (
           <View>
             <View className="flex flex-1 gap-1">
               <HealthBar

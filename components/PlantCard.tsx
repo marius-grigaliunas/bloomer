@@ -1,24 +1,20 @@
 import { View, Text, Image, ImageSourcePropType } from 'react-native'
 import React from 'react'
+import { DatabasePlantType } from '@/interfaces/interfaces'
 
-export interface PlantCardProps {
-    $id: string
-    photo: ImageSourcePropType,
-    name: string,
-}
 
-const PlantCard = ({photo, name}: PlantCardProps) => {
+const PlantCard = ({imageUrl, nickname}: DatabasePlantType) => {
 
     return (
         <View className='mr-1 flex justify-start items-start shadow-md shadow-secondary-medium
             bg-background-surface rounded-2xl h-52'>
             <Image 
-                source={photo}
+                source={{uri: imageUrl}}
                 className='w-32 h-32 rounded-xl border border-accent'
                 resizeMode="cover"
                 style={{ width: 128, height: 128 }} // Explicit dimensions as fallback
             />
-            <Text className='text-3xl text-text-primary'>{name}</Text>
+            <Text className='text-3xl text-text-primary'>{nickname}</Text>
         </View>
     )
 }

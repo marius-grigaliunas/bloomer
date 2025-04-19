@@ -1,12 +1,13 @@
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
-import PlantCard, { PlantCardProps } from './PlantCard'
+import PlantCard from './PlantCard'
 import colors from '@/constants/colors';
 import { icons } from '@/constants/icons';
 import { router } from 'expo-router';
+import { DatabasePlantType } from '@/interfaces/interfaces';
 
 interface MyPlantsProps {
-    myPlants: PlantCardProps[];
+    myPlants: DatabasePlantType[];
 }
 
 const MyPlants = ({myPlants}: MyPlantsProps) => {
@@ -39,10 +40,8 @@ const MyPlants = ({myPlants}: MyPlantsProps) => {
                 <ScrollView horizontal={true} className='flex mt-2'>
                 {myPlants.map((plant) => (
                     <PlantCard
-                        key={plant.$id}
-                        $id={plant.$id}
-                        photo={plant.photo}
-                        name={plant.name}                            
+                        key={plant.plantId + "key"}
+                        {...plant}                            
                     />
                 ))}
                 </ScrollView>
