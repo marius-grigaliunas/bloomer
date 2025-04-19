@@ -1,15 +1,8 @@
+import { PlantCareInfo } from "@/interfaces/interfaces";
 import { buildPlantCarePrompt } from "./promptTemplates";
 import { parseDeepseekResponse } from "./responseParser";
 
-export interface PlantCareInfo {
-    wateringFrequency: number;
-    lightRequirements: string;
-    soilPreferences: string;
-    commonIssues: string[];
-    specialNotes: string[];
-  }
-
-async function getPlantCareInfo(plant: string, commonNames: string[]) {
+async function getPlantCareInfo(plant: string, commonNames: string[]): Promise<PlantCareInfo | null> {
     try {
         const prompt = buildPlantCarePrompt(plant, commonNames);
 
@@ -54,6 +47,7 @@ async function getPlantCareInfo(plant: string, commonNames: string[]) {
         
     } catch(error) {
         console.log("Error getting plant info: ", error);
+        return null;
     }
 }
 

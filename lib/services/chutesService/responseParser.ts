@@ -1,4 +1,4 @@
-import { PlantCareInfo } from "./deepseekService";
+import { PlantCareInfo } from "@/interfaces/interfaces";
 
 interface ChutesResponse {
     id: string;
@@ -33,12 +33,32 @@ interface ChutesResponse {
         if (jsonMatch && jsonMatch[1]) {
             const parsedData = JSON.parse(jsonMatch[1]);
             
+            // Validate required fields and types
+            if (
+                typeof parsedData.watering_frequency_days !== 'number' ||
+                !['low', 'medium', 'high', 'direct'].includes(parsedData.light_requirements) ||
+                typeof parsedData.soil_preferences !== 'string' ||
+                !['low', 'medium', 'high'].includes(parsedData.humidity) ||
+                typeof parsedData.min_temperature !== 'number' ||
+                typeof parsedData.max_temperature !== 'number' ||
+                !Array.isArray(parsedData.common_issues) ||
+                !Array.isArray(parsedData.special_notes) ||
+                !Array.isArray(parsedData.care_instructions)
+            ) {
+                console.log("Invalid data format in response");
+                return null;
+            }
+            
             return {
                 wateringFrequency: parsedData.watering_frequency_days,
                 lightRequirements: parsedData.light_requirements,
                 soilPreferences: parsedData.soil_preferences,
+                humidity: parsedData.humidity,
+                minTemperature: parsedData.min_temperature,
+                maxTemperature: parsedData.max_temperature,
                 commonIssues: parsedData.common_issues,
-                specialNotes: parsedData.special_notes
+                specialNotes: parsedData.special_notes,
+                careInstructions: parsedData.care_instructions
             };
         } else {
             console.log("Could not extract JSON from response");

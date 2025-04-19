@@ -4,6 +4,18 @@ export interface User extends Models.User<Models.Preferences>{
   avatar?: string;
 }
 
+export interface PlantCareInfo {
+  wateringFrequency: number;
+  lightRequirements: 'low' | 'medium' | 'high' | 'direct';
+  soilPreferences: string;
+  humidity: 'low' | 'medium' | 'high';
+  minTemperature: number;
+  maxTemperature: number;
+  commonIssues: string[];
+  specialNotes: string[];
+  careInstructions: string[];
+}
+
 export interface Plant {
   scientificName: string;
   commonNames: string[];
