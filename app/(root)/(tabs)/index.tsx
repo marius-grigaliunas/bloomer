@@ -1,11 +1,11 @@
 import HealthBar from "@/components/HealthBar";
 import LoadingScreen from "@/components/LoadingScreen";
 import MyPlants from "@/components/MyPlants";
-import { PlantCardProps } from "@/components/PlantCard";
 import PlantsForLater from "@/components/PlantsForLater";
 import UrgentCare from "@/components/UrgentCare";
 import WeatherComponent from "@/components/WeatherComponent";
 import { mockPlants, plantsForLater, plantsNeedAttention } from "@/constants/mockData";
+import { DatabasePlantType } from "@/interfaces/interfaces";
 import { getCurrentUser, getUserPlants } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
 import { useEffect, useState } from "react";
@@ -17,20 +17,46 @@ export default function Index() {
   const { isLoggedIn, user: contextUser } = useGlobalContext();
   const [ currentUser, setCurrentUser ] = useState(contextUser);
 
-  const [ plants, setPlants ] = useState<PlantCardProps[]>([]);
-  const [ plantsNeedCare, setPlantsNeedCare ] = useState<PlantCardProps[]>([]);
-  const [ plantsNeedCareLater, setPlantsNeedCareLater ] = useState<PlantCardProps[]>([]);
+  const [ plants, setPlants ] = useState<DatabasePlantType[]>([]);
+  const [ plantsNeedCare, setPlantsNeedCare ] = useState<DatabasePlantType[]>([]);
+  const [ plantsNeedCareLater, setPlantsNeedCareLater ] = useState<DatabasePlantType[]>([]);
 
   const [ loading, setLoading] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
       try {
+        setLoading(true);
+        if(isLoggedIn && contextUser?.$id) {
+          const userData = await getCurrentUser();
+          setCurrentUser(userData);
 
+          const userPlants = await getUserPlants(contextUser.$id);
+          setPlants(userPlants);
+          
+          const now = new Date();
+          const needsCareNow = userPlants.filter(plant => {
+            if (!plant.nextWateringDate) return false;
+            
+            const nextWatering = new Date(plant.nextWateringDate);
+            return nextWatering <= now;
+          });
+          setPlantsNeedCare(needsCareNow);
+
+          const needsCareSoon = userPlants.filter(plant => {
+            if (!plant.nextWateringDate) return false;
+
+            const nextWatering = new Date(plant.nextWateringDate);
+            const threeDaysFromNow = new Date(now.setDate(now.getDate() + 3));
+            return nextWatering > now && nextWatering <= threeDaysFromNow;
+          });
+          setPlantsNeedCareLater(needsCareSoon);
+
+        }
       } catch (error) {
         console.log("Error geting userData:", error)
       } finally {
-        
+        setLoading(false);
       }
   }}, [isLoggedIn])
   

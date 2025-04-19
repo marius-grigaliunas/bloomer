@@ -1,7 +1,7 @@
 import { Account, Avatars, Client, Databases, ID, Models, OAuthProvider, Query } from "react-native-appwrite"
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
-import { User } from "@/interfaces/interfaces"
+import { DatabasePlantType, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import { DatabaseUserType } from '../interfaces/interfaces';
 
@@ -146,7 +146,7 @@ export const createNewDatabaseUser = async (user: User, profilePic: string) => {
     }
 }
 
-export const getUserPlants = async (userId: string) => {
+export const getUserPlants = async (userId: string): Promise<DatabasePlantType[]>  => {
     try {
         const userPlants = databases.listDocuments(
             databaseId,
@@ -158,11 +158,12 @@ export const getUserPlants = async (userId: string) => {
         );
 
         return (await userPlants).documents.map(document => ({
-            $id: document.$id,
-            photo: { uri: document.imageUrl }, // Convert URL to photo prop format
-            name: document.nickname,
+            plantId: document.plantId,
+            ownerId: document.ownerId,
+            nickname: document.nickname,
             scientificName: document.scientificName,
             commonNames: document.commonNames,
+            imageUrl: document.imageUrl, // Convert URL to photo prop format
             wateringFrequency: document.wateringFrequency,
             lastWatered: document.lastWatered,
             nextWateringDate: document.nextWateringDate,
@@ -180,5 +181,6 @@ export const getUserPlants = async (userId: string) => {
 
     } catch (error) {
         console.log("Error fetching user plants:", error);
+        return [];
     }
 }
