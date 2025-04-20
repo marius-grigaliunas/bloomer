@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import React from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { usePlantInformation } from '@/interfaces/plantInformation';
@@ -28,11 +28,21 @@ const PlantDetails = () => {
     refetch;
   }
 
-  const handleAddPlant = () => {
+  const handleAddPlant = async () => {
     if (!contextUser) return;
 
-    createNewDatabasePlant(contextUser, identifiedPlant.plant, identifiedPlant.plant.imageUri)
-    router.replace('/(root)/(tabs)')
+    try {
+      const result = await createNewDatabasePlant(contextUser, identifiedPlant.plant, identifiedPlant.plant.imageUri);
+      if(result) {
+        await refetch();
+        router.replace('/(root)/(tabs)')
+      } else {
+        Alert.alert("Error", "Failed to add plant");
+      }
+    } catch (error) {
+      console.error("Failed to add the plant to the collection:", error);
+      Alert.alert("Error", "Failed to add plant");
+    }
   }
 
   const { scientificName, commonNames, confidence, careInfo } = identifiedPlant.plant;
