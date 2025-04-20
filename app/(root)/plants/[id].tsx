@@ -5,9 +5,13 @@ import { usePlantInformation } from '@/interfaces/plantInformation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '@/constants/colors';
 import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
+import { createNewDatabasePlant } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/globalProvider';
+import { DatabasePlantType } from '@/interfaces/interfaces';
 
 const PlantDetails = () => {
   const { id } = useLocalSearchParams();
+  const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
   const identifiedPlant = usePlantInformation((state) => state.identifiedPlant);
   
   if(!identifiedPlant || !identifiedPlant.plant) {
@@ -21,6 +25,14 @@ const PlantDetails = () => {
   const handleResetIdentification = () => {
     usePlantInformation.getState().clearIdentifiedPlant(); // Correct - this calls the function
     router.replace('/(root)/(tabs)/identify');
+    refetch;
+  }
+
+  const handleAddPlant = () => {
+    if (!contextUser) return;
+
+    createNewDatabasePlant(contextUser, identifiedPlant.plant, identifiedPlant.plant.imageUri)
+    router.replace('/(root)/(tabs)')
   }
 
   const { scientificName, commonNames, confidence, careInfo } = identifiedPlant.plant;
@@ -34,7 +46,7 @@ const PlantDetails = () => {
         <PlantCareInfoComponent plant={identifiedPlant.plant} />
         <TouchableOpacity 
           className="bg-secondary-deep p-4 mt-3 rounded-xl"
-          onPress={handleResetIdentification}
+          onPress={handleAddPlant}
         >
           <Text className="text-text-primary text-center">
             Add this plant to your Garden

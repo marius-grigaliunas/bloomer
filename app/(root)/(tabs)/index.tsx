@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
 
-  const { isLoggedIn, user: contextUser } = useGlobalContext();
+  const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
   const [ currentUser, setCurrentUser ] = useState(contextUser);
 
   const [ plants, setPlants ] = useState<DatabasePlantType[]>([]);
@@ -51,14 +51,16 @@ export default function Index() {
             return nextWatering > now && nextWatering <= threeDaysFromNow;
           });
           setPlantsNeedCareLater(needsCareSoon);
-
         }
       } catch (error) {
         console.log("Error geting userData:", error)
       } finally {
         setLoading(false);
       }
-  }}, [isLoggedIn])
+  }
+  getData()
+
+}, [isLoggedIn, contextUser?.$id])
   
   return (
     <SafeAreaView className="bg-background-primary h-full">

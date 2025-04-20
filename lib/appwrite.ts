@@ -1,9 +1,10 @@
-import { Account, Avatars, Client, Databases, ID, Models, OAuthProvider, Query } from "react-native-appwrite"
+import { Account, Avatars, Client, Databases, ID, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
-import { DatabasePlantType, User } from "@/interfaces/interfaces"
+import { DatabasePlantType, Plant, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
-import { DatabaseUserType } from '../interfaces/interfaces';
+import * as FileSystem from 'expo-file-system';
+import { Image, ImageSourcePropType } from "react-native"
 
 export const config = {
     platform: 'com.margri.bloomer',
@@ -19,10 +20,12 @@ export const client = new Client()
 export const avatar = new Avatars(client);
 export const account = new Account(client);
 export const databases = new Databases(client);
+export const storage = new Storage(client);
 
 const databaseId = `${process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID}`;
 const usersCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID}`;
 const plantsCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_PLANTS_COLLECTION_ID}`;
+const plantImageStorageId = `${process.env.EXPO_PUBLIC_APPWRITE_IMAGES_STORAGE_BUCKET_ID}`;
 
 export async function AnnonymousLogin() {
     try {
@@ -152,7 +155,7 @@ export const getUserPlants = async (userId: string): Promise<DatabasePlantType[]
             databaseId,
             plantsCollectionId,
             [
-                Query.equal("ownerID", userId),
+                Query.equal("ownerId", userId),
                 Query.orderDesc("dateAdded")
             ]
         );
@@ -182,5 +185,95 @@ export const getUserPlants = async (userId: string): Promise<DatabasePlantType[]
     } catch (error) {
         console.log("Error fetching user plants:", error);
         return [];
+    }
+}
+
+export const uploadPlantPicture = async (fileUri: string, id: string) => {
+    if(!fileUri) return;
+
+    try {
+        const fileInfo = await FileSystem.getInfoAsync(fileUri);
+        if(!fileInfo.exists) {
+            throw new Error(`File does not exist: ${fileUri}`);
+        }
+
+        const uploadedFile = await storage.createFile(
+            plantImageStorageId,
+            id,
+            {
+                name: `plant${fileUri}`,
+                type: 'image/jpg',
+                size: fileInfo.size,
+                uri: fileUri
+            }
+        )
+
+        const fileUrl = await storage.getFileView(
+            plantImageStorageId,
+            id
+        )
+
+        if(!fileUrl) {
+            throw new Error("Error getting file preview");
+        }
+
+        return fileUrl;
+
+    } catch (error) {
+        console.error("Error uploading image to appwrite cloud: ", error);
+        return;
+    }
+}
+
+export const createNewDatabasePlant = async (user: User, plant: Plant, imageUri: string) => {
+
+    const plantId = ID.unique();
+
+    try {
+        const plantImage = await uploadPlantPicture(imageUri, plantId);
+
+        const newPlant = await databases.createDocument(
+            databaseId,
+            plantsCollectionId,
+            ID.unique(),
+            {
+                plantId: plantId,
+                ownerId: user.$id,
+                nickname: "test",
+                scientificName: plant.scientificName,
+                commonNames: plant.commonNames,
+                imageUrl: plantImage,
+
+                // Care Requirements
+                wateringFrequency: plant.careInfo?.wateringFrequency, // Days between watering
+
+                
+                lightRequirements: plant.careInfo?.lightRequirements,
+                soilPreferences: plant.careInfo?.soilPreferences,
+                humidity: plant.careInfo?.humidity,
+                
+                // Temperature Range
+                minTemperature: plant.careInfo?.minTemperature,
+                maxTemperature: plant.careInfo?.maxTemperature,
+                
+                // Tracking & History
+                
+                // Notes & Issues
+                commonIssues: plant.careInfo?.commonIssues,
+                notes: plant.careInfo?.specialNotes,
+                careInstructions: plant.careInfo?.careInstructions,
+            }
+        );
+
+        const newPlantDBEntry = databases.createDocument(
+            databaseId,
+            plantsCollectionId, 
+            ID.unique(),
+            newPlant,
+        )
+        return newPlantDBEntry;
+    } catch (error) {
+        console.error("Error creating database user:", error);
+        return null;
     }
 }

@@ -13,6 +13,9 @@ const PlantCard = ({imageUrl, nickname}: DatabasePlantType) => {
                 className='w-32 h-32 rounded-xl border border-accent'
                 resizeMode="cover"
                 style={{ width: 128, height: 128 }} // Explicit dimensions as fallback
+                onError={(e) => {
+                    console.error('Image loading error:', e.nativeEvent.error);
+                }}
             />
             <Text className='text-3xl text-text-primary'>{nickname}</Text>
         </View>

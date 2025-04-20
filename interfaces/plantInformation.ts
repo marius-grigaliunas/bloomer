@@ -17,7 +17,8 @@ export const usePlantInformation = create<PlantInformation>((set) => ({
         scientificName: plant.scientificName,
         commonNames: plant.commonNames,
         confidence: plant.confidence,
-        careInfo: plant.careInfo
+        careInfo: plant.careInfo,
+        imageUri: plant.imageUri
       } 
     } 
   }),

@@ -137,7 +137,8 @@ const identify = () => {
         scientificName,
         commonNames: plantCommonNames,
         confidence: results.confidence,
-        careInfo
+        careInfo,
+        imageUri: validImageUris[0]
       })
 
       router.push(`/plants/${encodeURIComponent(scientificName)}`)
@@ -286,7 +287,7 @@ const identify = () => {
     );
   }
 
-  const handleQuickTest = () => {
+  /*const handleQuickTest = () => {
     const testPlantData = {
       plant: {
         scientificName: "Ocimum basilicum",
@@ -304,7 +305,7 @@ const identify = () => {
 
     usePlantInformation.getState().setIdentifiedPlant(testPlantData.plant);
     router.push(`/plants/${encodeURIComponent(testPlantData.plant.scientificName)}`);
-  };
+  };*/
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
@@ -354,7 +355,7 @@ const identify = () => {
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
-            {DEV_MODE && (
+            {/*DEV_MODE && (
               <TouchableOpacity 
                 className="bg-danger p-4 rounded-xl mt-4"
                 onPress={handleQuickTest}
@@ -363,7 +364,7 @@ const identify = () => {
                   DEV: Quick Test Plant Details
                 </Text>
               </TouchableOpacity>
-            )}
+            )*/}
           </View>
         )}
         {/* Replace camera modal */}

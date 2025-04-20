@@ -21,6 +21,7 @@ export interface Plant {
   commonNames: string[];
   confidence: number;
   careInfo: PlantCareInfo | null;
+  imageUri: string;
 }
 
 export interface DatabaseUserType {
