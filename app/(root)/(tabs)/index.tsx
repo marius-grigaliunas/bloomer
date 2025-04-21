@@ -4,12 +4,13 @@ import MyPlants from "@/components/MyPlants";
 import PlantsForLater from "@/components/PlantsForLater";
 import UrgentCare from "@/components/UrgentCare";
 import WeatherComponent from "@/components/WeatherComponent";
+import colors from "@/constants/colors";
 import { mockPlants, plantsForLater, plantsNeedAttention } from "@/constants/mockData";
 import { DatabasePlantType } from "@/interfaces/interfaces";
 import { getCurrentUser, getUserPlants } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, ScrollView, Text, View, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -22,49 +23,63 @@ export default function Index() {
   const [ plantsNeedCareLater, setPlantsNeedCareLater ] = useState<DatabasePlantType[]>([]);
 
   const [ loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const getData = async () => {
+    try {
+      if(isLoggedIn && contextUser?.$id) {
+        const userData = await getCurrentUser();
+        setCurrentUser(userData);
+
+        const userPlants = await getUserPlants(contextUser.$id);
+        setPlants(userPlants);
+        
+        const now = new Date();
+        const needsCareNow = userPlants.filter(plant => {
+          if (!plant.nextWateringDate) return false;
+          
+          const nextWatering = new Date(plant.nextWateringDate);
+          return nextWatering <= now;
+        });
+        setPlantsNeedCare(needsCareNow);
+
+        const needsCareSoon = userPlants.filter(plant => {
+          if (!plant.nextWateringDate) return false;
+
+          const nextWatering = new Date(plant.nextWateringDate);
+          const threeDaysFromNow = new Date(now.setDate(now.getDate() + 3));
+          return nextWatering > now && nextWatering <= threeDaysFromNow;
+        });
+        setPlantsNeedCareLater(needsCareSoon);
+      }
+    } catch (error) {
+      console.log("Error getting userData:", error)
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getData();
+    setRefreshing(false);
+  };
 
   useEffect(() => {
-    const getData = async () => {
-      try {
-        setLoading(true);
-        if(isLoggedIn && contextUser?.$id) {
-          const userData = await getCurrentUser();
-          setCurrentUser(userData);
-
-          const userPlants = await getUserPlants(contextUser.$id);
-          setPlants(userPlants);
-          
-          const now = new Date();
-          const needsCareNow = userPlants.filter(plant => {
-            if (!plant.nextWateringDate) return false;
-            
-            const nextWatering = new Date(plant.nextWateringDate);
-            return nextWatering <= now;
-          });
-          setPlantsNeedCare(needsCareNow);
-
-          const needsCareSoon = userPlants.filter(plant => {
-            if (!plant.nextWateringDate) return false;
-
-            const nextWatering = new Date(plant.nextWateringDate);
-            const threeDaysFromNow = new Date(now.setDate(now.getDate() + 3));
-            return nextWatering > now && nextWatering <= threeDaysFromNow;
-          });
-          setPlantsNeedCareLater(needsCareSoon);
-        }
-      } catch (error) {
-        console.log("Error geting userData:", error)
-      } finally {
-        setLoading(false);
-      }
-  }
-  getData()
-
-}, [isLoggedIn, contextUser?.$id])
+    setLoading(true);
+    getData().finally(() => setLoading(false));
+  }, [isLoggedIn, contextUser?.$id]);
   
   return (
     <SafeAreaView className="bg-background-primary h-full">
-      <ScrollView contentContainerStyle={{height: 'auto'}}>
+      <ScrollView 
+        contentContainerStyle={{height: 'auto'}}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary.medium}
+          />
+        }
+      >
         <View className="flex flex-row justify-start h-24  
           rounded-2xl items-center bg-background-surface
           shadow-lg shadow-amber-50">
@@ -101,7 +116,6 @@ export default function Index() {
               plantsForLater={plantsNeedCareLater}
             />
             <View className="h-72 bg-background-primary rounded-2xl">
-            
             </View>
           </View>
         )}
