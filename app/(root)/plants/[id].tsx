@@ -51,7 +51,8 @@ const PlantDetails = () => {
   return (
     <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
       <ScrollView className="w-screen flex-1">
-        <View className='w-screen flex flex-row justify-around items-center bg-background-surface py-8'>
+        <View className='w-screen flex flex-row justify-around items-center bg-background-surface py-8
+          rounded-xl'>
           <View
             style={{boxShadow:`
                 0 0px 5px 1px ${colors.secondary.medium},
@@ -67,7 +68,7 @@ const PlantDetails = () => {
               resizeMode='cover'
             />
           </View>
-          <View>
+          <View className=''>
             <View className="">
               <Text className="text-text-secondary text-xl">Scientific Name:</Text>
               <Text className="text-text-primary text-xl">{scientificName}</Text>
@@ -84,6 +85,12 @@ const PlantDetails = () => {
                 }
               </View>
             )}
+            <View className='mt-5'>
+              <Text className="text-text-secondary text-xl">Confidence:</Text>
+              <Text 
+                style={{color:(confidence < 0.33 ? colors.danger : confidence < 0.66 ? colors.accent : colors.secondary.medium)}} 
+                className="text-3xl">{confidence*100}%</Text>
+            </View>
           </View>
         </View>
         <PlantCareInfoComponent plant={identifiedPlant.plant} />

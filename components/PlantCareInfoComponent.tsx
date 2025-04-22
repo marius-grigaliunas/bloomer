@@ -11,52 +11,78 @@ interface plantComponentProps {
 const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
   if (!plant) return null;
 
-  const { scientificName, commonNames, confidence, careInfo } = plant;
+  const joinArrayText = (array: string[]) => {
+    return array.join(", ");
+  }
 
   return (
-    <View>
-      <View className="flex-1 p-4 rounded-xl mt-10">
-        <View className="space-y-4">
-          <Text className="text-text-primary text-2xl font-bold">Results</Text>
-          <View className="space-y-2">
-            <Text className="text-text-primary text-xl">Scientific Name:</Text>
-            <Text className="text-text-secondary text-lg">{scientificName}</Text>
-          </View>
-
-          {commonNames && (
-            <View className="space-y-2">
-              <Text className="text-text-primary text-xl">Common Names:</Text>
-              {
-                commonNames.map((name, index) => {
-                  return (
-                    <Text key={index} className="text-text-primary text-lg">{name}</Text>
-                  )
-                })
-              }
-            </View>
-          )}
-        </View>
-      </View>
+    <View className='rounded-xl'>
       <View className="space-y-4 flex p-4">
         <Text className="text-text-primary text-2xl font-bold">Care Instructions</Text>
         <View className="space-y-2"></View>
-          <Text className="text-text-primary text-xl">Watering:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo?.wateringFrequency}</Text>
+          <Text className="text-accent text-xl">Watering frequency:</Text>
+          <Text className="text-text-primary text-lg">Every {plant.careInfo?.wateringFrequency} days</Text>
         <View className="space-y-2">
-          <Text className="text-text-primary text-xl">Light Requirements:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo?.lightRequirements}</Text>
+          <Text className="text-accent text-xl">Light Requirements:</Text>
+          <Text className="text-text-primary text-lg">{plant.careInfo?.lightRequirements}</Text>
         </View>
         <View className="space-y-2">
-          <Text className="text-text-primary text-xl">SoilPreferences:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo?.soilPreferences}</Text>
+          <Text className="text-accent text-xl">Soil Preferences:</Text>
+          <Text className="text-text-primary text-lg">{plant.careInfo?.soilPreferences}</Text>
         </View>
         <View className="space-y-2">
-          <Text className="text-text-primary text-xl">Common Issues:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo?.commonIssues}</Text>
+          <Text className="text-accent text-xl">Humidity:</Text>
+          <Text className="text-text-primary text-lg">{plant.careInfo?.humidity}</Text>
         </View>
         <View className="space-y-2">
-          <Text className="text-text-primary text-xl">Additional Care:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo?.specialNotes}</Text>
+          <Text className="text-accent text-xl">Temperature minimum:</Text>
+          <Text className="text-text-primary text-lg">{plant.careInfo?.minTemperature}</Text>
+        </View>
+        <View className="space-y-2">
+          <Text className="text-accent text-xl">Temperature maximum:</Text>
+          <Text className="text-text-primary text-lg">{plant.careInfo?.maxTemperature}</Text>
+        </View>
+        <View className="">
+            {plant.careInfo?.commonIssues && (
+              <View className="mt-5">
+                <Text className="text-accent text-xl">Common Issues:</Text>
+                {
+                  plant.careInfo?.commonIssues.map((name, index) => {
+                    return (
+                      <Text key={index} className="text-text-primary text-lg">{name}</Text>
+                    )
+                  })
+                }
+              </View>
+            )}
+        </View>
+        <View className="">
+          {plant.careInfo?.specialNotes && (
+              <View className="mt-5">
+                <Text className="text-accent text-xl">Special Notes:</Text>
+                {
+                  plant.careInfo?.specialNotes.map((name, index) => {
+                    return (
+                      <Text key={index} className="text-text-primary text-lg">{name}</Text>
+                    )
+                  })
+                }
+              </View>
+            )}
+        </View>
+        <View className="">
+          {plant.careInfo?.careInstructions && (
+              <View className="mt-5">
+                <Text className="text-accent text-xl">General care instructions:</Text>
+                {
+                  plant.careInfo?.careInstructions.map((name, index) => {
+                    return (
+                      <Text key={index} className="text-text-primary text-lg">{name}</Text>
+                    )
+                  })
+                }
+              </View>
+            )}
         </View>
       </View>
     </View>
