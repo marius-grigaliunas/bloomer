@@ -62,19 +62,19 @@ const HealthBar = ({numberOfPlants, plantsThatNeedCare}:HealthBarProps) => {
                         </Text>
                     ) : healthStatus === "normal" ? (
                         <Text className='text-3xl text-text-primary'>
-                            {plantsThatNeedCare} Plants need your attention.
+                            {plantsThatNeedCare} Plants need your attention
                         </Text>
                     ) : plantsThatNeedCare > 0 ? (plantsThatNeedCare > 1) ? (
                         <Text className='text-3xl text-text-primary'>
-                            Only {plantsThatNeedCare} Plants need your attention.  
+                            Only {plantsThatNeedCare} Plants need your attention  
                         </Text>
                     ) : (
                         <Text className='text-3xl text-text-primary'>
-                            Only {plantsThatNeedCare} Plant needs your attention.  
+                            Only {plantsThatNeedCare} Plant needs your attention  
                         </Text>
                     ) : (
                         <Text className='text-3xl text-text-primary'>
-                            Perfect! Your Plants are flourishing.
+                            Your Plants are flourishing
                         </Text>
                     )
                 }

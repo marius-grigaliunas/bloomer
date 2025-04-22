@@ -52,11 +52,6 @@ export async function identifyPlants(imageUris: string[]):Promise<PlantIdentific
         let bestMatch = '';
         let commonNames = [''];
         let confidence = 0;
-        
-        // Get the bestMatch directly if available
-        if (responseJSON.bestMatch) {
-            bestMatch = responseJSON.bestMatch;
-        }
       
         // Get details from the top result
         if (responseJSON.results && responseJSON.results.length > 0) {
@@ -64,7 +59,7 @@ export async function identifyPlants(imageUris: string[]):Promise<PlantIdentific
             
             // If we didn't get a bestMatch, use the scientific name from the top result
             if (!bestMatch && topResult.species && topResult.species.scientificName) {
-              bestMatch = topResult.species.scientificName;
+              bestMatch = topResult.species.scientificNameWithoutAuthor;
             }
 
             // Get the confidence score

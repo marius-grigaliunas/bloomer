@@ -41,22 +41,22 @@ const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
         <Text className="text-text-primary text-2xl font-bold">Care Instructions</Text>
         <View className="space-y-2"></View>
           <Text className="text-text-primary text-xl">Watering:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo.wateringFrequency}</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo?.wateringFrequency}</Text>
         <View className="space-y-2">
           <Text className="text-text-primary text-xl">Light Requirements:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo.lightRequirements}</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo?.lightRequirements}</Text>
         </View>
         <View className="space-y-2">
           <Text className="text-text-primary text-xl">SoilPreferences:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo.soilPreferences}</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo?.soilPreferences}</Text>
         </View>
         <View className="space-y-2">
           <Text className="text-text-primary text-xl">Common Issues:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo.commonIssues}</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo?.commonIssues}</Text>
         </View>
         <View className="space-y-2">
           <Text className="text-text-primary text-xl">Additional Care:</Text>
-          <Text className="text-text-secondary text-lg">{plant.careInfo.specialNotes}</Text>
+          <Text className="text-text-secondary text-lg">{plant.careInfo?.specialNotes}</Text>
         </View>
       </View>
     </View>

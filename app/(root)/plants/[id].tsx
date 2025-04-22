@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions, Image } from 'react-native'
 import React from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { usePlantInformation } from '@/interfaces/plantInformation';
@@ -8,6 +8,7 @@ import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
 import { createNewDatabasePlant } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/globalProvider';
 import { DatabasePlantType } from '@/interfaces/interfaces';
+const { width, height } = Dimensions.get('window');
 
 const PlantDetails = () => {
   const { id } = useLocalSearchParams();
@@ -45,13 +46,45 @@ const PlantDetails = () => {
     }
   }
 
-  const { scientificName, commonNames, confidence, careInfo } = identifiedPlant.plant;
+  const { scientificName, commonNames, confidence, imageUri } = identifiedPlant.plant;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
-      <ScrollView className="flex-1">
-        <View className='w-screen flex justify-center items-center mx-3 mt-5'>
-          <Text className='text-3xl text-secondary-medium'>{scientificName}</Text>
+    <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
+      <ScrollView className="w-screen flex-1">
+        <View className='w-screen flex flex-row justify-around items-center bg-background-surface py-8'>
+          <View
+            style={{boxShadow:`
+                0 0px 5px 1px ${colors.secondary.medium},
+              `, borderRadius:50,
+              
+            }}
+          >
+            <Image
+              source={{ uri: imageUri }}
+              style={{width: width*0.5, height: height*0.5, borderRadius:50,
+                  borderColor:colors.secondary.medium, borderWidth:1,  
+                  }}
+              resizeMode='cover'
+            />
+          </View>
+          <View>
+            <View className="">
+              <Text className="text-text-secondary text-xl">Scientific Name:</Text>
+              <Text className="text-text-primary text-xl">{scientificName}</Text>
+            </View>
+            {commonNames && (
+              <View className="mt-5">
+                <Text className="text-text-secondary text-xl">Common Names:</Text>
+                {
+                  commonNames.map((name, index) => {
+                    return (
+                      <Text key={index} className="text-text-primary text-lg">{name}</Text>
+                    )
+                  })
+                }
+              </View>
+            )}
+          </View>
         </View>
         <PlantCareInfoComponent plant={identifiedPlant.plant} />
         <TouchableOpacity 
