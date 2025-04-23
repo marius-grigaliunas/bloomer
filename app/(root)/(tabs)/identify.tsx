@@ -296,6 +296,7 @@ const identify = () => {
         imageUri: "https://example.com/basil.jpg", // Add imageUri field
         careInfo: {
             wateringFrequency: 3,
+            wateringAmount: 200,
             lightRequirements: "high" as "high", // Type assertion to match enum
             soilPreferences: "Well-draining, rich soil",
             humidity: "medium" as "medium", // Type assertion to match enum
