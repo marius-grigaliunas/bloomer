@@ -55,7 +55,7 @@ export interface DatabasePlantType {
   nickname: string;
   scientificName: string;
   commonNames?: string[];
-  imageUrl: string;
+  imageUrl: string | undefined;
   
   // Care Requirements
   wateringFrequency: number;

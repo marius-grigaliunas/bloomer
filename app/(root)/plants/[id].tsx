@@ -1,13 +1,15 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions, Image } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '@/constants/colors';
 import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
-import { createNewDatabasePlant } from '@/lib/appwrite';
+import { createNewDatabasePlant, uploadPlantPicture } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/globalProvider';
 import { DatabasePlantType } from '@/interfaces/interfaces';
+import { ID } from 'react-native-appwrite';
+import AddPlantModal, { PlantFormData } from '@/components/AddPlantModal';
 const { width, height } = Dimensions.get('window');
 
 const PlantDetails = () => {
@@ -15,6 +17,10 @@ const PlantDetails = () => {
   const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
   const identifiedPlant = usePlantInformation((state) => state.identifiedPlant);
   
+  const [ modalVisible, setModalVisible ] = useState(false);
+
+  let nickname: string, lastWatered: Date, dateAdded: Date;
+
   if(!identifiedPlant || !identifiedPlant.plant) {
     return (
       <SafeAreaView>
@@ -29,11 +35,51 @@ const PlantDetails = () => {
     refetch;
   }
 
+  const handleCloseModal = () => {
+
+  }
+
+  const handleSavePlant = (plantData: PlantFormData) => {
+    nickname = plantData.nickname;
+    lastWatered = plantData.lastWatered;
+    dateAdded = plantData.dateAdded;
+  }
+
   const handleAddPlant = async () => {
     if (!contextUser) return;
 
+    const plantId = ID.unique();
+    const plantImage = await uploadPlantPicture(identifiedPlant.plant.imageUri, plantId);
+    const wateringHistory : Date[] = [];
+
+    wateringHistory.push(lastWatered);
+
+    const plantToAdd:DatabasePlantType = {
+      plantId: plantId,
+      ownerId: contextUser.$id,
+      nickname: nickname,
+      scientificName: identifiedPlant.plant.scientificName,
+      commonNames: identifiedPlant.plant.commonNames,
+      imageUrl: plantImage?.toString(),
+      //
+      wateringFrequency: identifiedPlant.plant.careInfo?.wateringFrequency ?? 0,
+      wateringAmount: identifiedPlant.plant.careInfo?.wateringAmount ?? 0,
+      lightRequirements: identifiedPlant.plant.careInfo?.lightRequirements ?? "medium",
+      soilPreferences: identifiedPlant.plant.careInfo?.soilPreferences ?? "",
+      humidity: identifiedPlant.plant.careInfo?.humidity ?? "medium",
+      minTemperature: identifiedPlant.plant.careInfo?.minTemperature ?? 15,
+      maxTemperature: identifiedPlant.plant.careInfo?.maxTemperature ?? 40,
+      //
+      dateAdded: dateAdded,
+      wateringHistory: wateringHistory,
+      //
+      commonIssues: identifiedPlant.plant.careInfo?.commonIssues,
+      notes: identifiedPlant.plant.careInfo?.specialNotes,
+      careInstructions: identifiedPlant.plant.careInfo?.careInstructions,
+    }
+
     try {
-      const result = await createNewDatabasePlant(contextUser, identifiedPlant.plant, identifiedPlant.plant.imageUri);
+      const result = await createNewDatabasePlant(plantToAdd);
       if(result) {
         await refetch();
         router.replace('/(root)/(tabs)')
@@ -89,7 +135,7 @@ const PlantDetails = () => {
               <Text className="text-text-secondary text-xl">Confidence:</Text>
               <Text 
                 style={{color:(confidence < 0.33 ? colors.danger : confidence < 0.66 ? colors.accent : colors.secondary.medium)}} 
-                className="text-3xl">{confidence*100}%</Text>
+                className="text-3xl">{Math.round(confidence*100)}%</Text>
             </View>
           </View>
         </View>
@@ -111,6 +157,13 @@ const PlantDetails = () => {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <AddPlantModal
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        onSave={handleSavePlant}
+        plantName={commonNames[0]}
+      />
     </SafeAreaView>
   )
 }

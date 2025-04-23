@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import colors from '@/constants/colors';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-interface PlantFormData {
+export interface PlantFormData {
   nickname: string;
   lastWatered: Date;
   dateAdded: Date;
