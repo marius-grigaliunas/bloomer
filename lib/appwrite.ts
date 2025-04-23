@@ -168,6 +168,7 @@ export const getUserPlants = async (userId: string): Promise<DatabasePlantType[]
             commonNames: document.commonNames,
             imageUrl: document.imageUrl, // Convert URL to photo prop format
             wateringFrequency: document.wateringFrequency,
+            wateringAmount: document.wateringAmount,
             lastWatered: document.lastWatered,
             nextWateringDate: document.nextWateringDate,
             lightRequirements: document.lightRequirements,
@@ -246,7 +247,7 @@ export const createNewDatabasePlant = async (user: User, plant: Plant, imageUri:
 
                 // Care Requirements
                 wateringFrequency: plant.careInfo?.wateringFrequency, // Days between watering
-
+                wateringAmount: plant.careInfo?.wateringAmount,
                 
                 lightRequirements: plant.careInfo?.lightRequirements,
                 soilPreferences: plant.careInfo?.soilPreferences,
@@ -265,13 +266,7 @@ export const createNewDatabasePlant = async (user: User, plant: Plant, imageUri:
             }
         );
 
-        const newPlantDBEntry = databases.createDocument(
-            databaseId,
-            plantsCollectionId, 
-            ID.unique(),
-            newPlant,
-        )
-        return newPlantDBEntry;
+        return newPlant;
     } catch (error) {
         console.error("Error creating database user:", error);
         return null;

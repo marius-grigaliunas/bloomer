@@ -51,6 +51,7 @@ interface ChutesResponse {
             
             return {
                 wateringFrequency: parsedData.watering_frequency_days,
+                wateringAmount: parsedData.watering_amount,
                 lightRequirements: parsedData.light_requirements,
                 soilPreferences: parsedData.soil_preferences,
                 humidity: parsedData.humidity,

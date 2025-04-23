@@ -6,6 +6,7 @@ export interface User extends Models.User<Models.Preferences>{
 
 export interface PlantCareInfo {
   wateringFrequency: number;
+  wateringAmount: number;
   lightRequirements: 'low' | 'medium' | 'high' | 'direct';
   soilPreferences: string;
   humidity: 'low' | 'medium' | 'high';
@@ -57,7 +58,8 @@ export interface DatabasePlantType {
   imageUrl: string;
   
   // Care Requirements
-  wateringFrequency: number; // Days between watering
+  wateringFrequency: number;
+  wateringAmount: number;
   lastWatered?: Date;
   nextWateringDate?: Date;
   lightRequirements: 'low' | 'medium' | 'high' | 'direct';

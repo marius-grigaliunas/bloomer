@@ -21,7 +21,10 @@ const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
         <Text className="text-text-primary text-2xl font-bold">Care Instructions</Text>
         <View className="space-y-2"></View>
           <Text className="text-accent text-xl">Watering frequency:</Text>
-          <Text className="text-text-primary text-lg">Every {plant.careInfo?.wateringFrequency} days</Text>
+          <Text className="text-text-primary text-lg">
+            Every {plant.careInfo?.wateringFrequency} days,
+            water with {plant.careInfo?.wateringAmount} ml of water.
+          </Text>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Light Requirements:</Text>
           <Text className="text-text-primary text-lg">{plant.careInfo?.lightRequirements}</Text>

@@ -7,6 +7,7 @@ function buildPlantCarePrompt(plant: string, commonNamesArray: string[]) {
         Return ONLY a JSON object with these exact fields. Do not include any additional text or explanation:
         {
             "watering_frequency_days": number, // Integer between 1-30
+            "watering_amount": number, // Amount of water in milliliters, intger between 50-1000
             "light_requirements": "low" | "medium" | "high" | "direct", // One of these exact values
             "soil_preferences": string, // Brief soil description, max 100 chars
             "humidity": "low" | "medium" | "high", // One of these exact values
