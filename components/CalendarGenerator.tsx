@@ -1,5 +1,6 @@
 import { Text, TouchableOpacity, View } from 'react-native'
 import React, { ReactNode, useEffect, useState } from 'react'
+import { WateringDay } from '@/lib/services/dateService'
 import { 
     CurrentMonthWeekday, 
     CurrentMonthWeekend, 
@@ -8,7 +9,12 @@ import {
     HeaderDay 
 } from './CalendarDay'
 
-const CalendarGenerator = () => {
+interface CalendarGeneratorProps {
+    wateringDays: Map<string, WateringDay>;
+    onDayPress?: (date: Date) => void;
+}
+
+const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps) => {
     const [calendarElements, setCalendarElements] = useState<ReactNode[]>([])
     
     const date = new Date();
@@ -24,6 +30,15 @@ const CalendarGenerator = () => {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             const months = ["January", "February", "March", "April", "May", "June", "July", "August",
                 "September", "October", "November", "December"];
+
+    const getWateringDay = (date: Date): WateringDay | undefined => {
+        const dateKey = date.toISOString().split('T')[0];
+        const day = wateringDays.get(dateKey);
+        if (day) {
+            console.log(`Found watering day for ${dateKey}:`, day);
+        }
+        return day;
+    }
 
     const generateCalendar = () => {
         const newElements: ReactNode[] = [];
@@ -61,44 +76,44 @@ const CalendarGenerator = () => {
 
         // Current month days
         for (let i = 1; i <= dateLast; i++) {
-            const day = new Date(selectedYear, selectedMonth, i).getDay();
+            const currentDate = new Date(selectedYear, selectedMonth, i);
+            const wateringDay = getWateringDay(currentDate);
+            const day = currentDate.getDay();
             const isToday = i === today && selectedMonth.toString() === todayDate.split('-')[1] && selectedYear.toString() === todayDate.split('-')[2];
             
+            // Separate key from other props
+            const key = `current-${i}`;
+            const dayProps = {
+                dayKey: `${i}-${selectedMonth}-${selectedYear}`,
+                day: i,
+                isToday: isToday,
+                month: selectedMonth,
+                year: selectedYear,
+                wateringDay,
+                onPress: onDayPress ? () => onDayPress(currentDate) : undefined
+            };
+
             if (day === 0 || day === 6) {
-                newElements.push(
-                    <CurrentMonthWeekend
-                        key={`current-${i}`}
-                        dayKey={`${i}-${selectedMonth}-${selectedYear}`}
-                        day={i}
-                        isToday={isToday}
-                        month={selectedMonth}
-                        year={selectedYear}
-                    />
-                );
+                newElements.push(<CurrentMonthWeekend key={key} {...dayProps} />);
             } else {
-                newElements.push(
-                    <CurrentMonthWeekday
-                        key={`current-${i}`}
-                        dayKey={`${i}-${selectedMonth}-${selectedYear}`}
-                        day={i}
-                        isToday={isToday}
-                        month={selectedMonth}
-                        year={selectedYear}
-                    />
-                );
+                newElements.push(<CurrentMonthWeekday key={key} {...dayProps} />);
             }
         }
 
         // Next month days
         if (dayLast !== 0) {
             for (let i = 1; i <= 7 - dayLast; i++) {
+                const key = `next-${i}`;
+                const dayProps = {
+                    dayKey: `${i}-${selectedMonth === 11 ? 0 : selectedMonth+1}-${selectedMonth === 11 ? selectedYear+1 : selectedYear}`,
+                    day: i,
+                    month: selectedMonth === 11 ? 0 : selectedMonth+1,
+                    year: selectedMonth === 11 ? selectedYear+1 : selectedYear
+                };
                 newElements.push(
                     <NextMonthDay
-                        key={`next-${i}`}
-                        dayKey={`${i}-${selectedMonth === 11 ? 0 : selectedMonth+1}-${selectedMonth === 11 ? selectedYear+1 : selectedYear}`}
-                        day={i}
-                        month={selectedMonth === 11 ? 0 : selectedMonth+1}
-                        year={selectedMonth === 11 ? selectedYear+1 : selectedYear}
+                        key={key}
+                        {...dayProps}
                     />
                 );
             }

@@ -10,6 +10,7 @@ import { useGlobalContext } from '@/lib/globalProvider';
 import { DatabasePlantType } from '@/interfaces/interfaces';
 import { ID } from 'react-native-appwrite';
 import AddPlantModal, { PlantFormData } from '@/components/AddPlantModal';
+import LoadingScreen from '@/components/LoadingScreen';
 const { width, height } = Dimensions.get('window');
 
 const PlantDetails = () => {
@@ -17,6 +18,7 @@ const PlantDetails = () => {
   const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
   const identifiedPlant = usePlantInformation((state) => state.identifiedPlant);
   
+  const [ loading, setLoading] = useState(false);
   const [ modalVisible, setModalVisible ] = useState(false);
 
   if(!identifiedPlant || !identifiedPlant.plant) {
@@ -94,6 +96,9 @@ const PlantDetails = () => {
     }
 
     try {
+      setLoading(true);
+      setModalVisible(false);
+
       const result = await createNewDatabasePlant(plantToAdd);
       if(result) {
         await refetch();
@@ -105,7 +110,7 @@ const PlantDetails = () => {
       console.error("Failed to add the plant to the collection:", error);
       Alert.alert("Error", "Failed to add plant");
     } finally {
-      setModalVisible(false);
+      
 
     }
   }
@@ -116,9 +121,12 @@ const PlantDetails = () => {
 
   const { scientificName, commonNames, confidence, imageUri } = identifiedPlant.plant;
 
+  if(loading) return <LoadingScreen/>
+
   return (
     <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
       <ScrollView className="w-screen flex-1">
+        
         <View className='w-screen flex flex-row justify-around items-center bg-background-surface py-8
           rounded-xl'>
           <View
