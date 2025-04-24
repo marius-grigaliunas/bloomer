@@ -19,8 +19,6 @@ const PlantDetails = () => {
   
   const [ modalVisible, setModalVisible ] = useState(false);
 
-  let nickname: string, lastWatered: Date, dateAdded: Date;
-
   if(!identifiedPlant || !identifiedPlant.plant) {
     return (
       <SafeAreaView>
@@ -35,17 +33,32 @@ const PlantDetails = () => {
     refetch;
   }
 
+  const handleShowModal = () => {
+    setModalVisible(true);
+  }
+
   const handleCloseModal = () => {
-
+    setModalVisible(false);
   }
 
-  const handleSavePlant = (plantData: PlantFormData) => {
-    nickname = plantData.nickname;
-    lastWatered = plantData.lastWatered;
-    dateAdded = plantData.dateAdded;
+  const calculateNextWatering = (lastWatered: Date, wateringFrequency: number) => {
+    if(wateringFrequency === 0) {
+      return undefined;
+    }
+
+    const today = new Date();
+    const nextDate = new Date(lastWatered);
+    nextDate.setDate(lastWatered.getDate() + wateringFrequency);
+
+    // If the calculated date is before or equal to today, return today
+    if (nextDate <= today) {
+      return today;
+    }
+
+    return nextDate;
   }
 
-  const handleAddPlant = async () => {
+  const handleAddPlant = async (nickname: string, lastWatered: Date, dateAdded: Date) => {
     if (!contextUser) return;
 
     const plantId = ID.unique();
@@ -64,6 +77,8 @@ const PlantDetails = () => {
       //
       wateringFrequency: identifiedPlant.plant.careInfo?.wateringFrequency ?? 0,
       wateringAmount: identifiedPlant.plant.careInfo?.wateringAmount ?? 0,
+      lastWatered: lastWatered,
+      nextWateringDate: calculateNextWatering(lastWatered, identifiedPlant.plant.careInfo?.wateringFrequency ?? 0),
       lightRequirements: identifiedPlant.plant.careInfo?.lightRequirements ?? "medium",
       soilPreferences: identifiedPlant.plant.careInfo?.soilPreferences ?? "",
       humidity: identifiedPlant.plant.careInfo?.humidity ?? "medium",
@@ -89,7 +104,14 @@ const PlantDetails = () => {
     } catch (error) {
       console.error("Failed to add the plant to the collection:", error);
       Alert.alert("Error", "Failed to add plant");
+    } finally {
+      setModalVisible(false);
+
     }
+  }
+
+  const handleSavePlant = async (plantData: PlantFormData) => {
+    await handleAddPlant(plantData.nickname, plantData.lastWatered, plantData.dateAdded);
   }
 
   const { scientificName, commonNames, confidence, imageUri } = identifiedPlant.plant;
@@ -142,7 +164,7 @@ const PlantDetails = () => {
         <PlantCareInfoComponent plant={identifiedPlant.plant} />
         <TouchableOpacity 
           className="bg-secondary-deep p-4 mt-3 rounded-xl"
-          onPress={handleAddPlant}
+          onPress={handleShowModal}
         >
           <Text className="text-text-primary text-center">
             Add this plant to your Garden

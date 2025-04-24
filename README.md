@@ -88,6 +88,7 @@
     - Refine styling and transitions
     - Implement loading states
 - **Days 3-4:** Performance optimization
+    - image compression
     - Image caching
     - Optimize Appwrite queries
 - **Days 5-7:** Final testing and documentation

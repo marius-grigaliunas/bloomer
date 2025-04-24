@@ -65,8 +65,6 @@ export interface DatabasePlantType {
   lightRequirements: 'low' | 'medium' | 'high' | 'direct';
   soilPreferences?: string;
   humidity: 'low' | 'medium' | 'high';
-  
-  // Temperature Range
   minTemperature?: number;
   maxTemperature?: number;
   

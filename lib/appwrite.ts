@@ -226,44 +226,14 @@ export const uploadPlantPicture = async (fileUri: string, id: string) => {
     }
 }
 
-export const createNewDatabasePlant = async (user: User, plant: Plant, imageUri: string) => {
-
-    const plantId = ID.unique();
+export const createNewDatabasePlant = async (plant: DatabasePlantType) => {
 
     try {
-        const plantImage = await uploadPlantPicture(imageUri, plantId);
-
         const newPlant = await databases.createDocument(
             databaseId,
             plantsCollectionId,
             ID.unique(),
-            {
-                plantId: plantId,
-                ownerId: user.$id,
-                nickname: "test",
-                scientificName: plant.scientificName,
-                commonNames: plant.commonNames,
-                imageUrl: plantImage,
-
-                // Care Requirements
-                wateringFrequency: plant.careInfo?.wateringFrequency, // Days between watering
-                wateringAmount: plant.careInfo?.wateringAmount,
-                
-                lightRequirements: plant.careInfo?.lightRequirements,
-                soilPreferences: plant.careInfo?.soilPreferences,
-                humidity: plant.careInfo?.humidity,
-                
-                // Temperature Range
-                minTemperature: plant.careInfo?.minTemperature,
-                maxTemperature: plant.careInfo?.maxTemperature,
-                
-                // Tracking & History
-                
-                // Notes & Issues
-                commonIssues: plant.careInfo?.commonIssues,
-                notes: plant.careInfo?.specialNotes,
-                careInstructions: plant.careInfo?.careInstructions,
-            }
+            plant,
         );
 
         return newPlant;

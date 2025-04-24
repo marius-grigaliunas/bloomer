@@ -59,58 +59,73 @@ export default function AddPlantModal({visible, onClose, onSave, plantName}: Add
       onRequestClose={onClose}
     >
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
-        <View>
-          <View>
-            <Text className='text-text-primary'>Add to Your Garden</Text>
-            
-            <View>
-              <Text className='text-text-primary'>Name your plant</Text>
-              <TextInput
-                placeholder="Enter the plant's name"
-                placeholderTextColor={colors.text.secondary}
-                value='nickname'
-                onChangeText={setNickname}
-                className='text-text-primary'
-              />
+        <View className='bg-background-primary px-6 py-4'>
+          <View className='flex-col justify-start h-full'>
+            {/* Header */}
+            <View className='items-center'>
+              <Text className='text-text-primary text-3xl font-bold mb-2 text-center'>
+                Let's add your new plant to Your Garden
+              </Text>
+              <Text className='text-text-secondary text-lg text-center'>
+                First, we just need some information
+              </Text>
             </View>
-
-            <View>
-              <Text className='text-text-primary'>When was the last time the plant was watered</Text>
-
-              <TouchableOpacity
-                onPress={() => setDatePickerVisible(true)}  
-              >
-                <Text className='text-text-primary'>
-                  {lastWatered.toLocaleDateString()}
-                </Text>
-              </TouchableOpacity>
-
-              {datePickerVisible && (
-                <DateTimePicker
-                  value={lastWatered}
-                  mode='date'
-                  display='default'
-                  onChange={handleDateChange}
-                  maximumDate={new Date()}
-                  className='text-text-primary'
+            {/* Form Fields */}
+            <View className='flex-1 justify-center h-2/6'>
+              <View className=''>
+                <Text className='text-text-primary text-xl text-center mb-2'>Name your plant</Text>
+                <TextInput
+                  placeholder="Enter the plant's name"
+                  placeholderTextColor={colors.text.secondary}
+                  value={nickname}
+                  onChangeText={setNickname}
+                  className='text-text-primary text-center text-lg p-4 rounded-xl bg-background-surface border border-primary-medium'
                 />
-              )}
+              </View>
+
+              <View className='mt-6'>
+                <Text className='text-text-primary text-xl mb-2 text-center'>Last watered</Text>
+                <TouchableOpacity
+                  onPress={() => setDatePickerVisible(true)}
+                  className='p-4 rounded-xl bg-background-surface border border-primary-medium'
+                >
+                  <Text className='text-text-primary text-lg text-center'>
+                    {lastWatered.toLocaleDateString()}
+                  </Text>
+                </TouchableOpacity>
+
+                {datePickerVisible && (
+                  <DateTimePicker
+                    value={lastWatered}
+                    mode='date'
+                    display='calendar'
+                    onChange={handleDateChange}
+                    maximumDate={new Date()}
+                  />
+                )}
+              </View>
             </View>
 
-            <View>
+            {/* Action Buttons */}
+            <View className='mt-4'>
               <TouchableOpacity 
-                onPress={onClose}
+                onPress={handleSave}
+                className='bg-secondary-deep p-4 rounded-xl'
               >
-                <Text className='text-danger'>Cancel</Text>
+                <Text className='text-text-primary text-xl text-center font-bold'>
+                  Add Plant
+                </Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                onPress={handleSave}
+                onPress={onClose}
+                className='bg-background-surface p-4 rounded-xl border border-danger'
               >
-                <Text className='text-secondary-medium'>Add Plant</Text>
+                <Text className='text-danger text-xl text-center font-bold'>
+                  Cancel
+                </Text>
               </TouchableOpacity>
             </View>
-
           </View>
         </View>
       </TouchableWithoutFeedback>
