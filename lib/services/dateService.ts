@@ -24,11 +24,6 @@ export function generateWateringDays(
     const nextWatering = plant.nextWateringDate ? new Date(plant.nextWateringDate) : lastWatered;
     let currentDate = new Date(nextWatering);
 
-    console.log(`Calculating watering days for ${plant.nickname}:`);
-    console.log(`- Last watered: ${lastWatered}`);
-    console.log(`- Next watering: ${nextWatering}`);
-    console.log(`- Frequency: ${plant.wateringFrequency} days`);
-
     while (currentDate <= endDate) {
       const dateKey = currentDate.toISOString().split('T')[0];
       console.log(`- Adding watering day: ${dateKey}`);
@@ -53,6 +48,5 @@ export function generateWateringDays(
     }
   });
 
-  console.log(`Total watering days generated: ${wateringDays.size}`);
   return wateringDays;
 }

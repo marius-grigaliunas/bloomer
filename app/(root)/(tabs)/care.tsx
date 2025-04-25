@@ -12,26 +12,38 @@ const Care = () => {
     const [wateringDays, setWateringDays] = useState<Map<string, WateringDay>>(new Map());
     const { isLoggedIn, user } = useGlobalContext();
     const [refreshing, setRefreshing] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const loadPlants = async () => {
-      if (!isLoggedIn || !user) return;
-      
-      const plants = await getUserPlants(user.$id);
-      console.log(`Loaded ${plants.length} plants`);
-      
-      const startDate = new Date(); // Today
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 30); // 30 days from now
-      
-      console.log('Generating watering days from', startDate, 'to', endDate);
-      const days = generateWateringDays(plants, startDate, endDate);
-      console.log(`Generated ${days.size} watering days`);
-      
-      setWateringDays(days);
+        try {
+            if (!isLoggedIn || !user) return;
+            
+            setIsLoading(true);
+            const plants = await getUserPlants(user.$id);
+            
+            const startDate = new Date();
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + 120);
+            
+            const days = generateWateringDays(plants, startDate, endDate);
+            
+            setWateringDays(days);
+        } catch (error) {
+            console.error('Error loading plants:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    useEffect(() => {    
+    // Split the effects to handle initial load and user/login changes separately
+    useEffect(() => {
         loadPlants();
+    }, []); // Empty dependency array for initial load
+
+    useEffect(() => {
+        if (isLoggedIn && user) {
+            loadPlants();
+        }
     }, [isLoggedIn, user]);
 
     const onRefresh = async () => {
@@ -44,8 +56,9 @@ const Care = () => {
         const dateKey = date.toISOString().split('T')[0];
         const wateringDay = wateringDays.get(dateKey);
         if (wateringDay) {
-            // You can add logic here to show details about the plants that need watering
+            // logic here to show details about the plants that need watering
             console.log('Plants to water:', wateringDay.plants);
+            console.log("Show plant cards")
         }
     };
 

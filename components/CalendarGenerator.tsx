@@ -34,9 +34,6 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
     const getWateringDay = (date: Date): WateringDay | undefined => {
         const dateKey = date.toISOString().split('T')[0];
         const day = wateringDays.get(dateKey);
-        if (day) {
-            console.log(`Found watering day for ${dateKey}:`, day);
-        }
         return day;
     }
 
@@ -62,6 +59,13 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
                 : dateLast_MonthPrev - 7 + 1;
 
             for (let j = 1; j < (dayFirst || 7); j++) {
+                const prevMonthDate = new Date(
+                    selectedMonth === 0 ? selectedYear - 1 : selectedYear,
+                    selectedMonth === 0 ? 11 : selectedMonth - 1,
+                    lastMonthDate + j
+                );
+                const wateringDay = getWateringDay(prevMonthDate);
+                
                 newElements.push(
                     <PreviousMonthDay
                         key={`prev-${j}`}
@@ -69,6 +73,8 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
                         day={lastMonthDate + j}
                         month={selectedMonth === 0 ? 11 : selectedMonth-1}
                         year={selectedMonth === 0 ? selectedYear-1 : selectedYear}
+                        wateringDay={wateringDay}
+                        onPress={onDayPress}
                     />
                 );
             }
@@ -103,12 +109,21 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
         // Next month days
         if (dayLast !== 0) {
             for (let i = 1; i <= 7 - dayLast; i++) {
+                const nextMonthDate = new Date(
+                    selectedMonth === 11 ? selectedYear + 1 : selectedYear,
+                    selectedMonth === 11 ? 0 : selectedMonth + 1,
+                    i
+                );
+                const wateringDay = getWateringDay(nextMonthDate);
+                
                 const key = `next-${i}`;
                 const dayProps = {
                     dayKey: `${i}-${selectedMonth === 11 ? 0 : selectedMonth+1}-${selectedMonth === 11 ? selectedYear+1 : selectedYear}`,
                     day: i,
                     month: selectedMonth === 11 ? 0 : selectedMonth+1,
-                    year: selectedMonth === 11 ? selectedYear+1 : selectedYear
+                    year: selectedMonth === 11 ? selectedYear+1 : selectedYear,
+                    wateringDay,
+                    onPress: onDayPress
                 };
                 newElements.push(
                     <NextMonthDay
@@ -143,7 +158,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
     useEffect(() => {
         generateCalendar();
         return () => setCalendarElements([]);
-    }, [selectedMonth, selectedYear]);
+    }, [selectedMonth, selectedYear, wateringDays]); // Add wateringDays to dependencies
 
     return (
         <View>

@@ -29,19 +29,21 @@ const CalendarDay = ({ containerClasses, textClasses, textContent, wateringDay, 
     return (
         <TouchableOpacity 
             onPress={onPress}
-            className={`${containerClasses} w-[14.28%] py-8 px-5 flex justify-start items-center`}
+            className={`${containerClasses} w-[14.28%] py-4 px-2 flex justify-start items-center relative`}
         >
             <Text className={textClasses}>{textContent}</Text>
-            {wateringDay && (
-                <View className="absolute bottom-2 flex flex-row gap-1">
-                    {wateringDay.plants.map(plant => (
-                        <View 
-                            key={plant.plantId}
-                            className={`w-2 h-2 rounded-full ${
-                                plant.isNextWatering ? 'bg-secondary-medium' : 'bg-primary-medium'
-                            }`}
-                        />
-                    ))}
+            {wateringDay && wateringDay.plants.length > 0 && (
+                <View className="absolute bottom-[2px] w-full flex-1 bg-secondary-deep rounded-xl border-[1px] border-primary-deep">
+                    <Text 
+                        className="text-xs text-center text-accent"
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                    >
+                        {wateringDay.plants.length === 1 
+                            ? wateringDay.plants[0].nickname
+                            : `${wateringDay.plants.length} Plants`
+                        }
+                    </Text>
                 </View>
             )}
         </TouchableOpacity>
