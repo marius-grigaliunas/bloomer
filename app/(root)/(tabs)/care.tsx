@@ -87,49 +87,57 @@ const Care = () => {
     };
 
     return (
-        <SafeAreaView className='bg-background-primary flex justify-center items-center h-full'>
+        <SafeAreaView className='bg-background-primary flex-1'>
             <ScrollView 
-              contentContainerStyle={{height: 'auto'}}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  tintColor={colors.primary.medium}
-                />
-              }
+                showsVerticalScrollIndicator={true}
+                scrollEnabled={true}
+                style={{ flex: 1 }}
+                contentContainerStyle={{ paddingBottom: 80 }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.primary.medium}
+                    />
+                }
             >
-                <View className="flex flex-row justify-around w-screen h-24  
-                    rounded-2xl items-center bg-background-surface
-                    shadow-lg shadow-amber-50">
-                    <Text className="text-text-primary text-2xl mx-4">
-                        Schedule
-                    </Text>
-                    <Text className="text-text-primary text-2xl mx-4">
-                        {getFormattedFullDate(new Date())}
-                    </Text>
-                </View>
-                <CalendarGenerator 
-                    wateringDays={wateringDays}
-                    onDayPress={handleDayPress}
-                />
-                
-                {selectedDate && selectedPlants.length > 0 && (
-                    <View className="w-full px-4 mt-4">
-                        <Text className="text-text-primary text-xl font-semibold mb-2">
-                            Water on {getFormattedFullDate(selectedDate)}
+                <View className="flex-1">
+                    <View className="flex flex-row justify-around w-screen h-24 
+                        rounded-2xl items-center bg-background-surface
+                        shadow-lg shadow-amber-50">
+                        <Text className="text-text-primary text-2xl mx-4">
+                            Schedule
                         </Text>
-                        <View className="flex flex-row flex-wrap justify-start gap-2">
-                            {selectedPlants.map((plant) => (
-                                <PlantCard
-                                    key={plant.plantId}
-                                    {...plant}
-                                />
-                            ))}
-                        </View>
+                        <Text className="text-text-primary text-2xl mx-4">
+                            {getFormattedFullDate(new Date())}
+                        </Text>
                     </View>
-                )}
-                
-                <View className="h-16" />
+                    
+                    <View className="flex-1">
+                        <CalendarGenerator 
+                            wateringDays={wateringDays}
+                            onDayPress={handleDayPress}
+                        />
+                    </View>
+
+                    {selectedDate && selectedPlants.length > 0 && (
+                        <View className="w-full px-4 mt-4">
+                            <Text className="text-text-primary text-xl font-semibold mb-2">
+                                Water on {getFormattedFullDate(selectedDate)}
+                            </Text>
+                            <View className="flex flex-row flex-wrap justify-start gap-2">
+                                {selectedPlants.map((plant) => (
+                                    <PlantCard
+                                        key={plant.plantId}
+                                        {...plant}
+                                    />
+                                ))}
+                            </View>
+                        </View>
+                    )}
+
+                    <View className="h-24" />
+                </View>
             </ScrollView>
         </SafeAreaView>
     )

@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { WateringDay } from '@/lib/services/dateService'
 import { 
@@ -8,6 +8,7 @@ import {
     NextMonthDay,
     HeaderDay 
 } from './CalendarDay'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface CalendarGeneratorProps {
     wateringDays: Map<string, WateringDay>;
@@ -161,37 +162,37 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
     }, [selectedMonth, selectedYear, wateringDays]); // Add wateringDays to dependencies
 
     return (
-        <View>
-            <View className="flex flex-row justify-center w-screen h-16 rounded-2xl items-center bg-background-surface mt-2 " 
-            >
-                <TouchableOpacity
-                    onPress={PreviousMonth}
-                    onLongPress={PreviousMonth}
-                    className='bg-primary-deep w-10 h-10 rounded-full flex justify-center items-center'
-                >
-                    <Text className='text-3xl text-text-primary'
+                <View className=''>
+                    <View className="flex flex-row justify-center w-screen h-16 rounded-2xl items-center bg-background-surface mt-2 " 
                     >
-                        {"<"}
-                    </Text>
-                </TouchableOpacity>
-                <View className='w-64 flex flex-row justify-center'>
-                    <Text className='w-8/12 text-4xl text-text-primary text-center' >{months[selectedMonth]}</Text>
-                    <Text className='w-4/12 text-4xl text-text-primary text-center ' >{selectedYear}</Text>
+                        <TouchableOpacity
+                            onPress={PreviousMonth}
+                            onLongPress={PreviousMonth}
+                            className='bg-primary-deep w-10 h-10 rounded-full flex justify-center items-center'
+                        >
+                            <Text className='text-3xl text-text-primary'
+                            >
+                                {"<"}
+                            </Text>
+                        </TouchableOpacity>
+                        <View className='w-64 flex flex-row justify-center'>
+                            <Text className='w-8/12 text-4xl text-text-primary text-center' >{months[selectedMonth]}</Text>
+                            <Text className='w-4/12 text-4xl text-text-primary text-center ' >{selectedYear}</Text>
+                        </View>
+                        <TouchableOpacity
+                            onPress={NextMonth}
+                            className='bg-primary-deep w-10 h-10 rounded-full flex justify-center items-center'
+                        >
+                            <Text className='text-3xl text-text-primary'
+                            >
+                                {">"}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View className='flex flex-row flex-wrap w-full mt-2'>
+                        {calendarElements}
+                    </View>
                 </View>
-                <TouchableOpacity
-                    onPress={NextMonth}
-                    className='bg-primary-deep w-10 h-10 rounded-full flex justify-center items-center'
-                >
-                    <Text className='text-3xl text-text-primary'
-                    >
-                        {">"}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-            <View className='flex flex-row flex-wrap w-full mt-2'>
-                {calendarElements}
-            </View>
-        </View>
     );
 }
 
