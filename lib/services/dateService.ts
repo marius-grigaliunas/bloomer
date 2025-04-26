@@ -26,7 +26,6 @@ export function generateWateringDays(
 
     while (currentDate <= endDate) {
       const dateKey = currentDate.toISOString().split('T')[0];
-      console.log(`- Adding watering day: ${dateKey}`);
       
       if (!wateringDays.has(dateKey)) {
         wateringDays.set(dateKey, {

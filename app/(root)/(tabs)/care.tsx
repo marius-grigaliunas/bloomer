@@ -7,12 +7,16 @@ import { WateringDay, generateWateringDays } from '@/lib/services/dateService'
 import { useGlobalContext } from '@/lib/globalProvider'
 import { getUserPlants } from '@/lib/appwrite'
 import colors from '@/constants/colors'
+import PlantCard from '@/components/PlantCard'
 
 const Care = () => {
     const [wateringDays, setWateringDays] = useState<Map<string, WateringDay>>(new Map());
     const { isLoggedIn, user } = useGlobalContext();
     const [refreshing, setRefreshing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedPlants, setSelectedPlants] = useState<DatabasePlantType[]>([]);
+    const [allPlants, setAllPlants] = useState<DatabasePlantType[]>([]); // Add this line
 
     const loadPlants = async () => {
         try {
@@ -20,6 +24,7 @@ const Care = () => {
             
             setIsLoading(true);
             const plants = await getUserPlants(user.$id);
+            setAllPlants(plants); // Add this line
             
             const startDate = new Date();
             const endDate = new Date();
@@ -56,9 +61,17 @@ const Care = () => {
         const dateKey = date.toISOString().split('T')[0];
         const wateringDay = wateringDays.get(dateKey);
         if (wateringDay) {
-            // logic here to show details about the plants that need watering
-            console.log('Plants to water:', wateringDay.plants);
-            console.log("Show plant cards")
+            setSelectedDate(date);
+            // Find full plant data for each plant in the watering day
+            const plantsForDay = wateringDay.plants.map(plant => {
+                const fullPlantData = allPlants.find(p => p.plantId === plant.plantId);
+                return fullPlantData!; // The plant should exist in allPlants
+            }).filter(Boolean); // Remove any undefined values just in case
+            
+            setSelectedPlants(plantsForDay);
+        } else {
+            setSelectedDate(null);
+            setSelectedPlants([]);
         }
     };
 
@@ -99,9 +112,24 @@ const Care = () => {
                     wateringDays={wateringDays}
                     onDayPress={handleDayPress}
                 />
-                <View className="h-72 bg-background-primary rounded-2xl">
-
-                </View>
+                
+                {selectedDate && selectedPlants.length > 0 && (
+                    <View className="w-full px-4 mt-4">
+                        <Text className="text-text-primary text-xl font-semibold mb-2">
+                            Water on {getFormattedFullDate(selectedDate)}
+                        </Text>
+                        <View className="flex flex-row flex-wrap justify-start gap-2">
+                            {selectedPlants.map((plant) => (
+                                <PlantCard
+                                    key={plant.plantId}
+                                    {...plant}
+                                />
+                            ))}
+                        </View>
+                    </View>
+                )}
+                
+                <View className="h-16" />
             </ScrollView>
         </SafeAreaView>
     )
