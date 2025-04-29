@@ -22,13 +22,13 @@
     - [x] Create Appwrite account and project
     - [x] Configure development environment
 - **Days 3-4:** Database schema design
-    - [ ] Design Appwrite Collections for Users
-    - [ ] Design Plant Collection with care requirements
-    - [ ] Design WateringSchedule Collection
+    - [x] Design Appwrite Collections for Users
+    - [x] Design Plant Collection with care requirements
+    - [?] Design WateringSchedule Collection
 - **Days 5-7:** API planning
     - [x] Research PlantApi for plant identification
     - [x] Create API key and test with sample images
-    - Map out required Appwrite functions and endpoints
+    - [ ] Map out required Appwrite functions and endpoints
 
 ### Week 2: Appwrite Integration & Authentication (Mar 17-23)
 
@@ -37,11 +37,10 @@
     - [x] Set up google verification
     - [x] Configure OAuth providers (optional)
 - **Days 3-5:** Database collections setup
-    - [ ] Create database collections in Appwrite Console
-    - [ ] Set up security rules and permissions
-    - [ ] Create indexes for efficient queries
+    - [x] Create database collections in Appwrite Console
+    - [x] Set up security rules and permissions
 - **Days 6-7:** Storage configuration
-    - Configure file permissions
+    - [x] Configure file permissions
 
 ### Week 3: Basic Mobile App (Mar 24-30)
 
@@ -62,12 +61,12 @@
 - **Days 1-3:** Camera integration
     - [x] Implement image capture functionality
     - [x] Send captured images to pl@nt.net api, for now direct api call,
-    - [ ] later needs a protected api route
-    - [...] build the result view
+    - [?] later needs a protected api route
+    - [x] build the result view
 - **Days 4-7:** Plant care with AI
     - [x] Implement response parsing to extract structured data
     - [x] Build results display component
-    - [...] Create "add identified plant to collection" flow
+    - [x] Create "add identified plant to collection" flow
 
 ### Week 5: Scheduling and Notifications (Apr 7-13)
 
@@ -96,3 +95,7 @@
     - Create README and documentation
     - Prepare for deployment
     - Deploy 
+
+TODO
+ - Create plant details page, all info about the plant that the user can always check
+    - in the details, user should be able to delete the plant, rename, mark as watered.

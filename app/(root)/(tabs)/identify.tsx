@@ -141,7 +141,7 @@ const identify = () => {
         imageUri: validImageUris[0]
       })
 
-      router.push(`/plants/${encodeURIComponent(scientificName)}`)
+      router.push("/plants/identifiedPlant")
 
     } catch (error) {
       console.error('Identification failed:', error);
