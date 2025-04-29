@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '@/constants/colors';
@@ -12,6 +12,9 @@ const PlantDetails = () => {
   const { id } = useLocalSearchParams();
   const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
   const [ loading, setLoading] = useState(false);
+
+  useEffect (() => {
+  }, [])
 
   return (
     <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
