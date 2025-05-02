@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { DatabasePlantType } from "./interfaces";
-import { getUserPlants } from "@/lib/appwrite";
+import { deletePlant, getUserPlants, markAsWatered, updatePlant } from "@/lib/appwrite";
 import { isLoading } from "expo-font";
 
 interface PlantState {
@@ -46,9 +46,69 @@ export const usePlantStore = create<PlantState>((set, get) => ({
         return get().plants[id];
     },
 
-    updatePlant: async (plant: DatabasePlantType) => {},
+    updatePlant: async (plant: DatabasePlantType) => {
+        try {
+            set({ isLoading: true, error: null });
+            await updatePlant(plant);
+            
+            set(state => ({
+                plants: {...state.plants, [plant.plantId]: plant },
+                isLoading: false
+            }));
+        } catch (err) {
+            set({isLoading: false, error: err instanceof Error ? err.message : 'An error updating the plant has occured'});
+        }
+    },
 
-    deletePlant: async (id: string) => {},
+    deletePlant: async (id: string) => {
+        try {
+            set({isLoading: true, error: null});
+            await deletePlant(id);
+
+            set(state => {
+                const newPlants = {...state.plants };
+                delete newPlants[id];
+
+                return {
+                    plants: newPlants,
+                    allPlantIds: state.allPlantIds.filter(plantId => plantId !== id),
+                    isLoading: false
+                };
+            });
+        } catch (err) {
+            set({isLoading: false, error: err instanceof Error ? err.message : 'An error deleting the plant has occured'});
+        }
+    },
     
-    markAsWatered: async (id: string) => {},
+    markAsWatered: async (id: string) => {
+        try {
+            set({ isLoading: true, error: null });
+            const plant = get().plants[id];
+            
+            if (!plant) {
+              throw new Error("Plant not found");
+            }
+            
+            const today = new Date();
+            const newWateringHistory = plant.wateringHistory;
+            newWateringHistory?.push(today)
+
+            const updatedPlant: DatabasePlantType = {
+              ...plant,
+              lastWatered: today,
+              wateringHistory: newWateringHistory,
+              nextWateringDate: new Date(today.setDate(today.getDate() + plant.wateringFrequency))
+            };
+            
+            await markAsWatered(updatedPlant);
+            
+            // Update in our store
+            set(state => ({
+              plants: { ...state.plants, [id]: updatedPlant },
+              isLoading: false
+            }));
+        } catch (err) {
+            set({isLoading: false, error: err instanceof Error ? err.message : 'An error marking the plant as watered has occured'});
+        }
+    },
 }))

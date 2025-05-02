@@ -4,7 +4,7 @@ import * as WebBrowser from 'expo-web-browser'
 import { DatabasePlantType, Plant, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import * as FileSystem from 'expo-file-system';
-import { Image, ImageSourcePropType } from "react-native"
+import { Alert, Image, ImageSourcePropType } from "react-native"
 
 export const config = {
     platform: 'com.margri.bloomer',
@@ -241,4 +241,20 @@ export const createNewDatabasePlant = async (plant: DatabasePlantType) => {
         console.error("Error creating database user:", error);
         return null;
     }
+}
+
+export const updatePlant = async (plant: DatabasePlantType) => {
+    console.log("Implement plant update in the database");
+    Alert.alert("UPDATE WIP", "Implement plant update in the database");
+}
+
+
+export const deletePlant = async (plantId: string) => {
+    console.log("Implement plant delete in the database");
+    Alert.alert("DELETE WIP", "Implement plant delete in the database");
+}
+
+export const markAsWatered = async (plant: DatabasePlantType) => {
+    console.log("Implement marking plant as watered in the database");
+    Alert.alert("MARK WATERED WIP", "Implement marking plant as watered in the database");
 }
