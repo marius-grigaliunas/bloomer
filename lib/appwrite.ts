@@ -202,7 +202,7 @@ export const uploadPlantPicture = async (fileUri: string, id: string) => {
             plantImageStorageId,
             id,
             {
-                name: `plant${fileUri}`,
+                name: `plant${id}`,
                 type: 'image/jpg',
                 size: fileInfo.size,
                 uri: fileUri
@@ -226,13 +226,28 @@ export const uploadPlantPicture = async (fileUri: string, id: string) => {
     }
 }
 
+export const deletePlantPicture = async (id: string) => {
+    try {
+        await storage.deleteFile(
+            plantImageStorageId,
+            id
+        )
+
+        return true;
+    } catch (error) {
+        console.error(error, "Error while deleting the plant picture");
+        Alert.alert("Error while Deleting", "Unable to delete the plant picture");            
+        return false;
+    }
+}
+
 export const createNewDatabasePlant = async (plant: DatabasePlantType) => {
 
     try {
         const newPlant = await databases.createDocument(
             databaseId,
             plantsCollectionId,
-            ID.unique(),
+            plant.plantId,
             plant,
         );
 
@@ -249,9 +264,39 @@ export const updatePlant = async (plant: DatabasePlantType) => {
 }
 
 
+
 export const deletePlant = async (plantId: string) => {
-    console.log("Implement plant delete in the database");
-    Alert.alert("DELETE WIP", "Implement plant delete in the database");
+
+    const pictureDelete = await deletePlantPicture(plantId);
+    if(!pictureDelete) {
+        console.log("Picture wasn't deleted, aborting.");
+        Alert.alert("Plant picture wasn't deleted", "Aborting the plant deleting process");            
+        return null;
+    }
+
+    const getDocument = await databases.listDocuments(
+        databaseId,
+        plantsCollectionId,
+        [
+            Query.equal('plantId', plantId)
+        ]
+    );
+
+    const documentID = getDocument.documents[0].$id;
+
+    try {
+        await databases.deleteDocument(
+            databaseId,
+            plantsCollectionId,
+            documentID
+        );
+
+        return true;
+    } catch (error) {
+        console.error(error,"Error while deting the Plant from databe");
+        Alert.alert("Error Deleting the plant", "Aborting the process");
+        return null;
+    }
 }
 
 export const markAsWatered = async (plant: DatabasePlantType) => {
