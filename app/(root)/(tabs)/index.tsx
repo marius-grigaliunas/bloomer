@@ -7,10 +7,11 @@ import WeatherComponent from "@/components/WeatherComponent";
 import colors from "@/constants/colors";
 import { mockPlants, plantsForLater, plantsNeedAttention } from "@/constants/mockData";
 import { DatabasePlantType } from "@/interfaces/interfaces";
+import { usePlantStore } from "@/interfaces/plantStore";
 import { getCurrentUser, getUserPlants } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, View, RefreshControl } from "react-native";
+import { Image, ScrollView, Text, View, RefreshControl, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -18,14 +19,20 @@ export default function Index() {
   const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
   const [ currentUser, setCurrentUser ] = useState(contextUser);
 
-  const [ plants, setPlants ] = useState<DatabasePlantType[]>([]);
+  //const [ plants, setPlants ] = useState<DatabasePlantType[]>([]);
   const [ plantsNeedCare, setPlantsNeedCare ] = useState<DatabasePlantType[]>([]);
   const [ plantsNeedCareLater, setPlantsNeedCareLater ] = useState<DatabasePlantType[]>([]);
 
   const [ loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const getData = async () => {
+  const { plants, allPlantIds, isLoading, error, fetchAllUserPlants } = usePlantStore();
+
+  useEffect(() => {
+    fetchAllUserPlants(contextUser?.$id ?? "");
+  })
+
+  /*const getData = async () => {
     try {
       if(isLoggedIn && contextUser?.$id) {
         const userData = await getCurrentUser();
@@ -55,18 +62,21 @@ export default function Index() {
     } catch (error) {
       console.log("Error getting userData:", error)
     }
-  };
+  };*/
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await getData();
+    //await getData();
     setRefreshing(false);
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     setLoading(true);
     getData().finally(() => setLoading(false));
-  }, [isLoggedIn, contextUser?.$id]);
+  }, [isLoggedIn, contextUser?.$id]);*/
+
+  if(isLoading) return <LoadingScreen/>
+  if(error) return Alert.alert("Oops, there's an error...", error);
   
   return (
     <SafeAreaView className="bg-background-primary h-full">
@@ -101,7 +111,7 @@ export default function Index() {
           <View>
             <View className="flex flex-1 gap-1">
               <HealthBar
-                numberOfPlants={plants.length}
+                numberOfPlants={Object.keys(plants).length}
                 plantsThatNeedCare={plantsNeedCare.length}
               />
               <UrgentCare 

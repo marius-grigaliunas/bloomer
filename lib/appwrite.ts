@@ -316,8 +316,3 @@ export const deletePlant = async (plantId: string) => {
         return null;
     }
 }
-
-export const markAsWatered = async (plant: DatabasePlantType) => {
-    console.log("Implement marking plant as watered in the database");
-    Alert.alert("MARK WATERED WIP", "Implement marking plant as watered in the database");
-}

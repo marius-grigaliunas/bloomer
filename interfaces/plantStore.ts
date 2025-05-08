@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { DatabasePlantType } from "./interfaces";
-import { deletePlant, getUserPlants, markAsWatered, updatePlant } from "@/lib/appwrite";
+import { deletePlant, getUserPlants, updatePlant } from "@/lib/appwrite";
 import { isLoading } from "expo-font";
 
 interface PlantState {
@@ -24,6 +24,10 @@ export const usePlantStore = create<PlantState>((set, get) => ({
 
     fetchAllUserPlants: async (userId: string) => {
         set({ isLoading: true, error: null });
+        if(userId === "") {
+            set({isLoading: false, error: "No active user"});
+        }
+        
         try {
             const plantsData = await getUserPlants(userId);
 

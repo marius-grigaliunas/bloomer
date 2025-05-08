@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { DatabasePlantType } from '@/interfaces/interfaces';
 
 interface MyPlantsProps {
-    myPlants: DatabasePlantType[];
+    myPlants: Record<string, DatabasePlantType>;
 }
 
 const MyPlants = ({myPlants}: MyPlantsProps) => {
@@ -21,7 +21,7 @@ const MyPlants = ({myPlants}: MyPlantsProps) => {
             <View className='flex justify-center items-center rounded-xl bg-primary-medium '>
                 <Text className='text-3xl text-text-primary'>My Plants</Text>
             </View>
-            {myPlants.length === 0 ? (
+            {Object.keys(myPlants).length === 0 ? (
                 <View className='flex justify-center h-full w-full'>
                     <Text className='text-3xl text-text-secondary text-center'>
                         Looks like you don't have any plants
@@ -38,7 +38,7 @@ const MyPlants = ({myPlants}: MyPlantsProps) => {
                 </View>
             ) : (
                 <ScrollView horizontal={true} className='flex mt-2'>
-                {myPlants.map((plant) => (
+                {   Object.values(myPlants).map((plant) => (
                     <PlantCard
                         key={plant.plantId + "key"}
                         {...plant}                            
