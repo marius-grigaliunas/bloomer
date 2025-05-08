@@ -258,9 +258,35 @@ export const createNewDatabasePlant = async (plant: DatabasePlantType) => {
     }
 }
 
+const getDocumentById = async (id: string): Promise<string> => {
+    const getDocument = await databases.listDocuments(
+        databaseId,
+        plantsCollectionId,
+        [
+            Query.equal('plantId', id)
+        ]
+    );
+
+    const documentID = getDocument.documents[0].$id;
+    return documentID;    
+}
+
 export const updatePlant = async (plant: DatabasePlantType) => {
-    console.log("Implement plant update in the database");
-    Alert.alert("UPDATE WIP", "Implement plant update in the database");
+
+    try {
+        const documentId = await getDocumentById(plant.plantId);
+
+        const result = databases.updateDocument(
+            databaseId,
+            plantsCollectionId,
+            documentId,
+            plant
+        );
+    } catch (error) {
+        console.error(error,"Error while updating the Plant in database");
+        Alert.alert("Error Updating the plant", "Aborting the process");
+        return null
+    }
 }
 
 
@@ -274,26 +300,18 @@ export const deletePlant = async (plantId: string) => {
         return null;
     }
 
-    const getDocument = await databases.listDocuments(
-        databaseId,
-        plantsCollectionId,
-        [
-            Query.equal('plantId', plantId)
-        ]
-    );
-
-    const documentID = getDocument.documents[0].$id;
+    const documentID = await getDocumentById(plantId);
 
     try {
-        await databases.deleteDocument(
+        const result = await databases.deleteDocument(
             databaseId,
             plantsCollectionId,
             documentID
         );
 
-        return true;
+        return result;
     } catch (error) {
-        console.error(error,"Error while deting the Plant from databe");
+        console.error(error,"Error while deting the Plant from database");
         Alert.alert("Error Deleting the plant", "Aborting the process");
         return null;
     }

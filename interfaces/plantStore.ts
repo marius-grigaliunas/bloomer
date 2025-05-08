@@ -100,7 +100,7 @@ export const usePlantStore = create<PlantState>((set, get) => ({
               nextWateringDate: new Date(today.setDate(today.getDate() + plant.wateringFrequency))
             };
             
-            await markAsWatered(updatedPlant);
+            await updatePlant(updatedPlant);
             
             // Update in our store
             set(state => ({
