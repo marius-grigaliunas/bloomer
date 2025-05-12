@@ -1,19 +1,33 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text } from 'react-native'
 import React from 'react'
-import { Plant } from '@/interfaces/interfaces';
-import { usePlantInformation } from '@/interfaces/plantInformation';
-import { router } from 'expo-router';
+import { Plant, DatabasePlantType } from '@/interfaces/interfaces';
 
-interface plantComponentProps {
-  plant: Plant| null;
+interface PlantComponentProps {
+  plant: Plant | DatabasePlantType | null;
 }
 
-const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
+const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
   if (!plant) return null;
 
-  const joinArrayText = (array: string[]) => {
-    return array.join(", ");
-  }
+  // Helper function to get care info regardless of plant type
+  const getCareInfo = (plant: Plant | DatabasePlantType) => {
+    if ('careInfo' in plant) {
+      return (plant as Plant).careInfo;
+    }
+    return plant as DatabasePlantType;
+  };
+
+  // Helper function to get special notes depending on plant type
+  const getSpecialNotes = (plant: Plant | DatabasePlantType) => {
+    if ('careInfo' in plant) {
+      return plant.careInfo?.specialNotes;
+    }
+    return (plant as DatabasePlantType).notes;
+  };
+
+  const careInfo = getCareInfo(plant);
+  const specialNotes = getSpecialNotes(plant);
+  if (!careInfo) return null;
 
   return (
     <View className='rounded-xl'>
@@ -22,35 +36,35 @@ const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
         <View className="space-y-2"></View>
           <Text className="text-accent text-xl">Watering frequency:</Text>
           <Text className="text-text-primary text-lg">
-            Every {plant.careInfo?.wateringFrequency} days,
-            water with {plant.careInfo?.wateringAmount} ml of water.
+            Every {careInfo.wateringFrequency} days,
+            water with {careInfo.wateringAmount} ml of water.
           </Text>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Light Requirements:</Text>
-          <Text className="text-text-primary text-lg">{plant.careInfo?.lightRequirements}</Text>
+          <Text className="text-text-primary text-lg">{careInfo.lightRequirements}</Text>
         </View>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Soil Preferences:</Text>
-          <Text className="text-text-primary text-lg">{plant.careInfo?.soilPreferences}</Text>
+          <Text className="text-text-primary text-lg">{careInfo.soilPreferences}</Text>
         </View>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Humidity:</Text>
-          <Text className="text-text-primary text-lg">{plant.careInfo?.humidity}</Text>
+          <Text className="text-text-primary text-lg">{careInfo.humidity}</Text>
         </View>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Temperature minimum:</Text>
-          <Text className="text-text-primary text-lg">{plant.careInfo?.minTemperature}</Text>
+          <Text className="text-text-primary text-lg">{careInfo.minTemperature}</Text>
         </View>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Temperature maximum:</Text>
-          <Text className="text-text-primary text-lg">{plant.careInfo?.maxTemperature}</Text>
+          <Text className="text-text-primary text-lg">{careInfo.maxTemperature}</Text>
         </View>
         <View className="">
-            {plant.careInfo?.commonIssues && (
+            {careInfo.commonIssues && (
               <View className="mt-5">
                 <Text className="text-accent text-xl">Common Issues:</Text>
                 {
-                  plant.careInfo?.commonIssues.map((name, index) => {
+                  careInfo.commonIssues.map((name, index) => {
                     return (
                       <Text key={index} className="text-text-primary text-lg">{name}</Text>
                     )
@@ -60,11 +74,11 @@ const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
             )}
         </View>
         <View className="">
-          {plant.careInfo?.specialNotes && (
+          {specialNotes && specialNotes.length > 0 && (
               <View className="mt-5">
                 <Text className="text-accent text-xl">Special Notes:</Text>
                 {
-                  plant.careInfo?.specialNotes.map((name, index) => {
+                  specialNotes.map((name, index) => {
                     return (
                       <Text key={index} className="text-text-primary text-lg">{name}</Text>
                     )
@@ -74,11 +88,11 @@ const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
             )}
         </View>
         <View className="">
-          {plant.careInfo?.careInstructions && (
+          {careInfo.careInstructions && (
               <View className="mt-5">
                 <Text className="text-accent text-xl">General care instructions:</Text>
                 {
-                  plant.careInfo?.careInstructions.map((name, index) => {
+                  careInfo.careInstructions.map((name, index) => {
                     return (
                       <Text key={index} className="text-text-primary text-lg">{name}</Text>
                     )
@@ -92,4 +106,4 @@ const plantComponent: React.FC<plantComponentProps> = ({ plant }) => {
   )
 }
 
-export default plantComponent
+export default PlantComponent

@@ -30,7 +30,7 @@ export default function Index() {
 
   useEffect(() => {
     fetchAllUserPlants(contextUser?.$id ?? "");
-  })
+  }, [contextUser?.$id]);
 
   /*const getData = async () => {
     try {

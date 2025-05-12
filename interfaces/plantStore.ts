@@ -26,6 +26,7 @@ export const usePlantStore = create<PlantState>((set, get) => ({
         set({ isLoading: true, error: null });
         if(userId === "") {
             set({isLoading: false, error: "No active user"});
+            return;
         }
         
         try {
