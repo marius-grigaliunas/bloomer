@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions, Image } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions, Image, Button } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router, useLocalSearchParams, useNavigation } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,8 +22,22 @@ const PlantDetails = () => {
 
   const navigation = useNavigation();
   const { plants, allPlantIds, isLoading, error, fetchAllUserPlants, getPlantById } = usePlantStore();
-  
+
   const plant = getPlantById(id);
+
+  const deletePlant = () => {};
+
+  // I was thinking if it wouldn't be better to have a universal function, 
+  // where all data is updated.
+  // Then we have a more robust way to introduce potential new features also.
+  // No, probably will need to have a helper function that the feature functions would call
+  // It still adds robustness to the code.
+  const editPlant = () => {};
+
+  const renamePlant = () => {};
+
+  const markPlantAsWatered = () => {};
+
   useEffect (() => {
   }, [])
 
@@ -39,6 +53,20 @@ const PlantDetails = () => {
           </View>
         </TouchableOpacity>
         <Text className='text-4xl text-danger'>Plant Details</Text>
+        <View>
+          <Button 
+            title='Delete Plant'
+            onPress={deletePlant}
+          />
+          <Button
+            title='Rename Plant'
+            onPress={renamePlant}
+          />
+          <Button
+            title='Mark as watered'
+            onPress={markPlantAsWatered}
+          />
+        </View>
         <PlantCareInfoComponent plant={plant as DatabasePlantType} />
       </ScrollView>
     </SafeAreaView>
