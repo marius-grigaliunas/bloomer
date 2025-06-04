@@ -21,11 +21,16 @@ const PlantDetails = () => {
   const [ loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
-  const { plants, allPlantIds, isLoading, error, fetchAllUserPlants, getPlantById } = usePlantStore();
+  const { plants, allPlantIds, isLoading, error,
+     fetchAllUserPlants, getPlantById, updatePlant, deletePlant, markAsWatered
+     } = usePlantStore();
 
   const plant = getPlantById(id);
 
-  const deletePlant = () => {};
+  const deletePlantButton = async () => {
+    await deletePlant(id);
+    router.back();
+  };
 
   // I was thinking if it wouldn't be better to have a universal function, 
   // where all data is updated.
@@ -56,7 +61,7 @@ const PlantDetails = () => {
         <View>
           <Button 
             title='Delete Plant'
-            onPress={deletePlant}
+            onPress={deletePlantButton}
           />
           <Button
             title='Rename Plant'
