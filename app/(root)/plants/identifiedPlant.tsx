@@ -11,6 +11,7 @@ import { DatabasePlantType } from '@/interfaces/interfaces';
 import { ID } from 'react-native-appwrite';
 import AddPlantModal, { PlantFormData } from '@/components/AddPlantModal';
 import LoadingScreen from '@/components/LoadingScreen';
+import PlantHeader from '@/components/PlantHeader';
 const { width, height } = Dimensions.get('window');
 
 const IdentifiedPlant = () => {
@@ -126,49 +127,12 @@ const IdentifiedPlant = () => {
   return (
     <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
       <ScrollView className="w-screen flex-1">
-        
-        <View className='w-screen flex flex-row justify-around items-center bg-background-surface py-8
-          rounded-xl'>
-          <View
-            style={{boxShadow:`
-                0 0px 5px 1px ${colors.secondary.medium},
-              `, borderRadius:50,
-              
-            }}
-          >
-            <Image
-              source={{ uri: imageUri }}
-              style={{width: width*0.5, height: height*0.5, borderRadius:50,
-                  borderColor:colors.secondary.medium, borderWidth:1,  
-                  }}
-              resizeMode='cover'
-            />
-          </View>
-          <View className=''>
-            <View className="">
-              <Text className="text-text-secondary text-xl">Scientific Name:</Text>
-              <Text className="text-text-primary text-xl">{scientificName}</Text>
-            </View>
-            {commonNames && (
-              <View className="mt-5">
-                <Text className="text-text-secondary text-xl">Common Names:</Text>
-                {
-                  commonNames.map((name, index) => {
-                    return (
-                      <Text key={index} className="text-text-primary text-lg">{name}</Text>
-                    )
-                  })
-                }
-              </View>
-            )}
-            <View className='mt-5'>
-              <Text className="text-text-secondary text-xl">Confidence:</Text>
-              <Text 
-                style={{color:(confidence < 0.33 ? colors.danger : confidence < 0.66 ? colors.accent : colors.secondary.medium)}} 
-                className="text-3xl">{Math.round(confidence*100)}%</Text>
-            </View>
-          </View>
-        </View>
+        <PlantHeader
+          scientificName={scientificName}
+          commonNames={commonNames}
+          imageUri={imageUri}
+          confidence={confidence}
+        />
         <PlantCareInfoComponent plant={identifiedPlant.plant} />
         <TouchableOpacity 
           className="bg-secondary-deep p-4 mt-3 rounded-xl"

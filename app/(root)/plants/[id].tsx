@@ -9,6 +9,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import { DatabasePlantType, PlantCareInfo } from '../../../interfaces/interfaces';
 import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
 import { usePlantStore } from '@/interfaces/plantStore';
+import PlantHeader from '@/components/PlantHeader';
 const { width, height } = Dimensions.get('window');
 
 type PlantDetailsParams = {
@@ -26,6 +27,7 @@ const PlantDetails = () => {
      } = usePlantStore();
 
   const plant = getPlantById(id);
+  if(!plant) return <LoadingScreen />
 
   const deletePlantButton = async () => {
     await deletePlant(id);
@@ -39,7 +41,9 @@ const PlantDetails = () => {
   // It still adds robustness to the code.
   const editPlant = () => {};
 
-  const renamePlant = () => {};
+  const renamePlant = () => {
+
+  };
 
   const markPlantAsWatered = () => {};
 
@@ -50,13 +54,19 @@ const PlantDetails = () => {
     <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
       <ScrollView className="w-screen flex-1">
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => router.back()}
           className='flex-1'
         >
           <View className='bg-danger h-14 w-32 flex justify-center items-center rounded-2xl mb-10'>
             <Text className='text-3xl text-text-primary'>Back</Text>
           </View>
         </TouchableOpacity>
+        <PlantHeader
+          scientificName={plant?.scientificName}
+          commonNames={plant?.commonNames ?? []}
+          imageUri={plant?.imageUrl ?? "Failed to load image URL"}
+          nickname={plant?.nickname}
+        />
         <Text className='text-4xl text-danger'>Plant Details</Text>
         <View>
           <Button 
@@ -73,6 +83,8 @@ const PlantDetails = () => {
           />
         </View>
         <PlantCareInfoComponent plant={plant as DatabasePlantType} />
+        <View className="h-72 bg-background-primary rounded-2xl">
+        </View>
       </ScrollView>
     </SafeAreaView>
   )
