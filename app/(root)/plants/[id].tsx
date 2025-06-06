@@ -10,6 +10,7 @@ import { DatabasePlantType, PlantCareInfo } from '../../../interfaces/interfaces
 import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
 import { usePlantStore } from '@/interfaces/plantStore';
 import PlantHeader from '@/components/PlantHeader';
+import RenamePlantModal from '@/components/RenamePlantModal';
 const { width, height } = Dimensions.get('window');
 
 type PlantDetailsParams = {
@@ -26,6 +27,8 @@ const PlantDetails = () => {
      fetchAllUserPlants, getPlantById, updatePlant, deletePlant, markAsWatered
      } = usePlantStore();
 
+  const [ modalVisible, setModalVisible ] = useState(false);
+
   const plant = getPlantById(id);
   if(!plant) return <LoadingScreen />
 
@@ -34,15 +37,29 @@ const PlantDetails = () => {
     router.back();
   };
 
+  const handleShowModal = () => {
+    setModalVisible(true);
+  }
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  }
+
   // I was thinking if it wouldn't be better to have a universal function, 
   // where all data is updated.
   // Then we have a more robust way to introduce potential new features also.
   // No, probably will need to have a helper function that the feature functions would call
   // It still adds robustness to the code.
-  const editPlant = () => {};
+  const editPlant = async (plantToUpdate: DatabasePlantType, NewPlant: DatabasePlantType) => {
+    updatePlant(NewPlant);
+  };
 
-  const renamePlant = () => {
-
+  const handleRenamePlant = async (name: string) => {
+    const newPlant = plant;
+    newPlant.nickname = name;
+    handleCloseModal();
+    
+    await editPlant(plant, newPlant);
   };
 
   const markPlantAsWatered = () => {};
@@ -75,7 +92,7 @@ const PlantDetails = () => {
           />
           <Button
             title='Rename Plant'
-            onPress={renamePlant}
+            onPress={handleShowModal}
           />
           <Button
             title='Mark as watered'
@@ -86,6 +103,13 @@ const PlantDetails = () => {
         <View className="h-72 bg-background-primary rounded-2xl">
         </View>
       </ScrollView>
+
+      <RenamePlantModal 
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        onSave={handleRenamePlant}
+        plantName={plant.nickname}
+      />
     </SafeAreaView>
   )
 }
