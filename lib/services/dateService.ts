@@ -6,7 +6,20 @@ export interface WateringDay {
     plantId: string;
     nickname: string;
     isNextWatering: boolean;
+    isLate: boolean;
+    daysLate: number;
   }[];
+}
+
+export function calculateDaysLate(lastWatered: Date, frequency: number): number {
+  const today = new Date();
+  const expectedDate = new Date(lastWatered);
+  expectedDate.setDate(expectedDate.getDate() + frequency);
+  
+  if (today <= expectedDate) return 0;
+  
+  const diffTime = Math.abs(today.getTime() - expectedDate.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
 export function generateWateringDays(
@@ -15,17 +28,21 @@ export function generateWateringDays(
   endDate: Date
 ): Map<string, WateringDay> {
   const wateringDays = new Map<string, WateringDay>();
+  const today = new Date();
   
   plants.forEach(plant => {
     if (!plant.wateringFrequency || !plant.lastWatered) return;
     
-    // Ensure dates are properly initialized
     const lastWatered = new Date(plant.lastWatered);
     const nextWatering = plant.nextWateringDate ? new Date(plant.nextWateringDate) : lastWatered;
-    let currentDate = new Date(nextWatering);
-
-    while (currentDate <= endDate) {
-      const dateKey = currentDate.toISOString().split('T')[0];
+    let currentDate = new Date(nextWatering);    while (currentDate <= endDate) {
+      // Normalize current date to midnight
+      currentDate.setHours(0, 0, 0, 0);
+      
+      // Format date key consistently across the application
+      const dateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+      const daysLate = calculateDaysLate(lastWatered, plant.wateringFrequency);
+      const isLate = currentDate < today;
       
       if (!wateringDays.has(dateKey)) {
         wateringDays.set(dateKey, {
@@ -38,10 +55,11 @@ export function generateWateringDays(
       day.plants.push({
         plantId: plant.plantId,
         nickname: plant.nickname,
-        isNextWatering: currentDate.getTime() === nextWatering.getTime()
+        isNextWatering: currentDate.getTime() === nextWatering.getTime(),
+        isLate,
+        daysLate
       });
 
-      // Create new date object to avoid mutation
       currentDate = new Date(currentDate);
       currentDate.setDate(currentDate.getDate() + plant.wateringFrequency);
     }

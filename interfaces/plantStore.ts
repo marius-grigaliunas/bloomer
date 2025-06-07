@@ -92,17 +92,23 @@ export const usePlantStore = create<PlantState>((set, get) => ({
             
             if (!plant) {
               throw new Error("Plant not found");
-            }
-            
+            }            // Create date at midnight to avoid timezone issues
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const newWateringHistory = plant.wateringHistory;
-            newWateringHistory?.push(today)
+            newWateringHistory?.push(today);
+
+            // Calculate next watering date without mutating the today object
+            const nextDate = new Date(today);
+            nextDate.setHours(0, 0, 0, 0);
+            nextDate.setDate(today.getDate() + plant.wateringFrequency);
 
             const updatedPlant: DatabasePlantType = {
               ...plant,
               lastWatered: today,
               wateringHistory: newWateringHistory,
-              nextWateringDate: new Date(today.setDate(today.getDate() + plant.wateringFrequency))
+              nextWateringDate: nextDate
             };
             
             await updatePlant(updatedPlant);

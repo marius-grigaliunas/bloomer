@@ -30,12 +30,14 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
     
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             const months = ["January", "February", "March", "April", "May", "June", "July", "August",
-                "September", "October", "November", "December"];
-
-    const getWateringDay = (date: Date): WateringDay | undefined => {
-        const dateKey = date.toISOString().split('T')[0];
-        const day = wateringDays.get(dateKey);
-        return day;
+                "September", "October", "November", "December"];    const getWateringDay = (date: Date): WateringDay | undefined => {
+        // Normalize the date to midnight UTC
+        const normalizedDate = new Date(date);
+        normalizedDate.setHours(0, 0, 0, 0);
+        
+        // Format date key in YYYY-MM-DD format to match the wateringDays map
+        const dateKey = `${normalizedDate.getFullYear()}-${String(normalizedDate.getMonth() + 1).padStart(2, '0')}-${String(normalizedDate.getDate()).padStart(2, '0')}`;
+        return wateringDays.get(dateKey);
     }
 
     const generateCalendar = () => {

@@ -62,7 +62,14 @@ const PlantDetails = () => {
     await editPlant(plant, newPlant);
   };
 
-  const markPlantAsWatered = () => {};
+  const markPlantAsWatered = async () => {
+    try {
+      await markAsWatered(id);
+      Alert.alert("Success", "Plant marked as watered.");
+    } catch (error) {
+      Alert.alert("Error watering the plant", "Failed to mark plant as watered ")
+    }
+  };
 
   useEffect (() => {
   }, [])
@@ -100,6 +107,44 @@ const PlantDetails = () => {
           />
         </View>
         <PlantCareInfoComponent plant={plant as DatabasePlantType} />
+        <View className='p-4'>
+          <View className="space-y-2">
+            <Text className="text-accent text-xl">Last watered:</Text>
+            <Text className="text-text-primary text-lg">
+              {plant?.lastWatered ? new Date(plant.lastWatered).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              }) : 'Never watered'}
+            </Text>
+          </View>
+
+          <View className="space-y-2">
+            <Text className="text-accent text-xl">Next watering:</Text>
+            <Text className="text-text-primary text-lg">
+              {plant?.nextWateringDate ? new Date(plant.nextWateringDate).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              }) : 'No schedule set'}
+            </Text>
+          </View>
+
+          {plant.wateringHistory && (
+            <View className="mt-5">
+              <Text className="text-accent text-xl">Watering history:</Text>
+              {plant.wateringHistory.map((date, index) => (
+                <Text key={index} className="text-text-primary text-lg">
+                  {new Date(date).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
         <View className="h-72 bg-background-primary rounded-2xl">
         </View>
       </ScrollView>

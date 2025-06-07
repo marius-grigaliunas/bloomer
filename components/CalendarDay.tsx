@@ -33,15 +33,16 @@ const CalendarDay = ({ containerClasses, textClasses, textContent, wateringDay, 
         >
             <Text className={textClasses}>{textContent}</Text>
             {wateringDay && wateringDay.plants.length > 0 && (
-                <View className="absolute bottom-[2px] w-full flex-1 bg-secondary-deep rounded-xl border-[1px] border-primary-deep">
+                <View className={`absolute bottom-[2px] w-full flex-1 rounded-xl border-[1px] border-primary-deep
+                    ${wateringDay.plants.some(p => p.isLate) ? 'bg-danger' : 'bg-secondary-deep'}`}>
                     <Text 
                         className="text-xs text-center text-accent"
                         numberOfLines={1}
                         ellipsizeMode="tail"
                     >
                         {wateringDay.plants.length === 1 
-                            ? wateringDay.plants[0].nickname
-                            : `${wateringDay.plants.length} Plants`
+                            ? `${wateringDay.plants[0].nickname}${wateringDay.plants[0].isLate ? ' (Late)' : ''}`
+                            : `${wateringDay.plants.length} Plants${wateringDay.plants.some(p => p.isLate) ? ' (Late)' : ''}`
                         }
                     </Text>
                 </View>

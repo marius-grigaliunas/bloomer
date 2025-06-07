@@ -10,6 +10,7 @@ import { DatabasePlantType } from "@/interfaces/interfaces";
 import { usePlantStore } from "@/interfaces/plantStore";
 import { getCurrentUser, getUserPlants } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
+import { calculateDaysLate } from "@/lib/services/dateService";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, Text, View, RefreshControl, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -32,41 +33,35 @@ export default function Index() {
     fetchAllUserPlants(contextUser?.$id ?? "");
   }, [contextUser?.$id]);
 
-  /*const getData = async () => {
-    try {
-      if(isLoggedIn && contextUser?.$id) {
-        const userData = await getCurrentUser();
-        setCurrentUser(userData);
-
-        const userPlants = await getUserPlants(contextUser.$id);
-        setPlants(userPlants);
+  useEffect(() => {
+    const updatePlantsCare = () => {
+      const now = new Date();
+      const needsCareNow = Object.values(plants).filter(plant => {
+        if (!plant.lastWatered || !plant.wateringFrequency || !plant.nextWateringDate) return false;
         
-        const now = new Date();
-        const needsCareNow = userPlants.filter(plant => {
-          if (!plant.nextWateringDate) return false;
-          
-          const nextWatering = new Date(plant.nextWateringDate);
-          return nextWatering <= now;
-        });
-        setPlantsNeedCare(needsCareNow);
+        // Compare against nextWateringDate instead of calculating from lastWatered
+        return new Date(plant.nextWateringDate) <= now;
+      });
+      setPlantsNeedCare(needsCareNow);
 
-        const needsCareSoon = userPlants.filter(plant => {
-          if (!plant.nextWateringDate) return false;
+      const needsCareSoon = Object.values(plants).filter(plant => {
+        if (!plant.lastWatered || !plant.wateringFrequency || !plant.nextWateringDate) return false;
 
-          const nextWatering = new Date(plant.nextWateringDate);
-          const threeDaysFromNow = new Date(now.setDate(now.getDate() + 3));
-          return nextWatering > now && nextWatering <= threeDaysFromNow;
-        });
-        setPlantsNeedCareLater(needsCareSoon);
-      }
-    } catch (error) {
-      console.log("Error getting userData:", error)
-    }
-  };*/
+        const nextWatering = new Date(plant.nextWateringDate);
+        const threeDaysFromNow = new Date();
+        threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+        
+        return nextWatering > now && nextWatering <= threeDaysFromNow;
+      });
+      setPlantsNeedCareLater(needsCareSoon);
+    };
+
+    updatePlantsCare();
+  }, [plants]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    //await getData();
+    await fetchAllUserPlants(contextUser?.$id ?? "");
     setRefreshing(false);
   };
 

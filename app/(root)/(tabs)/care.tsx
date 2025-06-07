@@ -33,6 +33,8 @@ const Care = () => {
             const days = generateWateringDays(plants, startDate, endDate);
             
             setWateringDays(days);
+
+            console.log(days);
         } catch (error) {
             console.error('Error loading plants:', error);
         } finally {
@@ -55,11 +57,15 @@ const Care = () => {
       setRefreshing(true);
       await loadPlants();
       setRefreshing(false);
-    };
-
-    const handleDayPress = (date: Date) => {
-        const dateKey = date.toISOString().split('T')[0];
+    };    const handleDayPress = (date: Date) => {
+        // Normalize the date to midnight UTC
+        const normalizedDate = new Date(date);
+        normalizedDate.setHours(0, 0, 0, 0);
+        
+        // Format date key consistently with how we store it in wateringDays
+        const dateKey = `${normalizedDate.getFullYear()}-${String(normalizedDate.getMonth() + 1).padStart(2, '0')}-${String(normalizedDate.getDate()).padStart(2, '0')}`;
         const wateringDay = wateringDays.get(dateKey);
+        
         if (wateringDay) {
             setSelectedDate(date);
             // Find full plant data for each plant in the watering day
