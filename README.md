@@ -18,14 +18,14 @@
 ### Week 1: Setup & Planning (Mar 10-16)
 
 - **Days 1-2:** Project setup and environment configuration
-  - [ ] Watch react native tutorials
+  - [x] Watch react native tutorials
   - [x] Set up React Native with Expo
   - [x] Create Appwrite account and project
   - [x] Configure development environment
 - **Days 3-4:** Database schema design
   - [x] Design Appwrite Collections for Users
   - [x] Design Plant Collection with care requirements
-  - [?] Design WateringSchedule Collection
+  - [x] Design WateringSchedule Collection
 - **Days 5-7:** API planning
   - [x] Research PlantApi for plant identification
   - [x] Create API key and test with sample images
@@ -53,9 +53,9 @@
   - [x] Implement login/signup UI
   - [x] Connect to Appwrite Auth SDK
 - **Days 5-7:** Plant list and detail screens
-  - [ ] Create plant listing component
-  - [ ] Build plant detail view
-  - [ ] Implement add/edit plant functionality with Appwrite Database SDK
+  - [x] Create plant listing component
+  - [x] Build plant detail view
+  - [x] Implement add/edit plant functionality with Appwrite Database SDK
 
 ### Week 4: Core Features (Mar 31-Apr 6)
 
@@ -72,11 +72,10 @@
 ### Week 5: Scheduling and Notifications (Apr 7-13)
 
 - **Days 1-3:** Watering schedule UI
-  - Create schedule view and calendar
-  - Implement schedule creation/editing with Appwrite Database
+  - [x] Create schedule view and calendar
 - **Days 4-5:** Notification system
   - Set up scheduled Appwrite Functions for notifications
-  - Configure push notification service (like Firebase or Expo Notifications)
+  - Configure push notification service (Expo Notifications)
   - Connect notifications to user preferences
 - **Days 6-7:** Testing and debugging
   - Test full user journeys
@@ -99,5 +98,4 @@
 
 ### TODO
 
-- Create plant details page, all info about the plant that the user can always check
-  - in the details, user should be able to delete the plant, rename, mark as watered.
+notifications and appwrite functions for watering days/ reminders.
