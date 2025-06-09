@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { DatabasePlantType } from "./interfaces";
 import { deletePlant, getUserPlants, updatePlant } from "@/lib/appwrite";
 import { isLoading } from "expo-font";
+import { checkMissedWaterings, scheduleWateringReminder } from "@/lib/services/notificationsService";
 
 interface PlantState {
     plants: Record<string, DatabasePlantType>;
@@ -28,11 +29,18 @@ export const usePlantStore = create<PlantState>((set, get) => ({
             set({isLoading: false, error: "No active user"});
             return;
         }
-        
+
         try {
             const plantsData = await getUserPlants(userId);
 
             const plantsById: Record<string, DatabasePlantType> = {};
+
+            for(const plant of plantsData) {
+                await scheduleWateringReminder(plant);
+            }
+
+            await checkMissedWaterings(plantsData);
+
             plantsData.forEach(plant => {
                 plantsById[plant.plantId] = plant;
             });
@@ -92,14 +100,14 @@ export const usePlantStore = create<PlantState>((set, get) => ({
             
             if (!plant) {
               throw new Error("Plant not found");
-            }            // Create date at midnight to avoid timezone issues
+            }
+
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
             const newWateringHistory = plant.wateringHistory;
             newWateringHistory?.push(today);
 
-            // Calculate next watering date without mutating the today object
             const nextDate = new Date(today);
             nextDate.setHours(0, 0, 0, 0);
             nextDate.setDate(today.getDate() + plant.wateringFrequency);
@@ -112,8 +120,8 @@ export const usePlantStore = create<PlantState>((set, get) => ({
             };
             
             await updatePlant(updatedPlant);
+            await scheduleWateringReminder(updatedPlant);
             
-            // Update in our store
             set(state => ({
               plants: { ...state.plants, [id]: updatedPlant },
               isLoading: false

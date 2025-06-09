@@ -3,7 +3,9 @@ import React, { Children, createContext, ReactNode, useContext, useEffect, useRe
 import { getCurrentUser, avatar } from './appwrite';
 import { useAppwrite } from "./useAppwrite";
 import { User } from "@/interfaces/interfaces";
-import { SplashScreen } from "expo-router";
+import { router, SplashScreen } from "expo-router";
+import { registerForPushNotificationsAsync } from "./services/notificationsService";
+import * as Notifications from 'expo-notifications';
 
 interface GlobalContextType {
     isLoggedIn: boolean;
@@ -31,13 +33,31 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         skip: isInitializedRef.current,
     });
 
+    const isLoggedIn = React.useMemo(() => !!user, [user]);
+
     useEffect(() => {
         if (!loading && !isInitializedRef.current) {
             isInitializedRef.current = true;
         }
     }, [loading]);
 
-    const isLoggedIn = React.useMemo(() => !!user, [user]);
+    useEffect(() => {
+        if(isLoggedIn) {
+            registerForPushNotificationsAsync();
+        }
+    }, [isLoggedIn])
+
+    useEffect(() => {
+        const subsciption = Notifications.addNotificationResponseReceivedListener(response => {
+            const plantId = response.notification.request.content.data.plantId;
+
+            if(plantId) {
+                router.push(`/(root)/plants/${plantId}`);
+            }
+        });
+
+        return () => subsciption.remove();
+    }, [])
 
     /*// Only log in development
     if (process.env.NODE_ENV === 'development') {

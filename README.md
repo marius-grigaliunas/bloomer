@@ -69,7 +69,7 @@
   - [x] Build results display component
   - [x] Create "add identified plant to collection" flow
 
-### Week 5: Scheduling and Notifications (Apr 7-13)
+### Week 5: Scheduling and Notifications (June 9-15)
 
 - **Days 1-3:** Watering schedule UI
   - [x] Create schedule view and calendar
@@ -81,7 +81,7 @@
   - Test full user journeys
   - Fix critical bugs
 
-### Week 6: Polish and Launch Prep (Apr 14-20)
+### Week 6: Polish and Launch Prep (Apr 16-22)
 
 - **Days 1-2:** UI polish
   - Refine styling and transitions

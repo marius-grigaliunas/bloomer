@@ -1,9 +1,11 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { getCurrentUser, logout } from '@/lib/appwrite'
 import { useGlobalContext } from '@/lib/globalProvider'
 import { testChutesConnection } from "@/lib/services/chutesService/testChutesConnection";
+import { testNotification, testScheduledNotification } from '@/lib/services/notificationsService';
+import { usePlantStore } from '@/interfaces/plantStore';
 
 
 
@@ -31,6 +33,21 @@ const Profile = () => {
     }
   }
 
+  const handleTestNotification = async () => {
+    try {
+      await testNotification();
+
+      await testScheduledNotification();
+      
+      Alert.alert(
+        "Test Notifications Sent",
+        "And one more after a minute"
+      );
+    } catch (error) {
+      console.error('Error sending test notification:', error);
+      Alert.alert("Error", "Failed to send test notifications");
+    }
+  };
 
   if(isLoggedIn) { return (
         <SafeAreaView className="bg-background-primary h-full">
@@ -56,8 +73,17 @@ const Profile = () => {
                           w-80 h-20 mt-20 border-accent border-2 flex justify-center items-center"
                   >
                       <View>
-                          <Text className='text-2xl text-text-primary'>Test</Text>
+                          <Text className='text-2xl text-text-primary'>Test AI connection</Text>
                       </View>
+                  </TouchableOpacity>
+              </View>
+              <View className='flex justify-center items-center'>
+                  <TouchableOpacity 
+                      onPress={handleTestNotification}
+                      className="bg-primary shadow-emerald-50 shadow-md rounded-full
+                          w-80 h-20 mt-4 border-accent border-2 flex justify-center items-center"
+                  >
+                      <Text className='text-2xl text-text-primary'>Test Notifications</Text>
                   </TouchableOpacity>
               </View>
             </ScrollView>
