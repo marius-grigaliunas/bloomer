@@ -124,8 +124,7 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 }
 
-export const createNewDatabaseUser = async (user: User, profilePic: string) => {
-
+export const createNewDatabaseUser = async (user: User, profilePic: string, pushToken?: string | null) => {
     try {
         const newUser = await databases.createDocument(
             databaseId,
@@ -136,6 +135,7 @@ export const createNewDatabaseUser = async (user: User, profilePic: string) => {
                 email: user.email,
                 createdAt: new Date(user.$createdAt),
                 notificationsEnabled: true,
+                pushToken: pushToken,
                 profilePicture: profilePic,
                 unitSystem: 'metric',
                 mondayFirstDayOfWeek: true,
@@ -315,4 +315,72 @@ export const deletePlant = async (plantId: string) => {
         Alert.alert("Error Deleting the plant", "Aborting the process");
         return null;
     }
+}
+
+export const updateUserPushToken = async (userId: string, pushToken: string | null) => {
+    try {
+        const userDocs = await databases.listDocuments(
+            databaseId,
+            usersCollectionId,
+            [Query.equal('userId', userId)]
+        );
+
+        if (userDocs.documents.length > 0) {
+            const userDoc = userDocs.documents[0];
+            await databases.updateDocument(
+                databaseId,
+                usersCollectionId,
+                userDoc.$id,
+                {
+                    pushToken: pushToken,
+                    notificationsEnabled: !!pushToken
+                }
+            );
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error updating push token:', error);
+        return false;
+    }
+};
+
+export interface NotificationPreferences {
+  enabled: boolean;
+  notificationTime?: string; // HH:mm format
+  timezone?: string;
+  reminderAdvanceTime?: number;
+}
+
+export async function updateNotificationPreferences(
+  userId: string,
+  preferences: NotificationPreferences
+) {
+  try {
+    const userDocs = await databases.listDocuments(
+      databaseId,
+      usersCollectionId,
+      [Query.equal('userId', userId)]
+    );
+
+    if (userDocs.documents.length > 0) {
+      const userDoc = userDocs.documents[0];
+      await databases.updateDocument(
+        databaseId,
+        usersCollectionId,
+        userDoc.$id,
+        {
+          notificationsEnabled: preferences.enabled,
+          notificationTime: preferences.notificationTime,
+          timezone: preferences.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          reminderAdvanceTime: preferences.reminderAdvanceTime || 24, // Default 24 hours before
+        }
+      );
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error updating notification preferences:', error);
+    return false;
+  }
 }

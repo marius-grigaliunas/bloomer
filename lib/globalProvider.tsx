@@ -1,6 +1,6 @@
 
 import React, { Children, createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
-import { getCurrentUser, avatar } from './appwrite';
+import { getCurrentUser, avatar, updateUserPushToken } from './appwrite';
 import { useAppwrite } from "./useAppwrite";
 import { User } from "@/interfaces/interfaces";
 import { router, SplashScreen } from "expo-router";
@@ -39,24 +39,39 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         if (!loading && !isInitializedRef.current) {
             isInitializedRef.current = true;
         }
-    }, [loading]);
-
-    useEffect(() => {
-        if(isLoggedIn) {
-            registerForPushNotificationsAsync();
+    }, [loading]);    useEffect(() => {
+        if(isLoggedIn && user) {
+            const setupPushNotifications = async () => {
+                const token = await registerForPushNotificationsAsync();
+                if (token) {
+                    await updateUserPushToken(user.$id, token);
+                    console.log('Push token registered:', token);
+                }
+            };
+            setupPushNotifications();
         }
-    }, [isLoggedIn])
+    }, [isLoggedIn, user])
 
     useEffect(() => {
-        const subsciption = Notifications.addNotificationResponseReceivedListener(response => {
-            const plantId = response.notification.request.content.data.plantId;
+        // Handle notifications when app is in foreground
+        const foregroundSubscription = Notifications.addNotificationReceivedListener(notification => {
+            console.log('Received notification in foreground:', notification);
+        });
 
-            if(plantId) {
-                router.push(`/(root)/plants/${plantId}`);
+        // Handle notification response when app is in background
+        const backgroundSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+            const data = response.notification.request.content.data;
+            console.log('Notification response:', data);
+            
+            if (data?.plantId) {
+                router.push(`/(root)/plants/${data.plantId}`);
             }
         });
 
-        return () => subsciption.remove();
+        return () => {
+            foregroundSubscription.remove();
+            backgroundSubscription.remove();
+        };
     }, [])
 
     /*// Only log in development

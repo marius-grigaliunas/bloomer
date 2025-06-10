@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { DatabasePlantType } from '@/interfaces/interfaces';
 import { calculateDaysLate } from './dateService';
+import { databases } from '../appwrite';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -24,16 +25,22 @@ export async function registerForPushNotificationsAsync() {
   }
 
   if (finalStatus !== 'granted') {
-    return;
+    return null;
   }
 
-  token = (await Notifications.getExpoPushTokenAsync()).data;
+  // Get the token with your Expo project ID
+  const expoPushToken = await Notifications.getExpoPushTokenAsync({
+    projectId: process.env.EXPO_PUBLIC_PROJECT_ID // You'll need to add this to your env variables
+  });
+  
+  token = expoPushToken.data;
   
   if (Platform.OS === 'android') {
-    Notifications.setNotificationChannelAsync('default', {
+    await Notifications.setNotificationChannelAsync('default', {
       name: 'default',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
     });
   }
 
@@ -115,4 +122,30 @@ export async function testScheduledNotification() {
       date: testDate,
     },
   });
+}
+
+export async function getAllScheduledNotifications() {
+  const notifications = await Notifications.getAllScheduledNotificationsAsync();
+  console.log('Scheduled notifications:', notifications);
+  return notifications;
+}
+
+
+
+// Format push notification payload for Expo
+export function formatPushNotification(title: string, body: string, data?: any) {
+  return {
+    to: [], // Will be filled with push tokens
+    title,
+    body,
+    data: data || {},
+    sound: 'default',
+    priority: 'high',
+    channelId: 'default',
+  };
+}
+
+// Validate push token format
+export function isValidPushToken(token: string): boolean {
+  return token.startsWith('ExponentPushToken[') && token.endsWith(']');
 }

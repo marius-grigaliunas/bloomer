@@ -32,12 +32,12 @@ export interface DatabaseUserType {
   displayName?: string;
   createdAt: Date;
   lastLogin?: Date;
-  
-  // App Preferences
+    // App Preferences
   notificationsEnabled: boolean;
-  reminderTime?: Date;
+  pushToken?: string | null;
+  notificationTime?: string; // Time of day for notifications in HH:mm format
   timezone?: string;
-  reminderAdvanceTime?: number;
+  reminderAdvanceTime?: number; // hours before watering to send reminder
   
   // Profile Information
   profilePicture?: string;

@@ -4,8 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { getCurrentUser, logout } from '@/lib/appwrite'
 import { useGlobalContext } from '@/lib/globalProvider'
 import { testChutesConnection } from "@/lib/services/chutesService/testChutesConnection";
-import { testNotification, testScheduledNotification } from '@/lib/services/notificationsService';
+import { getAllScheduledNotifications, testNotification, testScheduledNotification } from '@/lib/services/notificationsService';
 import { usePlantStore } from '@/interfaces/plantStore';
+import * as Notifications from 'expo-notifications';
 
 
 
@@ -38,6 +39,8 @@ const Profile = () => {
       await testNotification();
 
       await testScheduledNotification();
+      
+      await getAllScheduledNotifications();
       
       Alert.alert(
         "Test Notifications Sent",
