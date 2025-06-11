@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo-noname-500x500.png",
-    "scheme": "myapp",
+    "scheme": "bloomer",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {

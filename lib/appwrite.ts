@@ -5,6 +5,7 @@ import { DatabasePlantType, Plant, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import * as FileSystem from 'expo-file-system';
 import { Alert, Image, ImageSourcePropType } from "react-native"
+import { makeRedirectUri } from 'expo-auth-session'
 
 export const config = {
     platform: 'com.margri.bloomer',
@@ -41,20 +42,22 @@ export async function AnnonymousLogin() {
     }
 }
 
-export async function login () {
+/*export async function login () {
     try {
+        /*
         const redirectUri = Linking.createURL("/");
 
         const response = await account.createOAuth2Token(OAuthProvider.Google, redirectUri); 
+        console.log("App redirect URI:", redirectUri);
 
-        if(!response) throw new Error("Failed to login"); 
+        if(!response) throw new Error("Failed to get OAuth URL"); 
 
         const browserResult = await WebBrowser.openAuthSessionAsync(
             response.toString(), 
             redirectUri
         );
 
-        if(browserResult.type !== "success") throw new Error("Failed to login");
+        if(browserResult.type !== "success") throw new Error("OAuth failed or cancelled");
         
         const url = new URL(browserResult.url);
 
@@ -64,12 +67,120 @@ export async function login () {
         if(!secret || !userId) throw new Error("Failed to get secret/userId");
 
         const session = await account.createSession(userId, secret);
-        if(!session) throw new Error("Failed to login");
+        if(!session) throw new Error("Failed to create session");
+
+        const user = await account.get();
+        console.log('Successfully logged in:', user);
 
         return true;
+        ///////////
 
+        const deepLink = new URL(makeRedirectUri({
+            preferLocalhost: true,
+            path: 'oauth-callback'
+        }));
+
+        if(!deepLink.hostname) {
+            deepLink.hostname = 'localhost';
+        }
+
+        console.log("Deep link: ", deepLink.toString());
+
+        const scheme = `${deepLink.protocol}//`;
+        if(!scheme || scheme === "") throw new Error("Failed to create a scheme");
+        console.log("Scheme:", scheme);
+
+        const loginUrl = await account.createOAuth2Token(
+            OAuthProvider.Google,
+            deepLink.toString(),
+            deepLink.toString()
+        );
+
+        if (!loginUrl) throw new Error("Failed to get OAuth URL");
+        console.log("Login URL:", loginUrl.toString());
+
+        const result = await WebBrowser.openAuthSessionAsync(loginUrl.toString(), scheme);
+        console.log("OAuth result:", result);
+        
+        if(result.type === "success" && result.url) {
+            console.log("Success URL:", result.url);
+
+            const url = new URL(result.url);
+            const secret = url.searchParams.get('secret');
+            const userId = url.searchParams.get('userId');
+
+            if(!secret || !userId) throw new Error("Failed to get secret/userId");
+            console.log("Secret:", secret);
+            console.log("UserId:", userId)
+        
+            const session = await account.createSession(userId, secret);
+
+            const user = await account.get();
+
+            if(!session) throw new Error("Failed to create session");
+
+            console.log('Successfully logged in:', user);
+
+            return true;            
+        }
+
+        return false;
     } catch (error) {
         console.error(error);
+        return false;
+    }
+}*/
+
+export async function login() {
+    try {
+        // Just use the default redirect URI that Expo generates
+        const redirectUri = makeRedirectUri({
+            path: 'oauth-callback'
+        });
+        
+        console.log("Redirect URI:", redirectUri);
+        
+        const loginUrl = await account.createOAuth2Token(
+            OAuthProvider.Google,
+            redirectUri,
+            redirectUri
+        );
+        
+        if (!loginUrl) throw new Error("Failed to get OAuth URL");
+        console.log("Login URL:", loginUrl.toString());
+        
+        const result = await WebBrowser.openAuthSessionAsync(
+            loginUrl.toString(), 
+            redirectUri.split('/')[0] + '//' // Use the scheme from the redirect URI
+        );
+        
+        console.log("OAuth result:", result);
+        
+        if (result.type === "success" && result.url) {
+            console.log("Success URL:", result.url);
+            
+            const url = new URL(result.url);
+            const secret = url.searchParams.get('secret');
+            const userId = url.searchParams.get('userId');
+            
+            console.log("Secret:", secret);
+            console.log("UserId:", userId);
+            
+            if (secret && userId) {
+                const session = await account.createSession(userId, secret);
+                if (!session) throw new Error("Failed to create session");
+                
+                const user = await account.get();
+                console.log('Successfully logged in:', user);
+                return true;
+            } else {
+                throw new Error(`Missing OAuth parameters - secret: ${secret}, userId: ${userId}`);
+            }
+        }
+        
+        return false;
+    } catch (error) {
+        console.error("Login error:", error);
         return false;
     }
 }
