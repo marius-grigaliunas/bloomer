@@ -138,7 +138,7 @@ export async function login() {
             path: 'oauth-callback'
         });
         
-        console.log("Redirect URI:", redirectUri);
+        //console.log("Redirect URI:", redirectUri);
         
         const loginUrl = await account.createOAuth2Token(
             OAuthProvider.Google,
@@ -147,31 +147,31 @@ export async function login() {
         );
         
         if (!loginUrl) throw new Error("Failed to get OAuth URL");
-        console.log("Login URL:", loginUrl.toString());
+        //console.log("Login URL:", loginUrl.toString());
         
         const result = await WebBrowser.openAuthSessionAsync(
             loginUrl.toString(), 
             redirectUri.split('/')[0] + '//' // Use the scheme from the redirect URI
         );
         
-        console.log("OAuth result:", result);
+        //console.log("OAuth result:", result);
         
         if (result.type === "success" && result.url) {
-            console.log("Success URL:", result.url);
+            //console.log("Success URL:", result.url);
             
             const url = new URL(result.url);
             const secret = url.searchParams.get('secret');
             const userId = url.searchParams.get('userId');
             
-            console.log("Secret:", secret);
-            console.log("UserId:", userId);
+            //console.log("Secret:", secret);
+            //console.log("UserId:", userId);
             
             if (secret && userId) {
                 const session = await account.createSession(userId, secret);
                 if (!session) throw new Error("Failed to create session");
                 
                 const user = await account.get();
-                console.log('Successfully logged in:', user);
+                //console.log('Successfully logged in:', user);
                 return true;
             } else {
                 throw new Error(`Missing OAuth parameters - secret: ${secret}, userId: ${userId}`);
