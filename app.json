@@ -30,8 +30,17 @@
         "CAMERA",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ]
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "package": "com.grimar.bloomer"
     },
     "web": {
       "bundler": "metro",
@@ -50,7 +59,7 @@
             "image": "./assets/images/logo-500x500.png",
             "backgroundColor": "#121F12"
           },
-          "imageWidth" : 200
+          "imageWidth": 200
         }
       ],
       [
