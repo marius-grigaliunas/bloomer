@@ -16,6 +16,10 @@ export async function getWeather(): Promise<WeatherProps | string> {
         const weatherUrl = `${process.env.EXPO_PUBLIC_WEATHERAPI_ENDPOINT}key=${process.env.EXPO_PUBLIC_WEATHERAPI_API_KEY}&q=${latitude},${longitude}&aqi=no`                 
         const response = await fetch(weatherUrl);
 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
         const weatherData = {
             location: data.location.name,
@@ -26,7 +30,8 @@ export async function getWeather(): Promise<WeatherProps | string> {
 
         return weatherData;
     } catch (error) {
-        console.error(error);
-        return "Failed to get weather data";
+        console.error('Weather fetch error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return `Failed to get weather data: ${errorMessage}`;
     }
 }

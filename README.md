@@ -69,28 +69,28 @@
   - [x] Build results display component
   - [x] Create "add identified plant to collection" flow
 
-### Week 5: Scheduling and Notifications (June 9-15)
+### Scheduling and Notifications (June 9-15)
 
 - **Days 1-3:** Watering schedule UI
   - [x] Create schedule view and calendar
 - **Days 4-5:** Notification system
-  - Set up scheduled Appwrite Functions for notifications
-  - Configure push notification service (Expo Notifications)
+  - [x] Set up scheduled Appwrite Functions for notifications
+  - Configure push notification service (appwrite)
   - Connect notifications to user preferences
-- **Days 6-7:** Testing and debugging
-  - Test full user journeys
-  - Fix critical bugs
 
-### Week 6: Polish and Launch Prep (Apr 16-22)
+### Last step
 
-- **Days 1-2:** UI polish
+- UI polish
   - Refine styling and transitions
   - Implement loading states
-- **Days 3-4:** Performance optimization
+- Performance optimization
   - image compression
   - Image caching
   - Optimize Appwrite queries
-- **Days 5-7:** Final testing and documentation
+- Testing and debugging
+  - Test full user journeys
+  - Fix critical bugs
+- Final testing and documentation
   - User testing
   - Create README and documentation
   - Prepare for deployment
@@ -98,4 +98,9 @@
 
 ### TODO
 
-notifications and appwrite functions for watering days/ reminders.
+- notifications and appwrite functions for watering days/ reminders
+  - push notifications still don't work
+  - local notifications work
+  - every time user refreshes the main page, he gets a notification if any of the plants need watering
+- When user takes pictures and presses the identify button, the loading spinner needs to be shown instead of the text changing
+- When the user adds the plant to his garden a loading spinner needs to be shown, currently the user just sees the same screen until the plant is added.
