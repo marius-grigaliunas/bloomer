@@ -105,5 +105,6 @@
   - local notifications work
   - every time user refreshes the main page, he gets a notification if any of the plants need watering
 - When user takes pictures and presses the identify button, the loading spinner needs to be shown instead of the text changing
+  - The loading screen has a white background.
 - When the user adds the plant to his garden a loading spinner needs to be shown, currently the user just sees the same screen until the plant is added.
   

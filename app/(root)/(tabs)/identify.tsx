@@ -320,9 +320,7 @@ const identify = () => {
   };
 
   return (
-    isIdentifying ? <LoadingScreen/> : 
-    (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
       <View style={{ flex: 1 }}>
         {showCamera ? (
           // Camera view
@@ -412,10 +410,10 @@ const identify = () => {
             </ExpoCamera.CameraView>
           </View>
         </Modal>
+        {isIdentifying && <LoadingScreen />}
       </View>
     </SafeAreaView>
-    )
-  );
+  )
 }
 
 export default identify;

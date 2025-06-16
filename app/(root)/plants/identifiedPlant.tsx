@@ -64,41 +64,40 @@ const IdentifiedPlant = () => {
   const handleAddPlant = async (nickname: string, lastWatered: Date, dateAdded: Date) => {
     if (!contextUser) return;
 
-    const plantId = ID.unique();
-    const plantImage = await uploadPlantPicture(identifiedPlant.plant.imageUri, plantId);
-    const wateringHistory : Date[] = [];
-
-    wateringHistory.push(lastWatered);
-
-    const plantToAdd:DatabasePlantType = {
-      plantId: plantId,
-      ownerId: contextUser.$id,
-      nickname: nickname,
-      scientificName: identifiedPlant.plant.scientificName,
-      commonNames: identifiedPlant.plant.commonNames,
-      imageUrl: plantImage?.toString(),
-      //
-      wateringFrequency: identifiedPlant.plant.careInfo?.wateringFrequency ?? 0,
-      wateringAmount: identifiedPlant.plant.careInfo?.wateringAmount ?? 0,
-      lastWatered: lastWatered,
-      nextWateringDate: calculateNextWatering(lastWatered, identifiedPlant.plant.careInfo?.wateringFrequency ?? 0),
-      lightRequirements: identifiedPlant.plant.careInfo?.lightRequirements ?? "medium",
-      soilPreferences: identifiedPlant.plant.careInfo?.soilPreferences ?? "",
-      humidity: identifiedPlant.plant.careInfo?.humidity ?? "medium",
-      minTemperature: identifiedPlant.plant.careInfo?.minTemperature ?? 15,
-      maxTemperature: identifiedPlant.plant.careInfo?.maxTemperature ?? 40,
-      //
-      dateAdded: dateAdded,
-      wateringHistory: wateringHistory,
-      //
-      commonIssues: identifiedPlant.plant.careInfo?.commonIssues,
-      notes: identifiedPlant.plant.careInfo?.specialNotes,
-      careInstructions: identifiedPlant.plant.careInfo?.careInstructions,
-    }
-
     try {
       setLoading(true);
-      handleCloseModal();
+
+      const plantId = ID.unique();
+      const plantImage = await uploadPlantPicture(identifiedPlant.plant.imageUri, plantId);
+      const wateringHistory : Date[] = [];
+
+      wateringHistory.push(lastWatered);
+
+      const plantToAdd:DatabasePlantType = {
+        plantId: plantId,
+        ownerId: contextUser.$id,
+        nickname: nickname,
+        scientificName: identifiedPlant.plant.scientificName,
+        commonNames: identifiedPlant.plant.commonNames,
+        imageUrl: plantImage?.toString(),
+        //
+        wateringFrequency: identifiedPlant.plant.careInfo?.wateringFrequency ?? 0,
+        wateringAmount: identifiedPlant.plant.careInfo?.wateringAmount ?? 0,
+        lastWatered: lastWatered,
+        nextWateringDate: calculateNextWatering(lastWatered, identifiedPlant.plant.careInfo?.wateringFrequency ?? 0),
+        lightRequirements: identifiedPlant.plant.careInfo?.lightRequirements ?? "medium",
+        soilPreferences: identifiedPlant.plant.careInfo?.soilPreferences ?? "",
+        humidity: identifiedPlant.plant.careInfo?.humidity ?? "medium",
+        minTemperature: identifiedPlant.plant.careInfo?.minTemperature ?? 15,
+        maxTemperature: identifiedPlant.plant.careInfo?.maxTemperature ?? 40,
+        //
+        dateAdded: dateAdded,
+        wateringHistory: wateringHistory,
+        //
+        commonIssues: identifiedPlant.plant.careInfo?.commonIssues,
+        notes: identifiedPlant.plant.careInfo?.specialNotes,
+        careInstructions: identifiedPlant.plant.careInfo?.careInstructions,
+      }
 
       const result = await createNewDatabasePlant(plantToAdd);
       if(result) {
@@ -111,8 +110,7 @@ const IdentifiedPlant = () => {
       console.error("Failed to add the plant to the collection:", error);
       Alert.alert("Error", "Failed to add plant");
     } finally {
-      
-
+      setLoading(false)
     }
   }
 
