@@ -98,7 +98,7 @@ const IdentifiedPlant = () => {
 
     try {
       setLoading(true);
-      setModalVisible(false);
+      handleCloseModal();
 
       const result = await createNewDatabasePlant(plantToAdd);
       if(result) {
@@ -117,6 +117,7 @@ const IdentifiedPlant = () => {
   }
 
   const handleSavePlant = async (plantData: PlantFormData) => {
+
     await handleAddPlant(plantData.nickname, plantData.lastWatered, plantData.dateAdded);
   }
 

@@ -19,46 +19,46 @@ type PlantDetailsParams = {
 
 const PlantDetails = () => {
   const { id } = useLocalSearchParams<PlantDetailsParams>();
-  const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
+  const { isLoggedIn, user: contextUser, refetch } = useGlobalContext();
   const [ loading, setLoading] = useState(false);
-
-  const navigation = useNavigation();
+  const [ modalVisible, setModalVisible ] = useState(false);
+  
   const { plants, allPlantIds, isLoading, error,
      fetchAllUserPlants, getPlantById, updatePlant, deletePlant, markAsWatered
-     } = usePlantStore();
+  } = usePlantStore();
 
-  const [ modalVisible, setModalVisible ] = useState(false);
+  // Move plant retrieval into useEffect to handle async state
+  const [plant, setPlant] = useState(getPlantById(id));
 
-  const plant = getPlantById(id);
-  if(!plant) return <LoadingScreen />
+  useEffect(() => {
+    if (!plant && !loading && !isLoading) {
+      router.push('/(root)/(tabs)');
+    }
+  }, [plant, loading, isLoading]);
 
   const deletePlantButton = async () => {
-    await deletePlant(id);
-    router.back();
+    try {
+      setLoading(true);
+      await deletePlant(id);
+      setLoading(false);
+      router.push('/(root)/(tabs)');
+    } catch (error) {
+      setLoading(false);
+      Alert.alert('Error', 'Failed to delete plant');
+    }
   };
 
-  const handleShowModal = () => {
-    setModalVisible(true);
-  }
+  const handleShowModal = () => setModalVisible(true);
+  const handleCloseModal = () => setModalVisible(false);
 
-  const handleCloseModal = () => {
-    setModalVisible(false);
-  }
-
-  // I was thinking if it wouldn't be better to have a universal function, 
-  // where all data is updated.
-  // Then we have a more robust way to introduce potential new features also.
-  // No, probably will need to have a helper function that the feature functions would call
-  // It still adds robustness to the code.
   const editPlant = async (plantToUpdate: DatabasePlantType, NewPlant: DatabasePlantType) => {
     updatePlant(NewPlant);
   };
 
   const handleRenamePlant = async (name: string) => {
-    const newPlant = plant;
-    newPlant.nickname = name;
+    if (!plant) return;
+    const newPlant = {...plant, nickname: name};
     handleCloseModal();
-    
     await editPlant(plant, newPlant);
   };
 
@@ -71,8 +71,13 @@ const PlantDetails = () => {
     }
   };
 
-  useEffect (() => {
-  }, [])
+  if (loading || isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!plant) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>

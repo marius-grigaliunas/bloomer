@@ -10,6 +10,7 @@ import { identifyPlants } from '@/lib/services/plantNetService';
 import { getPlantCareInfo } from '@/lib/services/chutesService/deepseekService';
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { router } from 'expo-router';
+import LoadingScreen from '../../../components/LoadingScreen';
 
 const { width, height } = Dimensions.get('window');
 
@@ -319,7 +320,9 @@ const identify = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
+    isIdentifying ? <LoadingScreen/> : 
+    (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
       <View style={{ flex: 1 }}>
         {showCamera ? (
           // Camera view
@@ -332,7 +335,7 @@ const identify = () => {
                 disabled={!imageUris.some(uri => uri !== null) || isIdentifying}
               >
                 <Text className="text-white text-center text-lg font-semibold">
-                  {isIdentifying ? 'Identifying...' : `Identify (${imageUris.filter(uri => uri !== null).length}/5 photos)`}
+                  Identify {imageUris.filter(uri => uri !== null).length}/5 photos
                 </Text>
               </Pressable>
               {identificationError && (
@@ -343,6 +346,7 @@ const identify = () => {
               <TouchableOpacity 
                 className="bg-secondary-deep p-4 mt-3 rounded-xl"
                 onPress={switchToSearch}
+                disabled={true}
               >
                 <Text className="text-text-primary text-center">
                   Search your plant instead
@@ -410,6 +414,7 @@ const identify = () => {
         </Modal>
       </View>
     </SafeAreaView>
+    )
   );
 }
 

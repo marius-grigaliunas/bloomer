@@ -46,6 +46,7 @@ export default function AddPlantModal({visible, onClose, onSave, plantName}: Add
     };
 
     onSave(plantData);
+    onClose();
 
     setNickname('');
     setLastWatered(new Date());
