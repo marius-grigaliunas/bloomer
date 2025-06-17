@@ -102,9 +102,12 @@
 
 - notifications and appwrite functions for watering days/ reminders
   - push notifications still don't work
-  - local notifications work
   - every time user refreshes the main page, he gets a notification if any of the plants need watering
-- When user takes pictures and presses the identify button, the loading spinner needs to be shown instead of the text changing
-  - The loading screen has a white background.
+    - Fix was implemented, need a rebuild to check.
+- The loading screen has a white background.
+  - This needs an inspection of where the loading screens were used and need to rewritten to create the overlay effect. 
 - When the user adds the plant to his garden a loading spinner needs to be shown, currently the user just sees the same screen until the plant is added.
+  - fixed.
+
+- Add a profile settings view, where the user can check and edit the settings like the notification settings, measurements,
   

@@ -1,4 +1,5 @@
 import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { DatabasePlantType } from '@/interfaces/interfaces';
 import { calculateDaysLate } from './dateService';
@@ -47,6 +48,8 @@ export async function registerForPushNotificationsAsync() {
   return token;
 }
 
+
+
 // Schedule watering reminder
 export async function scheduleWateringReminder(plant: DatabasePlantType) {
   if (!plant.nextWateringDate) return;
@@ -72,6 +75,25 @@ export async function scheduleWateringReminder(plant: DatabasePlantType) {
   });
 }
 
+const LAST_NOTIFICATION_KEY = 'lastMissedWateringNotification';
+
+async function canSendMissedWateringNotification(): Promise<boolean> {
+  try {
+    const lastNotification = await AsyncStorage.getItem(LAST_NOTIFICATION_KEY);
+    if (!lastNotification) return true;
+
+    const lastDate = new Date(lastNotification);
+    const now = new Date();
+    
+    // Check if 24 hours have passed since the last notification
+    const hoursSinceLastNotification = (now.getTime() - lastDate.getTime()) / (1000 * 60 * 60);
+    return hoursSinceLastNotification >= 24;
+  } catch (error) {
+    console.error('Error checking last notification time:', error);
+    return false;
+  }
+}
+
 // Check for missed waterings
 export async function checkMissedWaterings(plants: DatabasePlantType[]) {
   const missedPlants = plants.filter(plant => {
@@ -81,16 +103,22 @@ export async function checkMissedWaterings(plants: DatabasePlantType[]) {
   });
 
   if (missedPlants.length > 0) {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Missed Watering!",
-        body: `You have ${missedPlants.length} ${
-          missedPlants.length === 1 ? 'plant' : 'plants'
-        } that missed their watering schedule!`,
-        data: { missedPlants: missedPlants.map(p => p.plantId) },
-      },
-      trigger: null, // Send immediately
-    });
+    const canSendNotification = await canSendMissedWateringNotification();
+    if (canSendNotification) {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Missed Watering!",
+          body: `You have ${missedPlants.length} ${
+            missedPlants.length === 1 ? 'plant' : 'plants'
+          } that missed their watering schedule!`,
+          data: { missedPlants: missedPlants.map(p => p.plantId) },
+        },
+        trigger: null, // Send immediately
+      });
+
+      // Update the last notification time
+      await AsyncStorage.setItem(LAST_NOTIFICATION_KEY, new Date().toISOString());
+    }
   }
 }
 

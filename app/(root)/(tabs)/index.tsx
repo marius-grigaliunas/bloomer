@@ -70,7 +70,6 @@ export default function Index() {
     getData().finally(() => setLoading(false));
   }, [isLoggedIn, contextUser?.$id]);*/
 
-  if(isLoading) return <LoadingScreen/>
   if(error) return Alert.alert("Oops, there's an error...", error);
   
   return (
@@ -98,32 +97,26 @@ export default function Index() {
               <WeatherComponent/>
           </View>
         </View>
-        {loading ? (
-          <View className="mt-10">
-            <LoadingScreen/>
-          </View>
-        ) : (
-          <View>
-            <View className="flex flex-1 gap-1">
-              <HealthBar
-                numberOfPlants={Object.keys(plants).length}
-                plantsThatNeedCare={plantsNeedCare.length}
-              />
-              <UrgentCare 
-                plantsThatNeedCare={plantsNeedCare}
-              />
-            </View>
-
-            <MyPlants
-              myPlants={plants}
+        <View>
+          <View className="flex flex-1 gap-1">
+            <HealthBar
+              numberOfPlants={Object.keys(plants).length}
+              plantsThatNeedCare={plantsNeedCare.length}
             />
-            <PlantsForLater
-              plantsForLater={plantsNeedCareLater}
+            <UrgentCare 
+              plantsThatNeedCare={plantsNeedCare}
             />
-            <View className="h-72 bg-background-primary rounded-2xl">
-            </View>
           </View>
-        )}
+          <MyPlants
+            myPlants={plants}
+          />
+          <PlantsForLater
+            plantsForLater={plantsNeedCareLater}
+          />
+          <View className="h-72 bg-background-primary rounded-2xl">
+          </View>
+          {isLoading && <LoadingScreen />}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
