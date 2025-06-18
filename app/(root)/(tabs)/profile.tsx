@@ -1,108 +1,181 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { getCurrentUser, logout } from '@/lib/appwrite'
-import { useGlobalContext } from '@/lib/globalProvider'
-import { testChutesConnection } from "@/lib/services/chutesService/testChutesConnection";
-import { getAllScheduledNotifications, testNotification, testScheduledNotification } from '@/lib/services/notificationsService';
-import { usePlantStore } from '@/interfaces/plantStore';
-import * as Notifications from 'expo-notifications';
+import { View, Text, ScrollView, TouchableOpacity, Alert, Switch, TextInput, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { logout } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/globalProvider';
+import { DatabaseUserType } from '@/interfaces/interfaces';
+import { Picker } from '@react-native-picker/picker';
+import colors from '@/constants/colors';
 
+const Profile: React.FC = () => {
+  const { refetch, isLoggedIn, user: contextUser } = useGlobalContext();
+  const [userSettings, setUserSettings] = useState<Partial<DatabaseUserType>>({
+    displayName: contextUser?.name || '',
+    notificationsEnabled: true,
+    notificationTime: '09:00',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    reminderAdvanceTime: 24,
+    unitSystem: 'metric',
+    mondayFirstDayOfWeek: true,
+    temperatureUnit: 'celsius'
+  });
 
+  const handleSettingChange = (setting: keyof DatabaseUserType, value: any) => {
+    setUserSettings(prev => ({
+      ...prev,
+      [setting]: value
+    }));
+  };
 
-const Profile = () => {
+  const pickerStyle = {
+    color: Platform.select({
+      ios: colors.text.primary,
+      android: colors.text.primary
+    }),
+    backgroundColor: Platform.select({
+      ios: colors.background.surface,
+      android: 'transparent'
+    })
+  };
 
-  const { refetch, loading, isLoggedIn, user: contextUser } = useGlobalContext();
-  const [ currentUser, setCurrentUser ] = useState(contextUser);
+  const renderPersonalSection = () => (
+    <View className="bg-background-surface p-4 rounded-xl mb-4">
+      <Text className="text-lg text-text-primary mb-2">Personal Information</Text>
+      <TextInput
+        className="bg-background-primary p-2 rounded text-text-primary"
+        value={userSettings.displayName}
+        onChangeText={(text) => handleSettingChange('displayName', text)}
+        placeholder="Display Name"
+        placeholderTextColor={colors.text.secondary}
+      />
+    </View>
+  );
 
-  useEffect(() => {
-    if(isLoggedIn) {
-      getCurrentUser().then(userData => {
-        setCurrentUser(userData)
-      })
-    }
-  }, [isLoggedIn])
+  const renderNotificationSection = () => (
+    <View className="bg-background-surface p-4 rounded-xl mb-4">
+      <Text className="text-lg text-text-primary mb-2">Notifications</Text>
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-text-primary">Enable Notifications</Text>
+        <Switch
+          value={userSettings.notificationsEnabled}
+          onValueChange={(value) => handleSettingChange('notificationsEnabled', value)}
+        />
+      </View>
+      <TextInput
+        className="bg-background-primary p-2 rounded mb-2 text-text-primary"
+        value={userSettings.notificationTime}
+        onChangeText={(text) => handleSettingChange('notificationTime', text)}
+        placeholder="Notification Time (HH:mm)"
+        placeholderTextColor={colors.text.secondary}
+      />
+      <TextInput
+        className="bg-background-primary p-2 rounded text-text-primary"
+        value={String(userSettings.reminderAdvanceTime)}
+        onChangeText={(text) => handleSettingChange('reminderAdvanceTime', parseInt(text))}
+        placeholder="Reminder Hours in Advance"
+        keyboardType="numeric"
+        placeholderTextColor={colors.text.secondary}
+      />
+    </View>
+  );
 
-  const handleSignOut = async () => {
-    const result = await logout();
+  const renderPreferencesSection = () => (
+    <View className="bg-background-surface p-4 rounded-xl mb-4">
+      <Text className="text-lg text-text-primary mb-2">Preferences</Text>
+      <View className="mb-2">
+        <Text className="text-text-primary mb-1">Unit System</Text>
+        <View className="bg-background-primary rounded">
+          <Picker
+            selectedValue={userSettings.unitSystem}
+            onValueChange={(value) => handleSettingChange('unitSystem', value)}
+            style={pickerStyle}
+            dropdownIconColor={colors.text.primary}
+            mode="dropdown"
+          >
+            <Picker.Item label="Metric" value="metric" />
+            <Picker.Item label="Imperial" value="imperial" />
+          </Picker>
+        </View>
+      </View>
+      <View className="mb-2">
+        <Text className="text-text-primary mb-1">Temperature Unit</Text>
+        <View className="bg-background-primary rounded">
+          <Picker
+            selectedValue={userSettings.temperatureUnit}
+            onValueChange={(value) => handleSettingChange('temperatureUnit', value)}
+            style={pickerStyle}
+            dropdownIconColor={colors.text.primary}
+            mode="dropdown"
+          >
+            <Picker.Item label="Celsius" value="celsius" />
+            <Picker.Item label="Fahrenheit" value="fahrenheit" />
+          </Picker>
+        </View>
+      </View>
+      <View className="flex-row justify-between items-center">
+        <Text className="text-text-primary">Monday as First Day</Text>
+        <Switch
+          value={userSettings.mondayFirstDayOfWeek}
+          onValueChange={(value) => handleSettingChange('mondayFirstDayOfWeek', value)}
+        />
+      </View>
+    </View>
+  );
 
-    if(result) {
-      console.log("SignOut Successful")
-      refetch();
-    } else {
-      console.log("SignOut Failed")
-    }
-  }
-
-  const handleTestNotification = async () => {
+  const handleSaveSettings = async () => {
     try {
-      await testNotification();
-
-      await testScheduledNotification();
-      
-      await getAllScheduledNotifications();
-      
-      Alert.alert(
-        "Test Notifications Sent",
-        "And one more after a minute"
-      );
+      // TODO: Implement API call to save settings
+      Alert.alert('Success', 'Settings saved successfully');
     } catch (error) {
-      console.error('Error sending test notification:', error);
-      Alert.alert("Error", "Failed to send test notifications");
+      Alert.alert('Error', 'Failed to save settings');
     }
   };
 
-  if(isLoggedIn) { return (
-        <SafeAreaView className="bg-background-primary h-full">
-            <ScrollView contentContainerStyle={{height: "auto"}} >
-              <View className='flex justify-center items-center mt-20 bg-primary-dark
-              p-10 rounded-xl '>
-                <Text className='text-xl text-text-secondary'>{currentUser?.name ? currentUser?.name : "Guest"}</Text>
-                <Text className='text-xl text-text-secondary'>{currentUser?.email}</Text>
-              </View>
-              <View className='flex justify-center items-center'>
-                  <TouchableOpacity onPress={handleSignOut}
-                      className="bg-primary shadow-emerald-50 shadow-md rounded-full
-                          w-80 h-20 mt-20 border-accent border-2 flex justify-center items-center"
-                  >
-                      <View>
-                          <Text className='text-2xl text-text-primary'>Sign Out</Text>
-                      </View>
-                  </TouchableOpacity>
-              </View>
-              <View className='flex justify-center items-center'>
-                  <TouchableOpacity onPress={testChutesConnection}
-                      className="bg-primary shadow-emerald-50 shadow-md rounded-full
-                          w-80 h-20 mt-20 border-accent border-2 flex justify-center items-center"
-                  >
-                      <View>
-                          <Text className='text-2xl text-text-primary'>Test AI connection</Text>
-                      </View>
-                  </TouchableOpacity>
-              </View>
-              <View className='flex justify-center items-center'>
-                  <TouchableOpacity 
-                      onPress={handleTestNotification}
-                      className="bg-primary shadow-emerald-50 shadow-md rounded-full
-                          w-80 h-20 mt-4 border-accent border-2 flex justify-center items-center"
-                  >
-                      <Text className='text-2xl text-text-primary'>Test Notifications</Text>
-                  </TouchableOpacity>
-              </View>
-            </ScrollView>
-        </SafeAreaView>
-    )
-  } else{
+  const handleSignOut = async () => {
+    const result = await logout();
+    if (result) {
+      console.log("SignOut Successful");
+      refetch();
+    } else {
+      console.log("SignOut Failed");
+    }
+  };
+
+  if (!isLoggedIn) {
     return (
       <SafeAreaView className="bg-background-primary h-full">
-        <ScrollView contentContainerStyle={{height: "auto"}} >
-          <View className='flex justify-center items-center w-full h-full'>
-            <Text className='text-5xl text-white flex justify-center items-center text-center mt-96'>Please Sign in to see the profile section </Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>    
-    )
+        <View className="flex justify-center items-center h-full">
+          <Text className="text-2xl text-text-primary text-center">
+            Please sign in to access your profile
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
   }
-}
 
-export default Profile
+  return (
+    <SafeAreaView className="bg-background-primary h-full">
+      <ScrollView className="p-4">
+        {renderPersonalSection()}
+        {renderNotificationSection()}
+        {renderPreferencesSection()}
+        
+        <TouchableOpacity
+          onPress={handleSaveSettings}
+          className="bg-accent p-4 rounded-full mb-4"
+        >
+          <Text className="text-text-primary text-center text-lg">Save Settings</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          onPress={handleSignOut}
+          className="bg-danger p-4 rounded-full"
+        >
+          <Text className="text-text-primary text-center text-lg">Sign Out</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default Profile;

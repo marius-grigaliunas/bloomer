@@ -1,5 +1,5 @@
-import { View, Text } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import colors from '@/constants/colors';
 
 interface HealthBarProps {
@@ -11,14 +11,11 @@ const HealthBar = ({numberOfPlants, plantsThatNeedCare}:HealthBarProps) => {
     const [healthStatus, setHealthStatus] = useState<string>("bad");
     const [healthColor, setHealthColor] = useState<string>(colors.secondary.deep);
 
-    if(numberOfPlants === 0) {
-        return <View></View>;
-    }
-
     useEffect(() => {
-         const CalculateHealth = (plantCount: number, plantsNeedCare: number) => {
-            const result = plantsNeedCare / plantCount;
+        if (numberOfPlants === 0) return;
 
+        const CalculateHealth = (plantCount: number, plantsNeedCare: number) => {
+            const result = plantsNeedCare / plantCount;
             if(result < 0.33) {
                 setHealthStatus("good");
             } else if (result < 0.66) {
@@ -26,62 +23,84 @@ const HealthBar = ({numberOfPlants, plantsThatNeedCare}:HealthBarProps) => {
             } else {
                 setHealthStatus("bad");
             }
-         }
+        }
 
-         const CheckColor = (health: string) =>{
+        const CheckColor = (health: string) => {
             switch(health) {
-                case "good": {
-                    setHealthColor(`${colors.secondary.deep}`);
+                case "good":
+                    setHealthColor(colors.secondary.deep);
                     break;
-                }
-                case "normal": {
-                    setHealthColor(`${colors.primary.deep}`);
+                case "normal":
+                    setHealthColor(colors.primary.deep);
                     break;
-                }
-                case "bad": {
-                    setHealthColor(`${colors.danger}`);                
+                case "bad":
+                    setHealthColor(colors.danger);                
                     break;
-                }
             }
         }
 
-         CalculateHealth(numberOfPlants, plantsThatNeedCare);
-         CheckColor(healthStatus);
+        CalculateHealth(numberOfPlants, plantsThatNeedCare);
+        CheckColor(healthStatus);
+    }, [healthStatus, numberOfPlants, plantsThatNeedCare]);
 
-    }, [healthStatus, numberOfPlants, plantsThatNeedCare])
+    if(numberOfPlants === 0) {
+        return null;
+    }
+
+    const getMessage = () => {
+        if (healthStatus === "bad") {
+            return `${plantsThatNeedCare} Plants need your attention!`;
+        } else if (healthStatus === "normal") {
+            return `${plantsThatNeedCare} Plants need your attention`;
+        } else if (plantsThatNeedCare > 1) {
+            return `Only ${plantsThatNeedCare} Plants need your attention`;
+        } else if (plantsThatNeedCare === 1) {
+            return `Only ${plantsThatNeedCare} Plant needs your attention`;
+        } else {
+            return "Your Plants are flourishing";
+        }
+    };
 
     return (
-        <View className=" rounded-xl shadow-lg shadow-slate-50" 
-        style={{backgroundColor: `${healthColor}`}}
-        >
-            <View className="mx-2 h-10 flex flex-row justify-start items-center ">
-                {
-                    healthStatus === "bad" ? (
-                        <Text className='text-3xl text-text-primary'>
-                            {plantsThatNeedCare} Plants need your attention!  
-                        </Text>
-                    ) : healthStatus === "normal" ? (
-                        <Text className='text-3xl text-text-primary'>
-                            {plantsThatNeedCare} Plants need your attention
-                        </Text>
-                    ) : plantsThatNeedCare > 0 ? (plantsThatNeedCare > 1) ? (
-                        <Text className='text-3xl text-text-primary'>
-                            Only {plantsThatNeedCare} Plants need your attention  
-                        </Text>
-                    ) : (
-                        <Text className='text-3xl text-text-primary'>
-                            Only {plantsThatNeedCare} Plant needs your attention  
-                        </Text>
-                    ) : (
-                        <Text className='text-3xl text-text-primary'>
-                            Your Plants are flourishing
-                        </Text>
-                    )
-                }
-                <Text className='ml-3 text-3xl text-text-primary'>{plantsThatNeedCare}/{numberOfPlants}</Text>
+        <View style={[styles.container, { backgroundColor: healthColor }]}>
+            <View style={styles.contentContainer}>
+                <Text style={styles.messageText}>
+                    {getMessage()}
+                </Text>
+                <Text style={styles.countText}>
+                    {plantsThatNeedCare}/{numberOfPlants}
+                </Text>
             </View>
         </View>
-    )
-}
+    );
+};
 
-export default HealthBar
+const styles = StyleSheet.create({
+    container: {
+        borderRadius: 12,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    contentContainer: {
+        marginHorizontal: 8,
+        height: 40,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    messageText: {
+        fontSize: 24,
+        color: colors.text.primary,
+        flex: 1,
+    },
+    countText: {
+        fontSize: 24,
+        color: colors.text.primary,
+        marginLeft: 12,
+    }
+});
+
+export default HealthBar;
