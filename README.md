@@ -110,4 +110,8 @@
   - fixed.
 
 - Add a profile settings view, where the user can check and edit the settings like the notification settings, measurements,
+
+- Generate a push token for every user as it's the notifications are set up
+
+- Make that the new users have their userId the same as the documentId containing the user data. For now, I will change it manually in appwrite.
   
