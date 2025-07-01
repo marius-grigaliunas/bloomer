@@ -45,6 +45,7 @@ export async function registerForPushNotificationsAsync() {
     });
   }
 
+  console.log(token);
   return token;
 }
 

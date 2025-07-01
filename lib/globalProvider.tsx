@@ -1,4 +1,3 @@
-
 import React, { Children, createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { getCurrentUser, avatar, updateUserPushToken } from './appwrite';
 import { useAppwrite } from "./useAppwrite";
@@ -39,18 +38,27 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         if (!loading && !isInitializedRef.current) {
             isInitializedRef.current = true;
         }
-    }, [loading]);    useEffect(() => {
-        if(isLoggedIn && user) {
+    }, [loading]);
+    
+    console.log(user, loading, isLoggedIn);
+    useEffect(() => {
+        if(user) {
+            console.log("Push notification effect running for user:", user.$id);
             const setupPushNotifications = async () => {
-                const token = await registerForPushNotificationsAsync();
-                if (token) {
-                    await updateUserPushToken(user.$id, token);
-                    console.log('Push token registered:', token);
+                try {
+                    const token = await registerForPushNotificationsAsync();
+                    console.log("registerForPushNotificationsAsync returned:", token);
+                    if (token) {
+                        await updateUserPushToken(user.$id, token);
+                        console.log('Push token registered:', token);
+                    }
+                } catch (err) {
+                    console.error("Error in setupPushNotifications:", err);
                 }
             };
             setupPushNotifications();
         }
-    }, [isLoggedIn, user])
+    }, [user])
 
     useEffect(() => {
         // Handle notifications when app is in foreground
