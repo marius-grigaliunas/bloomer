@@ -240,7 +240,7 @@ export const createNewDatabaseUser = async (user: User, profilePic: string, push
         const newUser = await databases.createDocument(
             databaseId,
             usersCollectionId,
-            ID.unique(),
+            user.$id,
             {
                 userId: user.$id,
                 email: user.email,

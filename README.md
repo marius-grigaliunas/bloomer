@@ -105,7 +105,7 @@
   - every time user refreshes the main page, he gets a notification if any of the plants need watering
     - Fix was implemented, need a rebuild to check.
 - The loading screen has a white background.
-  - This needs an inspection of where the loading screens were used and need to rewritten to create the overlay effect. 
+  - This needs an inspection of where the loading screens were used and need to rewritten to create the overlay effect.
 - When the user adds the plant to his garden a loading spinner needs to be shown, currently the user just sees the same screen until the plant is added.
   - fixed.
 
@@ -113,5 +113,5 @@
 
 - Generate a push token for every user as it's the notifications are set up
 
-- Make that the new users have their userId the same as the documentId containing the user data. For now, I will change it manually in appwrite.
+- Make that the new users have their userId the same as the documentId containing the user data. For now, I will change it manually in appwrite. (fix implemented, make sure it works properly)
   
