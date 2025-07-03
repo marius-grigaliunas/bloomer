@@ -17,6 +17,7 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 android/
+important_stuff/
 
 # Metro
 .metro-health-check*
@@ -38,5 +39,9 @@ yarn-error.*
 
 #nativewind
 *.config.scss
+
+bloomer-ff9a3-firebase-adminsdk-fbsvc-2c59c14d2c.json
+google-services.json
+
 
 app-example
