@@ -1,7 +1,7 @@
 import { Account, Avatars, Client, Databases, ID, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
-import { DatabasePlantType, Plant, User } from "@/interfaces/interfaces"
+import { DatabasePlantType, DatabaseUserType, Plant, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import * as FileSystem from 'expo-file-system';
 import { Alert, Image, ImageSourcePropType } from "react-native"
@@ -447,30 +447,19 @@ export const updateUserPushToken = async (userId: string, pushToken: string | nu
     }
 };
 
-export interface NotificationPreferences {
-  enabled: boolean;
-  notificationTime?: string; // HH:mm format
-  timezone?: string;
-  reminderAdvanceTime?: number;
-}
-
-export async function updateNotificationPreferences(userId: string, preferences: NotificationPreferences) {
+export async function updatePreferences(userId: string, preferences: Partial<DatabaseUserType>) {
   try {
     await databases.updateDocument(
         databaseId,
         usersCollectionId,
         userId,
-        {
-          notificationsEnabled: preferences.enabled,
-          notificationTime: preferences.notificationTime,
-          timezone: preferences.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-          reminderAdvanceTime: preferences.reminderAdvanceTime || 24, // Default 24 hours before
-        }
+        preferences
       );
-      console.log("Notification settings updated");
-      Alert.alert("Notification settings updated")
+      console.log("Settings updated");
+      Alert.alert("Settings updated")
+      return true;
   } catch (error) {
-    console.error('Error updating notification preferences:', error);
+    console.error('Error updating preferences:', error);
     return false;
   }
 }

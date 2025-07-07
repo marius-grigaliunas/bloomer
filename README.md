@@ -75,7 +75,7 @@
   - [x] Create schedule view and calendar
 - **Days 4-5:** Notification system
   - [x] Set up scheduled Appwrite Functions for notifications
-  - Configure push notification service (appwrite)
+  - [x] Configure push notification service (appwrite)
   - Connect notifications to user preferences
 
 ### Last step
@@ -100,18 +100,18 @@
 
 ### TODO
 
-- notifications and appwrite functions for watering days/ reminders
-  - push notifications still don't work
+- notifications and appwrite functions for watering days/ reminde
   - every time user refreshes the main page, he gets a notification if any of the plants need watering
     - Fix was implemented, need a rebuild to check.
 - The loading screen has a white background.
   - This needs an inspection of where the loading screens were used and need to rewritten to create the overlay effect.
-- When the user adds the plant to his garden a loading spinner needs to be shown, currently the user just sees the same screen until the plant is added.
-  - fixed.
 
 - Add a profile settings view, where the user can check and edit the settings like the notification settings, measurements,
+  - Forms in the settings screen need form validation
+  - Settings need to be updated in database
 
-- Generate a push token for every user as it's the notifications are set up
+- Generate a push token for every user as it's notifications are set up
+  - Push token generation worked, function executed on appwrite send a push notification to the main test user. Test with others
 
 - Make that the new users have their userId the same as the documentId containing the user data. For now, I will change it manually in appwrite. (fix implemented, make sure it works properly)
   

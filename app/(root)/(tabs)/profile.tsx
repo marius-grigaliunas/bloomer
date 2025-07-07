@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, Switch, TextInput, Platform } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { logout } from '@/lib/appwrite';
+import { logout, updatePreferences } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/globalProvider';
 import { DatabaseUserType } from '@/interfaces/interfaces';
 import { Picker } from '@react-native-picker/picker';
@@ -61,21 +61,27 @@ const Profile: React.FC = () => {
           onValueChange={(value) => handleSettingChange('notificationsEnabled', value)}
         />
       </View>
-      <TextInput
-        className="bg-background-primary p-2 rounded mb-2 text-text-primary"
-        value={userSettings.notificationTime}
-        onChangeText={(text) => handleSettingChange('notificationTime', text)}
-        placeholder="Notification Time (HH:mm)"
-        placeholderTextColor={colors.text.secondary}
-      />
-      <TextInput
-        className="bg-background-primary p-2 rounded text-text-primary"
-        value={String(userSettings.reminderAdvanceTime)}
-        onChangeText={(text) => handleSettingChange('reminderAdvanceTime', parseInt(text))}
-        placeholder="Reminder Hours in Advance"
-        keyboardType="numeric"
-        placeholderTextColor={colors.text.secondary}
-      />
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-text-primary">Notification Time</Text>
+        <TextInput
+          className="bg-background-primary p-2 rounded mb-2 text-text-primary w-4/6"
+          value={userSettings.notificationTime}
+          onChangeText={(text) => handleSettingChange('notificationTime', text)}
+          placeholder="Notification Time (HH:mm)"
+          placeholderTextColor={colors.text.secondary}
+        />
+      </View>
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-text-primary">Reminder before watering (hours)</Text>
+        <TextInput
+          className="bg-background-primary p-2 rounded text-text-primary w-1/6"
+          value={String(userSettings.reminderAdvanceTime)}
+          onChangeText={(text) => handleSettingChange('reminderAdvanceTime', parseInt(text))}
+          placeholder="Reminder Hours in Advance"
+          keyboardType="numeric"
+          placeholderTextColor={colors.text.secondary}
+        />
+      </View>
     </View>
   );
 
@@ -124,10 +130,17 @@ const Profile: React.FC = () => {
 
   const handleSaveSettings = async () => {
     try {
-      // TODO: Implement API call to save settings
-      Alert.alert('Success', 'Settings saved successfully');
+      if(!contextUser) return;
+      const result = await updatePreferences(contextUser.$id, userSettings);
+      if(result) {
+        Alert.alert('Success', 'Settings saved successfully');
+        refetch?.();
+      } else {
+        Alert.alert('Error', 'Failed to save settings, failed to update the database');
+      }
     } catch (error) {
-      Alert.alert('Error', 'Failed to save settings');
+      Alert.alert('Error', `Failed to save settings, ${error}`);
+      console.log('Error', `Failed to save settings, ${error}`);
     }
   };
 
