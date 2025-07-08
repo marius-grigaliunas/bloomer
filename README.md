@@ -76,7 +76,7 @@
 - **Days 4-5:** Notification system
   - [x] Set up scheduled Appwrite Functions for notifications
   - [x] Configure push notification service (appwrite)
-  - Connect notifications to user preferences
+  - [ ] Connect notifications to user preferences
 
 ### Last step
 
@@ -115,3 +115,11 @@
 
 - Make that the new users have their userId the same as the documentId containing the user data. For now, I will change it manually in appwrite. (fix implemented, make sure it works properly)
   
+- Show how many days overdue
+
+- [ ] Update `PlantCareInfo` and `DatabasePlantType` interfaces to include both metric and imperial units for temperature and watering amount.
+- [ ] Update Appwrite Plants collection schema to add `wateringAmountOz`, `minTemperatureF`, and `maxTemperatureF` fields.
+- [ ] Update the AI prompt template to request both metric and imperial units for temperature and watering amount.
+- [ ] Update the response parser to extract and validate both metric and imperial values from the AI response.
+- [ ] Update plant creation and update logic to save all four values (metric and imperial) to the database.
+- [ ] Update UI to display plant care information using the user's preferred unit system.
