@@ -115,7 +115,7 @@
 
 - Make that the new users have their userId the same as the documentId containing the user data. For now, I will change it manually in appwrite. (fix implemented, make sure it works properly)
   
-- Show how many days overdue
+- Show how many days overdue in the plant details tab
 
 - [ ] Update `PlantCareInfo` and `DatabasePlantType` interfaces to include both metric and imperial units for temperature and watering amount.
 - [ ] Update Appwrite Plants collection schema to add `wateringAmountOz`, `minTemperatureF`, and `maxTemperatureF` fields.

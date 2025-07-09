@@ -6,12 +6,15 @@ export interface User extends Models.User<Models.Preferences>{
 
 export interface PlantCareInfo {
   wateringFrequency: number;
-  wateringAmount: number;
+  wateringAmountMetric: number;
+  wateringAmountImperial: number;
   lightRequirements: 'low' | 'medium' | 'high' | 'direct';
   soilPreferences: string;
   humidity: 'low' | 'medium' | 'high';
-  minTemperature: number;
-  maxTemperature: number;
+  minTemperatureCelsius: number;
+  maxTemperatureCelsius: number;
+  minTemperatureFahrenheit: number;
+  maxTemperatureFahrenheit: number;
   commonIssues: string[];
   specialNotes: string[];
   careInstructions: string[];
@@ -59,14 +62,17 @@ export interface DatabasePlantType {
   
   // Care Requirements
   wateringFrequency: number;
-  wateringAmount: number;
+  wateringAmountMetric: number;
+  wateringAmountImperial: number;
   lastWatered?: Date;
   nextWateringDate?: Date;
   lightRequirements: 'low' | 'medium' | 'high' | 'direct';
   soilPreferences?: string;
   humidity: 'low' | 'medium' | 'high';
-  minTemperature?: number;
-  maxTemperature?: number;
+  minTemperatureCelsius: number;
+  maxTemperatureCelsius: number;
+  minTemperatureFahrenheit: number;
+  maxTemperatureFahrenheit: number;
   
   // Tracking & History
   dateAdded?: Date;
