@@ -288,37 +288,6 @@ const identify = () => {
     );
   }
 
-  const handleQuickTest = () => {
-    const testPlantData = {
-      plant: {
-        scientificName: "Ocimum basilicum",
-        commonNames: ["Sweet Basil", "Common Basil"],
-        confidence: 0.95,
-        imageUri: "https://example.com/basil.jpg", // Add imageUri field
-        careInfo: {
-            wateringFrequency: 3,
-            wateringAmount: 200,
-            lightRequirements: "high" as "high", // Type assertion to match enum
-            soilPreferences: "Well-draining, rich soil",
-            humidity: "medium" as "medium", // Type assertion to match enum
-          minTemperature: 15, // Added required field
-          maxTemperature: 30, // Added required field
-          commonIssues: ["Leaf spots", "Root rot", "Aphids"],
-          specialNotes: ["Pinch off flower buds to promote leaf growth", "Harvest regularly"],
-          careInstructions: [ // Added required field
-            "Water when top inch of soil feels dry",
-            "Provide 6-8 hours of sunlight daily",
-            "Maintain temperatures between 15-30°C",
-            "Regular pruning encourages bushier growth"
-          ]
-        }
-      }
-    };
-
-    usePlantInformation.getState().setIdentifiedPlant(testPlantData.plant);
-    router.push(`/plants/${encodeURIComponent(testPlantData.plant.scientificName)}`);
-  };
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
       <View style={{ flex: 1 }}>
@@ -368,16 +337,6 @@ const identify = () => {
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
-            {DEV_MODE && (
-              <TouchableOpacity 
-                className="bg-danger p-4 rounded-xl mt-4"
-                onPress={handleQuickTest}
-              >
-                <Text className="text-text-primary text-center font-bold">
-                  DEV: Quick Test Plant Details
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
         )}
         {/* Replace camera modal */}

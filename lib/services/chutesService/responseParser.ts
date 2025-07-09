@@ -36,11 +36,15 @@ interface ChutesResponse {
             // Validate required fields and types
             if (
                 typeof parsedData.watering_frequency_days !== 'number' ||
+                typeof parsedData.watering_amount_ml !== 'number' ||
+                typeof parsedData.watering_amount_oz !== 'number' ||
                 !['low', 'medium', 'high', 'direct'].includes(parsedData.light_requirements) ||
                 typeof parsedData.soil_preferences !== 'string' ||
                 !['low', 'medium', 'high'].includes(parsedData.humidity) ||
-                typeof parsedData.min_temperature !== 'number' ||
-                typeof parsedData.max_temperature !== 'number' ||
+                typeof parsedData.min_temperature_c !== 'number' ||
+                typeof parsedData.max_temperature_c !== 'number' ||
+                typeof parsedData.min_temperature_f !== 'number' ||
+                typeof parsedData.max_temperature_f !== 'number' ||
                 !Array.isArray(parsedData.common_issues) ||
                 !Array.isArray(parsedData.special_notes) ||
                 !Array.isArray(parsedData.care_instructions)
