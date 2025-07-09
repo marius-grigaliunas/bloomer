@@ -51,12 +51,15 @@ interface ChutesResponse {
             
             return {
                 wateringFrequency: parsedData.watering_frequency_days,
-                wateringAmount: parsedData.watering_amount,
+                wateringAmountMetric: parsedData.watering_amount_ml,
+                wateringAmountImperial: parsedData.watering_amount_oz,
                 lightRequirements: parsedData.light_requirements,
                 soilPreferences: parsedData.soil_preferences,
                 humidity: parsedData.humidity,
-                minTemperature: parsedData.min_temperature,
-                maxTemperature: parsedData.max_temperature,
+                minTemperatureCelsius: parsedData.min_temperature_c,
+                maxTemperatureCelsius: parsedData.max_temperature_c,
+                minTemperatureFahrenheit: parsedData.min_temperature_f,
+                maxTemperatureFahrenheit: parsedData.max_temperature_f,
                 commonIssues: parsedData.common_issues,
                 specialNotes: parsedData.special_notes,
                 careInstructions: parsedData.care_instructions

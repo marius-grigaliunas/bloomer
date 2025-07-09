@@ -117,9 +117,9 @@
   
 - Show how many days overdue in the plant details tab
 
-- [ ] Update `PlantCareInfo` and `DatabasePlantType` interfaces to include both metric and imperial units for temperature and watering amount.
-- [ ] Update Appwrite Plants collection schema to add `wateringAmountOz`, `minTemperatureF`, and `maxTemperatureF` fields.
-- [ ] Update the AI prompt template to request both metric and imperial units for temperature and watering amount.
-- [ ] Update the response parser to extract and validate both metric and imperial values from the AI response.
+- [x] Update `PlantCareInfo` and `DatabasePlantType` interfaces to include both metric and imperial units for temperature and watering amount.
+- [x] Update Appwrite Plants collection schema to add `wateringAmountOz`, `minTemperatureF`, and `maxTemperatureF` fields.
+- [x] Update the AI prompt template to request both metric and imperial units for temperature and watering amount.
+- [x] Update the response parser to extract and validate both metric and imperial values from the AI response.
 - [ ] Update plant creation and update logic to save all four values (metric and imperial) to the database.
 - [ ] Update UI to display plant care information using the user's preferred unit system.
