@@ -1,7 +1,7 @@
 import React, { Children, createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
-import { getCurrentUser, avatar, updateUserPushToken } from './appwrite';
+import { getCurrentUser, avatar, updateUserPushToken, getUserDatabaseData } from './appwrite';
 import { useAppwrite } from "./useAppwrite";
-import { User } from "@/interfaces/interfaces";
+import { DatabaseUserType, User } from "@/interfaces/interfaces";
 import { router, SplashScreen } from "expo-router";
 import { registerForPushNotificationsAsync } from "./services/notificationsService";
 import * as Notifications from 'expo-notifications';
@@ -9,6 +9,7 @@ import * as Notifications from 'expo-notifications';
 interface GlobalContextType {
     isLoggedIn: boolean;
     user: User | null;
+    databaseUser: DatabaseUserType | null;
     loading: boolean;
     refetch: (newParams?: Record<string, string | number>) => Promise<void>}
 
@@ -32,6 +33,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         skip: isInitializedRef.current,
     });
 
+    const [ databaseUser, setDatabaseUser ] = useState<DatabaseUserType | null>(null); 
     const isLoggedIn = React.useMemo(() => !!user, [user]);
 
     useEffect(() => {
@@ -39,6 +41,18 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
             isInitializedRef.current = true;
         }
     }, [loading]);
+
+    useEffect(() => {
+        const getDatabaseUser = async () => {
+            if(user?.$id) {
+                const dbUser = await getUserDatabaseData(user?.$id);
+                setDatabaseUser(dbUser);
+            } else {
+                setDatabaseUser(null);
+            }
+        };
+        getDatabaseUser();
+    }, [user])
     
     console.log(user, loading, isLoggedIn);
     useEffect(() => {
@@ -82,19 +96,10 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         };
     }, [])
 
-    /*// Only log in development
-    if (process.env.NODE_ENV === 'development') {
-        console.log('Auth state:', {
-            user: user ? 'logged in' : 'not logged in',
-            loading,
-            initialized: isInitializedRef.current,
-        });
-        console.log(JSON.stringify(user, null, 2));
-    }*/
-
     const memoizedValue = React.useMemo(() => ({
         isLoggedIn,
         user,
+        databaseUser,
         loading,
         refetch,
     }), [isLoggedIn, user, loading, refetch]);

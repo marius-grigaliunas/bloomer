@@ -235,6 +235,37 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 }
 
+export const getUserDatabaseData = async (userId: string) => {
+    try {
+        const doc = await databases.getDocument(
+            databaseId,
+            usersCollectionId,
+            userId
+        );
+
+        if(!doc) throw new Error("Failed to get the user's data from the database");
+        return {
+            userId: doc.userId,
+            email: doc.email,
+            displayName: doc.displayName,
+            createdAt: doc.createdAt,
+            lastLogin: doc.lastLogin,
+            notificationsEnabled: !!doc.notificationsEnabled,
+            pushToken: doc.pushToken,
+            notificationTime: doc.notificationTime,
+            timezone: doc.timezone,
+            reminderAdvanceTime: doc.reminderAdvanceTime,
+            profilePicture: doc.profilePicture,
+            unitSystem: doc.unitSystem,
+            mondayFirstDayOfWeek: !!doc.mondayFirstDayOfWeek,
+            temperatureUnit: doc.temperatureUnit,
+        };
+    } catch (error) {
+        console.error("Error getting database user:", error);
+        return null;
+    }
+}
+
 export const createNewDatabaseUser = async (user: User, profilePic: string, pushToken?: string | null) => {
     try {
         const newUser = await databases.createDocument(

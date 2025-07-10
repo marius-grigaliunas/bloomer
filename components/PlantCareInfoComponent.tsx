@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import { useGlobalContext } from '@/lib/globalProvider';
 import { Plant, DatabasePlantType } from '@/interfaces/interfaces';
 
 interface PlantComponentProps {
@@ -7,6 +8,11 @@ interface PlantComponentProps {
 }
 
 const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
+  const { user: contextUser, databaseUser: userData } = useGlobalContext();
+  
+  const userUnitSystem = userData?.unitSystem;
+  const userTemperatureUnit = userData?.temperatureUnit;
+
   if (!plant) return null;
 
   // Helper function to get care info regardless of plant type
@@ -37,7 +43,7 @@ const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
           <Text className="text-accent text-xl">Watering frequency:</Text>
           <Text className="text-text-primary text-lg">
             Every {careInfo.wateringFrequency} days,
-            water with {careInfo.wateringAmount} ml of water.
+            water with {userUnitSystem == "metric" ? `${careInfo.wateringAmountMetric} ml.` : `${careInfo.wateringAmountImperial} oz.`} of water.
           </Text>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Light Requirements:</Text>
@@ -53,11 +59,11 @@ const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
         </View>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Temperature minimum:</Text>
-          <Text className="text-text-primary text-lg">{careInfo.minTemperature}</Text>
+          <Text className="text-text-primary text-lg">{userTemperatureUnit == "celsius" ? `${careInfo.minTemperatureCelsius}°C` : `${careInfo.minTemperatureFahrenheit}°F`}</Text>
         </View>
         <View className="space-y-2">
           <Text className="text-accent text-xl">Temperature maximum:</Text>
-          <Text className="text-text-primary text-lg">{careInfo.maxTemperature}</Text>
+          <Text className="text-text-primary text-lg">{userTemperatureUnit == "celsius" ? `${careInfo.maxTemperatureCelsius}°C` : `${careInfo.maxTemperatureFahrenheit}°F`}</Text>
         </View>
         <View className="">
             {careInfo.commonIssues && (
