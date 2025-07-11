@@ -6,25 +6,55 @@ import { useGlobalContext } from '@/lib/globalProvider';
 import { DatabaseUserType } from '@/interfaces/interfaces';
 import { Picker } from '@react-native-picker/picker';
 import colors from '@/constants/colors';
-
+import DateTimePicker from '@react-native-community/datetimepicker';
 const Profile: React.FC = () => {
-  const { refetch, isLoggedIn, user: contextUser } = useGlobalContext();
+  const { refetch, isLoggedIn, user: contextUser, databaseUser } = useGlobalContext();
+
+  // Always normalize to HH:mm
+  const extractTime = (value?: string) => {
+    if (!value) return '';
+    if (/^\d{2}:\d{2}$/.test(value)) return value;
+    const isoMatch = value.match(/T(\d{2}):(\d{2})/);
+    if (isoMatch) {
+      return `${isoMatch[1]}:${isoMatch[2]}`;
+    }
+    const date = new Date(value);
+    if (!isNaN(date.getTime())) {
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    return '';
+  };
+
   const [userSettings, setUserSettings] = useState<Partial<DatabaseUserType>>({
     displayName: contextUser?.name || '',
-    notificationsEnabled: true,
-    notificationTime: '09:00',
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    reminderAdvanceTime: 24,
-    unitSystem: 'metric',
-    mondayFirstDayOfWeek: true,
-    temperatureUnit: 'celsius'
+    notificationsEnabled: databaseUser?.notificationsEnabled,
+    notificationTime: extractTime(databaseUser?.notificationTime), // always normalized to HH:mm
+    timezone: databaseUser?.timezone,
+    reminderAdvanceTime: databaseUser?.reminderAdvanceTime,
+    unitSystem: databaseUser?.unitSystem,
+    mondayFirstDayOfWeek: databaseUser?.mondayFirstDayOfWeek,
+    temperatureUnit: databaseUser?.temperatureUnit
   });
+
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const handleSettingChange = (setting: keyof DatabaseUserType, value: any) => {
     setUserSettings(prev => ({
       ...prev,
       [setting]: value
     }));
+  };
+
+  const handleTimeChange = (event: any, selectedDate?: Date) => {
+    setShowTimePicker(false);
+    if (selectedDate) {
+      // Format as "HH:mm" and save only this string
+      const hours = selectedDate.getHours().toString().padStart(2, '0');
+      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+      handleSettingChange('notificationTime', `${hours}:${minutes}`);
+    }
   };
 
   const pickerStyle = {
@@ -63,18 +93,40 @@ const Profile: React.FC = () => {
       </View>
       <View className="flex-row justify-between items-center mb-2">
         <Text className="text-text-primary">Notification Time</Text>
-        <TextInput
-          className="bg-background-primary p-2 rounded mb-2 text-text-primary w-4/6"
-          value={userSettings.notificationTime}
-          onChangeText={(text) => handleSettingChange('notificationTime', text)}
-          placeholder="Notification Time (HH:mm)"
-          placeholderTextColor={colors.text.secondary}
-        />
+        <TouchableOpacity
+          onPress={() => setShowTimePicker(true)}
+          className="bg-background-primary p-2 rounded mb-2 w-1/6"
+        >
+          <Text className="text-text-primary text-right">
+            {userSettings.notificationTime || "Set Time"}
+          </Text>
+        </TouchableOpacity>
+        {showTimePicker && (
+          <DateTimePicker
+            value={
+              userSettings.notificationTime && /^\d{2}:\d{2}$/.test(userSettings.notificationTime)
+                ? (() => {
+                    const [h, m] = userSettings.notificationTime.split(':');
+                    const d = new Date();
+                    d.setHours(Number(h));
+                    d.setMinutes(Number(m));
+                    d.setSeconds(0);
+                    d.setMilliseconds(0);
+                    return d;
+                  })()
+                : new Date()
+            }
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={handleTimeChange}
+          />
+        )}
       </View>
       <View className="flex-row justify-between items-center mb-2">
         <Text className="text-text-primary">Reminder before watering (hours)</Text>
         <TextInput
-          className="bg-background-primary p-2 rounded text-text-primary w-1/6"
+          className="bg-background-primary p-2 rounded text-text-primary w-1/6 text-right"
           value={String(userSettings.reminderAdvanceTime)}
           onChangeText={(text) => handleSettingChange('reminderAdvanceTime', parseInt(text))}
           placeholder="Reminder Hours in Advance"
@@ -130,9 +182,14 @@ const Profile: React.FC = () => {
 
   const handleSaveSettings = async () => {
     try {
-      if(!contextUser) return;
-      const result = await updatePreferences(contextUser.$id, userSettings);
-      if(result) {
+      if (!contextUser) return;
+      // Always save notificationTime as HH:mm string
+      const settingsToSave = {
+        ...userSettings,
+        notificationTime: extractTime(userSettings.notificationTime)
+      };
+      const result = await updatePreferences(contextUser.$id, settingsToSave);
+      if (result) {
         Alert.alert('Success', 'Settings saved successfully');
         refetch?.();
       } else {
