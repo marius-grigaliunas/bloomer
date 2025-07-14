@@ -121,5 +121,10 @@
 - [x] Update Appwrite Plants collection schema to add `wateringAmountOz`, `minTemperatureF`, and `maxTemperatureF` fields.
 - [x] Update the AI prompt template to request both metric and imperial units for temperature and watering amount.
 - [x] Update the response parser to extract and validate both metric and imperial values from the AI response.
-- [ ] Update plant creation and update logic to save all four values (metric and imperial) to the database.
-- [ ] Update UI to display plant care information using the user's preferred unit system.
+- [x] Update plant creation and update logic to save all four values (metric and imperial) to the database.
+- [x] Update UI to display plant care information using the user's preferred unit system.
+- [x] Make the calendar teactive to setting "Monday as first day".
+
+LATER TODOs:
+
+- [ ] In the calendar, when selecting another day, the needs to be colored a different color on the calendar.

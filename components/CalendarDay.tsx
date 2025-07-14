@@ -51,14 +51,15 @@ const CalendarDay = ({ containerClasses, textClasses, textContent, wateringDay, 
     )
 }
 
-// Current month weekday
+// Current month weekday/weekend logic
 export const CurrentMonthWeekday = ({ dayKey, day, isToday, month, year, wateringDay, onPress }: CalendarDayProps) => {
     const date = new Date(year, month, day);
+    // Weekday: Monday (1) through Friday (5)
     return (
         <CalendarDay
             key={dayKey}
             containerClasses={`border border-text-primary ${isToday ? 'bg-accent' : ''}`}
-            textClasses="text-text-primary"
+            textClasses={`${isToday ? 'text-black' : 'text-text-primary'}`}
             textContent={`${day}`}
             wateringDay={wateringDay}
             onPress={onPress ? () => onPress(date) : undefined}
@@ -66,9 +67,9 @@ export const CurrentMonthWeekday = ({ dayKey, day, isToday, month, year, waterin
     );
 }
 
-// Current month weekend
 export const CurrentMonthWeekend = ({ dayKey, day, isToday, month, year, wateringDay, onPress }: CalendarDayProps) => {
     const date = new Date(year, month, day);
+    // Weekend: Saturday (6) and Sunday (0)
     return (
         <CalendarDay
             key={dayKey}

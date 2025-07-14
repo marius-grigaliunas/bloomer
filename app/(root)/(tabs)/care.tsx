@@ -11,7 +11,7 @@ import PlantCard from '@/components/PlantCard'
 
 const Care = () => {
     const [wateringDays, setWateringDays] = useState<Map<string, WateringDay>>(new Map());
-    const { isLoggedIn, user } = useGlobalContext();
+    const { isLoggedIn, user, databaseUser } = useGlobalContext();
     const [refreshing, setRefreshing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -123,6 +123,7 @@ const Care = () => {
                         <CalendarGenerator 
                             wateringDays={wateringDays}
                             onDayPress={handleDayPress}
+                            mondayFirstDayOfWeek={!!databaseUser?.mondayFirstDayOfWeek}
                         />
                     </View>
 

@@ -13,9 +13,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 interface CalendarGeneratorProps {
     wateringDays: Map<string, WateringDay>;
     onDayPress?: (date: Date) => void;
+    mondayFirstDayOfWeek?: boolean;
 }
 
-const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps) => {
+const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = false }: CalendarGeneratorProps) => {
     const [calendarElements, setCalendarElements] = useState<ReactNode[]>([])
     
     const date = new Date();
@@ -28,9 +29,12 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
     const [selectedYear, setSelectedYear] = useState(todayYear);
     
     
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            const months = ["January", "February", "March", "April", "May", "June", "July", "August",
-                "September", "October", "November", "December"];    const getWateringDay = (date: Date): WateringDay | undefined => {
+    // Days array, order depends on mondayFirstDayOfWeek
+    const days = mondayFirstDayOfWeek
+        ? ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August",
+        "September", "October", "November", "December"];    const getWateringDay = (date: Date): WateringDay | undefined => {
         // Normalize the date to midnight UTC
         const normalizedDate = new Date(date);
         normalizedDate.setHours(0, 0, 0, 0);
@@ -42,38 +46,42 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
 
     const generateCalendar = () => {
         const newElements: ReactNode[] = [];
-    
-        // Add header days
-        days.slice(1).forEach(day => {
+
+        // Add header days in correct order
+        days.forEach(day => {
             newElements.push(<HeaderDay key={day} day={day} />);
         });
-        newElements.push(<HeaderDay key={days[0]} day={days[0]} />);
 
         // Calendar generation logic using new components
         const dateLast_MonthPrev = new Date(selectedYear, selectedMonth, 0).getDate();
         const dateLast = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-        const dayFirst = new Date(selectedYear, selectedMonth, 1).getDay();
-        const dayLast = new Date(selectedYear, selectedMonth, dateLast).getDay();
+
+        // Calculate first day index based on mondayFirstDayOfWeek
+        let dayFirst = new Date(selectedYear, selectedMonth, 1).getDay();
+        let dayLast = new Date(selectedYear, selectedMonth, dateLast).getDay();
+
+        // Adjust dayFirst and dayLast so that 0 = first day of week
+        if (mondayFirstDayOfWeek) {
+            dayFirst = (dayFirst === 0) ? 6 : dayFirst - 1;
+            dayLast = (dayLast === 0) ? 6 : dayLast - 1;
+        }
 
         // Previous month days
-        if (dayFirst !== 1) {
-            const lastMonthDate = dayFirst !== 0 
-                ? dateLast_MonthPrev - dayFirst + 1 
-                : dateLast_MonthPrev - 7 + 1;
-
-            for (let j = 1; j < (dayFirst || 7); j++) {
+        if (dayFirst !== 0) {
+            const lastMonthDate = dateLast_MonthPrev - dayFirst + 1;
+            for (let j = 1; j <= dayFirst; j++) {
                 const prevMonthDate = new Date(
                     selectedMonth === 0 ? selectedYear - 1 : selectedYear,
                     selectedMonth === 0 ? 11 : selectedMonth - 1,
-                    lastMonthDate + j
+                    lastMonthDate + j - 1
                 );
                 const wateringDay = getWateringDay(prevMonthDate);
-                
+
                 newElements.push(
                     <PreviousMonthDay
                         key={`prev-${j}`}
-                        dayKey={`${lastMonthDate + j}-${selectedMonth === 0 ? 11 : selectedMonth-1}-${selectedMonth === 0 ? selectedYear-1 : selectedYear}`}
-                        day={lastMonthDate + j}
+                        dayKey={`${lastMonthDate + j - 1}-${selectedMonth === 0 ? 11 : selectedMonth-1}-${selectedMonth === 0 ? selectedYear-1 : selectedYear}`}
+                        day={lastMonthDate + j - 1}
                         month={selectedMonth === 0 ? 11 : selectedMonth-1}
                         year={selectedMonth === 0 ? selectedYear-1 : selectedYear}
                         wateringDay={wateringDay}
@@ -87,10 +95,9 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
         for (let i = 1; i <= dateLast; i++) {
             const currentDate = new Date(selectedYear, selectedMonth, i);
             const wateringDay = getWateringDay(currentDate);
-            const day = currentDate.getDay();
+            const jsDay = currentDate.getDay(); // 0=Sunday, 6=Saturday
             const isToday = i === today && selectedMonth.toString() === todayDate.split('-')[1] && selectedYear.toString() === todayDate.split('-')[2];
-            
-            // Separate key from other props
+
             const key = `current-${i}`;
             const dayProps = {
                 dayKey: `${i}-${selectedMonth}-${selectedYear}`,
@@ -102,7 +109,8 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
                 onPress: onDayPress ? () => onDayPress(currentDate) : undefined
             };
 
-            if (day === 0 || day === 6) {
+            // Only color Saturday (6) and Sunday (0) as weekend
+            if (jsDay === 0 || jsDay === 6) {
                 newElements.push(<CurrentMonthWeekend key={key} {...dayProps} />);
             } else {
                 newElements.push(<CurrentMonthWeekday key={key} {...dayProps} />);
@@ -110,15 +118,15 @@ const CalendarGenerator = ({ wateringDays, onDayPress }: CalendarGeneratorProps)
         }
 
         // Next month days
-        if (dayLast !== 0) {
-            for (let i = 1; i <= 7 - dayLast; i++) {
+        if (dayLast !== 6) {
+            for (let i = 1; i <= 6 - dayLast; i++) {
                 const nextMonthDate = new Date(
                     selectedMonth === 11 ? selectedYear + 1 : selectedYear,
                     selectedMonth === 11 ? 0 : selectedMonth + 1,
                     i
                 );
                 const wateringDay = getWateringDay(nextMonthDate);
-                
+
                 const key = `next-${i}`;
                 const dayProps = {
                     dayKey: `${i}-${selectedMonth === 11 ? 0 : selectedMonth+1}-${selectedMonth === 11 ? selectedYear+1 : selectedYear}`,
