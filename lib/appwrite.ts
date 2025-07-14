@@ -131,6 +131,28 @@ export async function AnnonymousLogin() {
     }
 }*/
 
+// Update lastLogin and timezone for user
+export const updateLoginInfo = async (userId: string) => {
+    try {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        await databases.updateDocument(
+            databaseId,
+            usersCollectionId,
+            userId,
+            {
+                lastLogin: new Date(),
+                timezone: timezone
+            }
+        );
+        // Optionally log or alert
+        // console.log("Updated lastLogin and timezone for user", userId);
+        return true;
+    } catch (error) {
+        console.error("Error updating lastLogin/timezone:", error);
+        return false;
+    }
+};
+
 export async function login() {
     try {
         // Just use the default redirect URI that Expo generates
@@ -158,19 +180,17 @@ export async function login() {
         
         if (result.type === "success" && result.url) {
             //console.log("Success URL:", result.url);
-            
             const url = new URL(result.url);
             const secret = url.searchParams.get('secret');
             const userId = url.searchParams.get('userId');
-            
             //console.log("Secret:", secret);
             //console.log("UserId:", userId);
-            
             if (secret && userId) {
                 const session = await account.createSession(userId, secret);
                 if (!session) throw new Error("Failed to create session");
-                
                 const user = await account.get();
+                // Update lastLogin and timezone
+                await updateLoginInfo(userId);
                 //console.log('Successfully logged in:', user);
                 return true;
             } else {
@@ -268,6 +288,7 @@ export const getUserDatabaseData = async (userId: string) => {
 
 export const createNewDatabaseUser = async (user: User, profilePic: string, pushToken?: string | null) => {
     try {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const newUser = await databases.createDocument(
             databaseId,
             usersCollectionId,
@@ -275,9 +296,11 @@ export const createNewDatabaseUser = async (user: User, profilePic: string, push
             {
                 userId: user.$id,
                 email: user.email,
+                displayName: user.name,
                 createdAt: new Date(user.$createdAt),
                 notificationsEnabled: true,
                 pushToken: pushToken,
+                timezone: timezone,
                 profilePicture: profilePic,
                 unitSystem: 'metric',
                 mondayFirstDayOfWeek: true,
