@@ -1,11 +1,10 @@
 import { Account, Avatars, Client, Databases, ID, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
-import * as Linking from 'expo-linking'
-import * as WebBrowser from 'expo-web-browser'
 import { DatabasePlantType, DatabaseUserType, Plant, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import * as FileSystem from 'expo-file-system';
 import { Alert, Image, ImageSourcePropType } from "react-native"
-import { makeRedirectUri } from 'expo-auth-session'
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 
 export const config = {
     platform: 'com.margri.bloomer',
@@ -16,7 +15,7 @@ export const config = {
 export const client = new Client()
     .setEndpoint(config.endpoint!)
     .setProject(config.projectId!)
-    .setPlatform(config.platform!)
+    .setPlatform(config.platform)
 
 export const avatar = new Avatars(client);
 export const account = new Account(client);
@@ -153,54 +152,181 @@ export const updateLoginInfo = async (userId: string) => {
     }
 };
 
-export async function login() {
+/*export async function login() {
     try {
-        // Just use the default redirect URI that Expo generates
-        const redirectUri = makeRedirectUri({
-            path: 'oauth-callback'
-        });
-        
-        //console.log("Redirect URI:", redirectUri);
-        
+        const redirectUri = new URL(ExpoAuthSession.makeRedirectUri({preferLocalhost: true}));
+        const scheme = `${redirectUri.protocol}://`;
+
+        console.log("Redirect URI:", redirectUri);
+
         const loginUrl = await account.createOAuth2Token(
             OAuthProvider.Google,
-            redirectUri,
-            redirectUri
+            `${redirectUri}`,
+            `${redirectUri}`
         );
-        
+
         if (!loginUrl) throw new Error("Failed to get OAuth URL");
-        //console.log("Login URL:", loginUrl.toString());
-        
-        const result = await WebBrowser.openAuthSessionAsync(
-            loginUrl.toString(), 
-            redirectUri.split('/')[0] + '//' // Use the scheme from the redirect URI
-        );
-        
-        //console.log("OAuth result:", result);
-        
+
+        const result = await WebBrowser.openAuthSessionAsync(`${loginUrl}`, scheme);
+
+        console.log("WebBrowser result:", result);
+
         if (result.type === "success" && result.url) {
-            //console.log("Success URL:", result.url);
             const url = new URL(result.url);
             const secret = url.searchParams.get('secret');
             const userId = url.searchParams.get('userId');
-            //console.log("Secret:", secret);
-            //console.log("UserId:", userId);
             if (secret && userId) {
                 const session = await account.createSession(userId, secret);
                 if (!session) throw new Error("Failed to create session");
                 const user = await account.get();
-                // Update lastLogin and timezone
                 await updateLoginInfo(userId);
-                //console.log('Successfully logged in:', user);
                 return true;
             } else {
                 throw new Error(`Missing OAuth parameters - secret: ${secret}, userId: ${userId}`);
             }
         }
-        
+
         return false;
     } catch (error) {
         console.error("Login error:", error);
+        return false;
+    }
+}*/
+
+export async function testAppwriteOAuth() {
+    try {
+        // Use a simple HTTP URL that will show us the response
+        const testRedirectUri = 'https://httpbin.org/get';
+        
+        const loginUrl = await account.createOAuth2Token(
+            OAuthProvider.Google,
+            testRedirectUri,
+            testRedirectUri
+        );
+
+        console.log("Test OAuth URL:", loginUrl);
+        
+        // Open in browser and see what happens
+        await WebBrowser.openBrowserAsync(`${loginUrl}`);
+        
+    } catch (error) {
+        console.error("Test OAuth error:", error);
+    }
+}
+
+export async function detailedLoginTest() {
+    try {
+        const scheme = 'appwrite-callback-67d145de00084a32d0d6';
+        const redirectUri = `${scheme}://`;
+
+        console.log("=== OAUTH DEBUG START ===");
+        console.log("Scheme:", scheme);
+        console.log("Redirect URI:", redirectUri);
+        console.log("Project ID:", "67d145de00084a32d0d6");
+        console.log("Appwrite endpoint:", "https://fra.cloud.appwrite.io/v1");
+
+        const loginUrl = await account.createOAuth2Token(
+            OAuthProvider.Google,
+            redirectUri,
+            redirectUri
+        );
+
+        console.log("Generated OAuth URL:", loginUrl);
+        console.log("=== OAUTH DEBUG END ===");
+
+        // Try to open and see what happens
+        const result = await WebBrowser.openAuthSessionAsync(
+            `${loginUrl}`,
+            redirectUri,
+            { showInRecents: true }
+        );
+
+        console.log("WebBrowser result:", JSON.stringify(result, null, 2));
+
+    } catch (error) {
+        console.error("Detailed login error:", error);
+    }
+}
+
+export async function testBothEndpoints() {
+    const testRedirect = 'https://httpbin.org/get';
+    
+    try {
+        console.log("Testing createOAuth2Token:");
+        const tokenUrl = await account.createOAuth2Token(
+            OAuthProvider.Google,
+            testRedirect,
+            testRedirect
+        );
+        console.log("Token URL:", tokenUrl);
+        
+        console.log("Testing createOAuth2Session:");
+        const sessionUrl = await account.createOAuth2Session(
+            OAuthProvider.Google,
+            testRedirect,
+            testRedirect
+        );
+        console.log("Session URL:", sessionUrl);
+        
+    } catch (error) {
+        console.error("Test error:", error);
+    }
+}
+
+// Alternative approach using createOAuth2Token (recommended)
+export async function login() {
+    try {
+        const redirectUri = AuthSession.makeRedirectUri({
+            scheme: `appwrite-callback-${config.projectId}`,
+        });
+
+        console.log("AuthSession redirect URI:", redirectUri);
+
+        const loginUrl = await account.createOAuth2Token(
+            OAuthProvider.Google,
+            redirectUri,
+            redirectUri
+        );
+
+        console.log("OAuth Token URL:", loginUrl);
+
+        const result = await WebBrowser.openAuthSessionAsync(
+            `${loginUrl}`,
+            redirectUri
+        );
+
+        console.log("AuthSession result:", result);
+
+        if (result.type === 'success' && result.url) {
+            // Parse the redirect URL to extract token info
+            const url = new URL(result.url);
+            const userId = url.searchParams.get('userId');
+            const secret = url.searchParams.get('secret');
+            
+            console.log("Extracted userId:", userId);
+            console.log("Extracted secret:", secret);
+
+            if (userId && secret) {
+                try {
+                    // Create session from the OAuth token
+                    const session = await account.createSession(userId, secret);
+                    console.log("Session created:", session);
+                    
+                    // Now get the user
+                    const user = await account.get();
+                    console.log("User authenticated:", user);
+                    await updateLoginInfo(user.$id);
+                    return true;
+                } catch (sessionError) {
+                    console.error("Failed to create session:", sessionError);
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    } catch (error) {
+        console.error("AuthSession login error:", error);
         return false;
     }
 }

@@ -123,6 +123,7 @@ const Profile: React.FC = () => {
           />
         )}
       </View>
+      {/*
       <View className="flex-row justify-between items-center mb-2">
         <Text className="text-text-primary">Reminder before watering (hours)</Text>
         <TextInput
@@ -134,6 +135,7 @@ const Profile: React.FC = () => {
           placeholderTextColor={colors.text.secondary}
         />
       </View>
+      */}
     </View>
   );
 
