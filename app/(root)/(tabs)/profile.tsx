@@ -7,30 +7,58 @@ import { DatabaseUserType } from '@/interfaces/interfaces';
 import { Picker } from '@react-native-picker/picker';
 import colors from '@/constants/colors';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
 const Profile: React.FC = () => {
   const { refetch, isLoggedIn, user: contextUser, databaseUser } = useGlobalContext();
 
-  // Always normalize to HH:mm
-  const extractTime = (value?: string) => {
+  // Helper function to create Date object from UTC ISO string for display
+  const createLocalDateFromUTC = (utcString: string): Date => {
+    return new Date(utcString);
+  };
+
+  // Helper function to convert UTC datetime to local HH:mm string for display
+  const getLocalTimeFromUTC = (utcString: string): string => {
+    const date = new Date(utcString);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
+  // Helper function to convert HH:mm string to UTC ISO string
+  const convertLocalTimeToUTC = (timeString: string): string => {
+    const [h, m] = timeString.split(':');
+    const date = new Date();
+    date.setHours(Number(h), Number(m), 0, 0);
+    return date.toISOString();
+  };
+
+  // Initialize notification time - handle both old HH:mm format and new UTC format
+  const initializeNotificationTime = (value?: string): string => {
     if (!value) return '';
-    if (/^\d{2}:\d{2}$/.test(value)) return value;
-    const isoMatch = value.match(/T(\d{2}):(\d{2})/);
-    if (isoMatch) {
-      return `${isoMatch[1]}:${isoMatch[2]}`;
+    
+    // If it's already a UTC ISO string, return as is
+    if (value.includes('T') && value.includes('Z')) {
+      return value;
     }
+    
+    // If it's HH:mm format, convert to UTC
+    if (/^\d{2}:\d{2}$/.test(value)) {
+      return convertLocalTimeToUTC(value);
+    }
+    
+    // Try to parse as date and convert to UTC
     const date = new Date(value);
     if (!isNaN(date.getTime())) {
-      const hours = date.getHours().toString().padStart(2, '0');
-      const minutes = date.getMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
+      return date.toISOString();
     }
+    
     return '';
   };
 
   const [userSettings, setUserSettings] = useState<Partial<DatabaseUserType>>({
     displayName: contextUser?.name || '',
     notificationsEnabled: databaseUser?.notificationsEnabled,
-    notificationTime: extractTime(databaseUser?.notificationTime), // always normalized to HH:mm
+    notificationTime: initializeNotificationTime(databaseUser?.notificationTime),
     timezone: databaseUser?.timezone,
     reminderAdvanceTime: databaseUser?.reminderAdvanceTime,
     unitSystem: databaseUser?.unitSystem,
@@ -47,13 +75,12 @@ const Profile: React.FC = () => {
     }));
   };
 
-  const handleTimeChange = (event: any, selectedDate?: Date) => {
+  const handleTimeChange = (event: any, selectedDate?: Date): void => {
     setShowTimePicker(false);
     if (selectedDate) {
-      // Format as "HH:mm" and save only this string
-      const hours = selectedDate.getHours().toString().padStart(2, '0');
-      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
-      handleSettingChange('notificationTime', `${hours}:${minutes}`);
+      // Convert local time to UTC for storage
+      const utcTime = selectedDate.toISOString();
+      handleSettingChange('notificationTime', utcTime);
     }
   };
 
@@ -98,22 +125,14 @@ const Profile: React.FC = () => {
           className="bg-background-primary p-2 rounded mb-2 w-1/6"
         >
           <Text className="text-text-primary text-right">
-            {userSettings.notificationTime || "Set Time"}
+            {userSettings.notificationTime ? getLocalTimeFromUTC(userSettings.notificationTime) : "Set Time"}
           </Text>
         </TouchableOpacity>
         {showTimePicker && (
           <DateTimePicker
             value={
-              userSettings.notificationTime && /^\d{2}:\d{2}$/.test(userSettings.notificationTime)
-                ? (() => {
-                    const [h, m] = userSettings.notificationTime.split(':');
-                    const d = new Date();
-                    d.setHours(Number(h));
-                    d.setMinutes(Number(m));
-                    d.setSeconds(0);
-                    d.setMilliseconds(0);
-                    return d;
-                  })()
+              userSettings.notificationTime 
+                ? createLocalDateFromUTC(userSettings.notificationTime)
                 : new Date()
             }
             mode="time"
@@ -182,14 +201,16 @@ const Profile: React.FC = () => {
     </View>
   );
 
-  const handleSaveSettings = async () => {
+  const handleSaveSettings = async (): Promise<void> => {
     try {
       if (!contextUser) return;
-      // Always save notificationTime as HH:mm string
+      
+      // userSettings.notificationTime is already UTC, ready for Appwrite storage
       const settingsToSave = {
         ...userSettings,
-        notificationTime: extractTime(userSettings.notificationTime)
+        notificationTime: userSettings.notificationTime // Already UTC ISO string
       };
+      
       const result = await updatePreferences(contextUser.$id, settingsToSave);
       if (result) {
         Alert.alert('Success', 'Settings saved successfully');
