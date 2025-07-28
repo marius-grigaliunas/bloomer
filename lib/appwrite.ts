@@ -1,4 +1,4 @@
-import { Account, Avatars, Client, Databases, ID, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
+import { Account, Avatars, Client, Databases, ID, ImageGravity, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
 import { DatabasePlantType, DatabaseUserType, Plant, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import * as FileSystem from 'expo-file-system';
@@ -492,7 +492,8 @@ export const uploadPlantPicture = async (fileUri: string, id: string) => {
             throw new Error(`File does not exist: ${fileUri}`);
         }
 
-        const uploadedFile = await storage.createFile(
+        // Upload the file
+        await storage.createFile(
             plantImageStorageId,
             id,
             {
@@ -501,18 +502,20 @@ export const uploadPlantPicture = async (fileUri: string, id: string) => {
                 size: fileInfo.size,
                 uri: fileUri
             }
-        )
+        );
 
-        const fileUrl = await storage.getFileView(
+        // Generate the URL directly using getFileView instead of getFilePreview
+        const fileUrl = storage.getFileView(
             plantImageStorageId,
             id
-        )
+        );
 
-        if(!fileUrl) {
-            throw new Error("Error getting file preview");
-        }
+        // Create the full URL manually
+        const fullUrl = `${config.endpoint}/storage/buckets/${plantImageStorageId}/files/${id}/view?project=${config.projectId}`;
+        
+        console.log("Generated image URL:", fullUrl);
 
-        return fileUrl;
+        return fullUrl;
 
     } catch (error) {
         console.error("Error uploading image to appwrite cloud: ", error);
