@@ -1,5 +1,5 @@
 import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal, TouchableOpacity } from 'react-native'
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -11,14 +11,23 @@ import { getPlantCareInfo } from '@/lib/services/chutesService/deepseekService';
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { router } from 'expo-router';
 import LoadingScreen from '../../../components/LoadingScreen';
+import * as Manipulator from 'expo-image-manipulator';
 
 const { width, height } = Dimensions.get('window');
 
 const DEV_MODE = process.env.NODE_ENV === 'development';
 
+// Image processing configuration
+const IMAGE_CONFIG = {
+  maxWidth: 800,
+  maxHeight: 800,
+  quality: 0.8,
+  format: Manipulator.SaveFormat.JPEG
+};
+
 const identify = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCamera, setShowCamera] = useState(true); // Start with camera view
+  const [showCamera, setShowCamera] = useState(true);
   const [cameraPermission, requestCameraPermission] = ExpoCamera.useCameraPermissions();
   const ref = useRef<ExpoCamera.CameraView>(null);
   const [imageUris, setImageUris] = useState<string[]>(Array(5).fill(null));
@@ -26,16 +35,16 @@ const identify = () => {
   const maxImages = 5;
   const [showReplaceCamera, setShowReplaceCamera] = useState(false);
 
-  // Add loading state
+  // Enhanced loading states
   const [isIdentifying, setIsIdentifying] = useState(false);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [identificationError, setIdentificationError] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   useEffect(() => {
-    // Store the URIs that exist when the effect runs
     const currentUris = [...imageUris];
     
     return () => {
-      // Synchronously start deletion of all files
       currentUris.forEach(uri => {
         if (uri) {
           FileSystem.deleteAsync(uri, { idempotent: true })
@@ -45,39 +54,102 @@ const identify = () => {
     };
   }, []);
 
+  const processImage = useCallback(async (imageUri: string): Promise<string> => {
+    try {
+      setIsProcessingImage(true);
+      setLoadingMessage("Processing image...");
+
+      // Get image info first to check original size (optional)
+      const imageInfo = await FileSystem.getInfoAsync(imageUri);
+      const originalSize = imageInfo.exists ? imageInfo.size : 0;
+      
+      // Process the image: resize, compress, and optimize
+      const processedImage = await Manipulator.manipulateAsync(
+        imageUri,
+        [
+          // Resize to maximum dimensions while maintaining aspect ratio
+          { resize: { width: IMAGE_CONFIG.maxWidth, height: IMAGE_CONFIG.maxHeight } }
+        ],
+        {
+          compress: IMAGE_CONFIG.quality,
+          format: IMAGE_CONFIG.format,
+          base64: false // We don't need base64, just the file
+        }
+      );
+
+      // Get processed image size for logging
+      const processedInfo = await FileSystem.getInfoAsync(processedImage.uri);
+      const processedSize = processedInfo.exists ? processedInfo.size : 0;
+
+      console.log(`Image processed: ${Math.round(originalSize / 1024)}KB -> ${Math.round(processedSize / 1024)}KB`);
+      
+      return processedImage.uri;
+    } catch (error) {
+      console.error('Error processing image:', error);
+      throw error;
+    } finally {
+      setIsProcessingImage(false);
+      setLoadingMessage("");
+    }
+  }, []);
+
   const takePicture = async () => {
-      try {
-        if (!ref.current || !ref.current.takePictureAsync) {
-          throw new Error("Camera reference is not properly initialized.");
-        }
-  
-        const photo = await ref.current.takePictureAsync();
-        if (photo?.uri) {
-          // Add timestamp to make filename unique
-          const timestamp = new Date().getTime();
-          const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}_${timestamp}.jpg`;
-          await FileSystem.moveAsync({
-            from: photo.uri,
-            to: tempUri
-          });
-  
-          setImageUris(prevUris => {
-            const newUris = [...prevUris];
-            newUris[currentImageIndex] = tempUri;
-            return newUris;
-          });
-  
-          if (currentImageIndex < maxImages - 1) {
-            setCurrentImageIndex(currentImageIndex + 1);
-          }
-        } else {
-          throw new Error("Photo URI is not available.");
-        }
-      } catch (error) {
-        console.error("Error taking picture:", error);
-        Alert.alert("Error", "Failed to take picture. Please try again.");
+    try {
+      if (!ref.current || !ref.current.takePictureAsync) {
+        throw new Error("Camera reference is not properly initialized.");
       }
-    };
+
+      setIsProcessingImage(true);
+      setLoadingMessage("Taking photo...");
+
+      // Take photo with optimized settings
+      const photo = await ref.current.takePictureAsync({
+        quality: 0.8, // Reduce initial quality
+        base64: false,
+        skipProcessing: false
+      });
+
+      if (photo?.uri) {
+        setLoadingMessage("Processing image...");
+        
+        // Process the image immediately after capture
+        const processedUri = await processImage(photo.uri);
+        
+        // Create final filename
+        const timestamp = new Date().getTime();
+        const finalUri = FileSystem.cacheDirectory + `processed_photo_${currentImageIndex}_${timestamp}.jpg`;
+        
+        // Move processed image to final location
+        await FileSystem.moveAsync({
+          from: processedUri,
+          to: finalUri
+        });
+
+        // Clean up original photo if it's different from processed
+        if (photo.uri !== processedUri) {
+          await FileSystem.deleteAsync(photo.uri, { idempotent: true }).catch(() => {});
+        }
+
+        setImageUris(prevUris => {
+          const newUris = [...prevUris];
+          newUris[currentImageIndex] = finalUri;
+          return newUris;
+        });
+
+        if (currentImageIndex < maxImages - 1) {
+          setCurrentImageIndex(currentImageIndex + 1);
+        }
+      } else {
+        throw new Error("Photo URI is not available.");
+      }
+    } catch (error) {
+      console.error("Error taking picture:", error);
+      Alert.alert("Error", "Failed to take picture. Please try again.");
+    } finally {
+      setIsProcessingImage(false);
+      setLoadingMessage("");
+    }
+  };
 
   const replacePicture = async () => {
     setShowReplaceCamera(true);
@@ -85,9 +157,19 @@ const identify = () => {
 
   const handleReplacePicture = async () => {
     try {
-      const photo = await ref.current?.takePictureAsync();
+      setIsProcessingImage(true);
+      setLoadingMessage("Taking photo...");
+
+      const photo = await ref.current?.takePictureAsync({
+        quality: 0.8,
+        base64: false,
+        skipProcessing: false
+      });
+
       if (photo?.uri) {
-        // Delete existing temporary file if it exists
+        setLoadingMessage("Processing image...");
+        
+        // Delete existing file
         const oldUri = imageUris[currentImageIndex];
         if (oldUri) {
           const fileInfo = await FileSystem.getInfoAsync(oldUri);
@@ -95,18 +177,26 @@ const identify = () => {
             await FileSystem.deleteAsync(oldUri, { idempotent: true });
           }
         }
-  
-        // Add timestamp to make filename unique
+
+        // Process new image
+        const processedUri = await processImage(photo.uri);
+        
         const timestamp = new Date().getTime();
-        const tempUri = FileSystem.cacheDirectory + `temp_photo_${currentImageIndex}_${timestamp}.jpg`;
+        const finalUri = FileSystem.cacheDirectory + `processed_photo_${currentImageIndex}_${timestamp}.jpg`;
+        
         await FileSystem.moveAsync({
-          from: photo.uri,
-          to: tempUri
+          from: processedUri,
+          to: finalUri
         });
-  
+
+        // Clean up original photo
+        if (photo.uri !== processedUri) {
+          await FileSystem.deleteAsync(photo.uri, { idempotent: true }).catch(() => {});
+        }
+
         setImageUris(prevUris => {
           const newUris = [...prevUris];
-          newUris[currentImageIndex] = tempUri;
+          newUris[currentImageIndex] = finalUri;
           return newUris;
         });
         setShowReplaceCamera(false);
@@ -114,24 +204,35 @@ const identify = () => {
     } catch (error) {
       console.error("Error replacing picture:", error);
       Alert.alert("Error", "Failed to replace picture. Please try again.");
+    } finally {
+      setIsProcessingImage(false);
+      setLoadingMessage("");
     }
   };
 
+  // Optimized identification with progress tracking
   const handleIdentify = async () => {
     try {
       setIsIdentifying(true);
       setIdentificationError(null);
       
-      // Filter out null values and get valid URIs
       const validImageUris = imageUris.filter((uri): uri is string => uri !== null);
       
       if (validImageUris.length === 0) {
         throw new Error('No images to identify');
       }
 
+      setLoadingMessage("Analyzing images...");
+      
+      // Start plant identification
       const results = await identifyPlants(validImageUris);
+      
+      setLoadingMessage("Getting care information...");
+      
       const scientificName = results.bestMatch;
       const plantCommonNames = results.commonNames ?? [''];
+      
+      // Get care info concurrently if possible, or show interim results
       const careInfo = await getPlantCareInfo(scientificName, plantCommonNames);
 
       usePlantInformation.getState().setIdentifiedPlant({
@@ -149,6 +250,7 @@ const identify = () => {
       setIdentificationError(error instanceof Error ? error.message : 'Failed to identify plants');
     } finally {
       setIsIdentifying(false);
+      setLoadingMessage("");
     }
   };
 
@@ -166,8 +268,7 @@ const identify = () => {
           }
         }
       }
-  
-      // Reset states only after confirming deletions
+
       setImageUris(Array(5).fill(null));
       setCurrentImageIndex(0);
       setIdentificationError(null);
@@ -183,11 +284,10 @@ const identify = () => {
       setShowCamera(false);
       
     } catch (error) {
-      console.error('Error switching to camera:', error);
-      // Reset states anyway as fallback
+      console.error('Error switching to search:', error);
       setImageUris(Array(5).fill(null));
       setCurrentImageIndex(0);
-      setShowCamera(true);
+      setShowCamera(false);
     }
   };
 
@@ -198,7 +298,6 @@ const identify = () => {
 
     } catch (error) {
       console.error('Error switching to camera:', error);
-      // Reset states anyway as fallback
       setImageUris(Array(5).fill(null));
       setCurrentImageIndex(0);
       setShowCamera(true);
@@ -217,17 +316,24 @@ const identify = () => {
           <Pressable 
             onPress={takePicture}
             className='w-20 h-20 rounded-full bg-white border-4 border-secondary-medium'
+            disabled={isProcessingImage}
           >
             <View className='flex-1 rounded-full m-1 bg-secondary-medium' />
           </Pressable>
         </View>
+        {isProcessingImage && (
+          <View className='absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center'>
+            <View className='bg-white p-4 rounded-lg'>
+              <Text className='text-black text-center'>{loadingMessage}</Text>
+            </View>
+          </View>
+        )}
       </ExpoCamera.CameraView>
     </View>
   );
 
   const renderPicture = () => (
     <View style={{ width: width, height: height * 0.8}}>
-      {/* Display only the current image */}
       {imageUris[currentImageIndex] && (
         <Image 
           source={{ uri: imageUris[currentImageIndex] }}
@@ -248,6 +354,7 @@ const identify = () => {
         <Pressable 
           className='bg-secondary-medium p-4 rounded-full'
           onPress={replacePicture}
+          disabled={isProcessingImage}
         >
           <AntDesign name="camera" size={32} color="white" />
         </Pressable>
@@ -264,6 +371,26 @@ const identify = () => {
       <Text className='absolute top-10 self-center text-white text-xl'>{currentImageIndex + 1} / {maxImages}</Text>
     </View>
   );
+
+  // Loading screen overlay
+  const renderLoadingOverlay = () => {
+    if (!isIdentifying && !isProcessingImage) return null;
+    
+    return (
+      <View className='absolute inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
+        <View className='bg-white p-6 rounded-lg mx-4'>
+          <Text className='text-black text-center text-lg mb-2'>
+            {isProcessingImage ? 'Processing Image...' : 'Identifying Plant...'}
+          </Text>
+          {loadingMessage && (
+            <Text className='text-gray-600 text-center'>
+              {loadingMessage}
+            </Text>
+          )}
+        </View>
+      </View>
+    );
+  };
 
   // Check camera permission
   if (!cameraPermission) {
@@ -292,17 +419,16 @@ const identify = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
       <View style={{ flex: 1 }}>
         {showCamera ? (
-          // Camera view
           <View className="flex-1">
             {imageUris[currentImageIndex] ? renderPicture() : renderCamera()}
             <View className="px-4 mt-1 space-y-4">
               <Pressable 
-                className={`p-4 rounded-xl ${imageUris.every(uri => uri !== null) ? 'bg-secondary-medium' : 'bg-gray-400'}`}
+                className={`p-4 rounded-xl ${imageUris.some(uri => uri !== null) ? 'bg-secondary-medium' : 'bg-gray-400'}`}
                 onPress={handleIdentify}
-                disabled={!imageUris.some(uri => uri !== null) || isIdentifying}
+                disabled={!imageUris.some(uri => uri !== null) || isIdentifying || isProcessingImage}
               >
                 <Text className="text-white text-center text-lg font-semibold">
-                  Identify {imageUris.filter(uri => uri !== null).length}/5 photos
+                  {isIdentifying ? 'Identifying...' : `Identify ${imageUris.filter(uri => uri !== null).length}/5 photos`}
                 </Text>
               </Pressable>
               {identificationError && (
@@ -313,7 +439,7 @@ const identify = () => {
               <TouchableOpacity 
                 className="bg-secondary-deep p-4 mt-3 rounded-xl"
                 onPress={switchToSearch}
-                disabled={true}
+                disabled={isIdentifying || isProcessingImage}
               >
                 <Text className="text-text-primary text-center">
                   Search your plant instead
@@ -322,7 +448,6 @@ const identify = () => {
             </View>
           </View>
         ) : (
-          // Search view
           <View className="flex-1 mt-10 px-4 pt-8">
             <Pressable 
               className="bg-secondary-medium p-4 rounded-xl mb-4"
@@ -339,6 +464,7 @@ const identify = () => {
             />
           </View>
         )}
+
         {/* Replace camera modal */}
         <Modal
           visible={showReplaceCamera}
@@ -356,19 +482,25 @@ const identify = () => {
                 <Pressable 
                   onPress={() => setShowReplaceCamera(false)}
                   className='bg-secondary-medium p-4 rounded-full'
+                  disabled={isProcessingImage}
                 >
                   <AntDesign name="close" size={32} color="white" />
                 </Pressable>
                 <Pressable 
                   onPress={handleReplacePicture}
                   className='w-20 h-20 rounded-full bg-white border-4 border-secondary-medium'
+                  disabled={isProcessingImage}
                 >
                   <View className='flex-1 rounded-full m-1 bg-secondary-medium' />
                 </Pressable>
               </View>
+              {renderLoadingOverlay()}
             </ExpoCamera.CameraView>
           </View>
         </Modal>
+        
+        {/* Loading overlay */}
+        {renderLoadingOverlay()}
         {isIdentifying && <LoadingScreen />}
       </View>
     </SafeAreaView>

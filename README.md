@@ -37,3 +37,4 @@
 - [ ] Show how many days overdue in the plant details tab
 - [ ] Check and fix every instance of the loading screen
 - [ ] Forms in the settings screen need form validation
+- [ ] User is seeing the image steps and loading message while waiting for the response, make it look cohesive
