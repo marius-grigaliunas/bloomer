@@ -33,23 +33,34 @@ export const usePlantStore = create<PlantState>((set, get) => ({
         try {
             const plantsData = await getUserPlants(userId);
 
-            const plantsById: Record<string, DatabasePlantType> = {};
-
-            for(const plant of plantsData) {
+            // Process plants in parallel instead of sequentially
+            const plantPromises = plantsData.map(async (plant) => {
                 await scheduleWateringReminder(plant);
-            }
-
+                return plant;
+            });
+            
+            await Promise.all(plantPromises);
             await checkMissedWaterings(plantsData);
 
+            const plantsById: Record<string, DatabasePlantType> = {};
             plantsData.forEach(plant => {
                 plantsById[plant.plantId] = plant;
             });
 
             set({
-                plants:plantsById,
+                plants: plantsById,
                 allPlantIds: plantsData.map(plant => plant.plantId),
                 isLoading: false
             });
+            
+            setTimeout(async () => {
+                const plantPromises = plantsData.map(plant => 
+                    scheduleWateringReminder(plant)
+                );
+                await Promise.all(plantPromises);
+                await checkMissedWaterings(plantsData);
+            }, 100);
+            
         } catch (err: unknown) {
             set({isLoading: false, error: err instanceof Error ? err.message : 'An error fetching plants has occured'});
         }

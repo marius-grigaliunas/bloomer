@@ -5,6 +5,7 @@ import { DatabaseUserType, User } from "@/interfaces/interfaces";
 import { router, SplashScreen } from "expo-router";
 import { registerForPushNotificationsAsync } from "./services/notificationsService";
 import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface GlobalContextType {
     isLoggedIn: boolean;
@@ -60,11 +61,17 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
             console.log("Push notification effect running for user:", user.$id);
             const setupPushNotifications = async () => {
                 try {
+                    // Check if we already have a token
+                    const existingToken = await AsyncStorage.getItem('pushToken');
+                    if (existingToken) {
+                        await updateUserPushToken(user.$id, existingToken);
+                        return;
+                    }
+                    
                     const token = await registerForPushNotificationsAsync();
-                    console.log("registerForPushNotificationsAsync returned:", token);
                     if (token) {
+                        await AsyncStorage.setItem('pushToken', token);
                         await updateUserPushToken(user.$id, token);
-                        console.log('Push token registered:', token);
                     }
                 } catch (err) {
                     console.error("Error in setupPushNotifications:", err);
