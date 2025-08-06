@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, Switch, TextInput, Platform } from 'react-native';
-import React, { useState } from 'react';
+import * as react from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { logout, updatePreferences } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/globalProvider';
@@ -55,7 +55,7 @@ const Profile: React.FC = () => {
     return '';
   };
 
-  const [userSettings, setUserSettings] = useState<Partial<DatabaseUserType>>({
+  const [userSettings, setUserSettings] = react.useState<Partial<DatabaseUserType>>({
     displayName: contextUser?.name || '',
     notificationsEnabled: databaseUser?.notificationsEnabled,
     notificationTime: initializeNotificationTime(databaseUser?.notificationTime),
@@ -66,7 +66,7 @@ const Profile: React.FC = () => {
     temperatureUnit: databaseUser?.temperatureUnit
   });
 
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = react.useState(false);
 
   const handleSettingChange = (setting: keyof DatabaseUserType, value: any) => {
     setUserSettings(prev => ({
