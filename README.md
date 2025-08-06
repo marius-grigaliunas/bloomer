@@ -33,8 +33,9 @@
 
 ### TODO
 
-- [ ] In the calendar, when selecting another day, the needs to be colored a different color on the calendar.
+- [x] In the calendar, when selecting another day, the needs to be colored a different color on the calendar.
 - [ ] Show how many days overdue in the plant details tab
 - [ ] Check and fix every instance of the loading screen
-- [ ] Forms in the settings screen need form validation
+- [x] Forms in the settings screen need form validation
+  - implemented selectables only.
 - [ ] User is seeing the image steps and loading message while waiting for the response, make it look cohesive

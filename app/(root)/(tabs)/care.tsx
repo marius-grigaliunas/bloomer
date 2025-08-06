@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, RefreshControl } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import CalendarGenerator from '@/components/CalendarGenerator'
 import { DatabasePlantType } from '@/interfaces/interfaces'
@@ -57,7 +57,7 @@ const Care = () => {
       setRefreshing(true);
       await loadPlants();
       setRefreshing(false);
-    };    const handleDayPress = (date: Date) => {
+    };    const handleDayPress = useCallback((date: Date) => {
         // Normalize the date to midnight UTC
         const normalizedDate = new Date(date);
         normalizedDate.setHours(0, 0, 0, 0);
@@ -79,7 +79,7 @@ const Care = () => {
             setSelectedDate(null);
             setSelectedPlants([]);
         }
-    };
+    }, [wateringDays, allPlants]);
 
     const getFormattedFullDate = (date: Date) : string => {
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -124,6 +124,7 @@ const Care = () => {
                             wateringDays={wateringDays}
                             onDayPress={handleDayPress}
                             mondayFirstDayOfWeek={!!databaseUser?.mondayFirstDayOfWeek}
+                            selectedDate={selectedDate}
                         />
                     </View>
 

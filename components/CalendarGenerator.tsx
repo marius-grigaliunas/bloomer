@@ -1,5 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState, useMemo, useCallback } from 'react'
 import { WateringDay } from '@/lib/services/dateService'
 import { 
     CurrentMonthWeekday, 
@@ -14,9 +14,10 @@ interface CalendarGeneratorProps {
     wateringDays: Map<string, WateringDay>;
     onDayPress?: (date: Date) => void;
     mondayFirstDayOfWeek?: boolean;
+    selectedDate?: Date | null;
 }
 
-const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = false }: CalendarGeneratorProps) => {
+const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = false, selectedDate }: CalendarGeneratorProps) => {
     const [calendarElements, setCalendarElements] = useState<ReactNode[]>([])
     
     const date = new Date();
@@ -44,7 +45,19 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         return wateringDays.get(dateKey);
     }
 
-    const generateCalendar = () => {
+    const isDateSelected = useCallback((date: Date): boolean => {
+        if (!selectedDate) return false;
+        
+        const normalizedSelectedDate = new Date(selectedDate);
+        normalizedSelectedDate.setHours(0, 0, 0, 0);
+        
+        const normalizedDate = new Date(date);
+        normalizedDate.setHours(0, 0, 0, 0);
+        
+        return normalizedSelectedDate.getTime() === normalizedDate.getTime();
+    }, [selectedDate]);
+
+    const generateCalendar = useCallback(() => {
         const newElements: ReactNode[] = [];
 
         // Add header days in correct order
@@ -76,6 +89,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                     lastMonthDate + j - 1
                 );
                 const wateringDay = getWateringDay(prevMonthDate);
+                const isSelected = isDateSelected(prevMonthDate);
 
                 newElements.push(
                     <PreviousMonthDay
@@ -85,6 +99,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                         month={selectedMonth === 0 ? 11 : selectedMonth-1}
                         year={selectedMonth === 0 ? selectedYear-1 : selectedYear}
                         wateringDay={wateringDay}
+                        isSelected={isSelected}
                         onPress={onDayPress}
                     />
                 );
@@ -97,12 +112,14 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
             const wateringDay = getWateringDay(currentDate);
             const jsDay = currentDate.getDay(); // 0=Sunday, 6=Saturday
             const isToday = i === today && selectedMonth.toString() === todayDate.split('-')[1] && selectedYear.toString() === todayDate.split('-')[2];
+            const isSelected = isDateSelected(currentDate);
 
             const key = `current-${i}`;
             const dayProps = {
                 dayKey: `${i}-${selectedMonth}-${selectedYear}`,
                 day: i,
                 isToday: isToday,
+                isSelected: isSelected,
                 month: selectedMonth,
                 year: selectedYear,
                 wateringDay,
@@ -126,6 +143,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                     i
                 );
                 const wateringDay = getWateringDay(nextMonthDate);
+                const isSelected = isDateSelected(nextMonthDate);
 
                 const key = `next-${i}`;
                 const dayProps = {
@@ -134,6 +152,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                     month: selectedMonth === 11 ? 0 : selectedMonth+1,
                     year: selectedMonth === 11 ? selectedYear+1 : selectedYear,
                     wateringDay,
+                    isSelected: isSelected,
                     onPress: onDayPress
                 };
                 newElements.push(
@@ -146,7 +165,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         }
 
         setCalendarElements(newElements);
-    };
+    }, [selectedMonth, selectedYear, wateringDays, isDateSelected, onDayPress, mondayFirstDayOfWeek]);
 
     const NextMonth = () => {
         if(selectedMonth === 11) {
@@ -169,7 +188,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
     useEffect(() => {
         generateCalendar();
         return () => setCalendarElements([]);
-    }, [selectedMonth, selectedYear, wateringDays]); // Add wateringDays to dependencies
+    }, [generateCalendar]);
 
     return (
                 <View className=''>

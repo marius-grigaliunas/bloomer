@@ -626,7 +626,7 @@ export const updateUserPushToken = async (userId: string, pushToken: string | nu
             }
         )
         console.log(`push token: ${pushToken}, updated`);
-        Alert.alert("pushToken updated", `"${pushToken}"`);
+        
     } catch (error) {
         console.error('Error updating push token:', error);
         return false;

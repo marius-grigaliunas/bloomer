@@ -1,11 +1,12 @@
 import { View, Text, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { WateringDay } from '@/lib/services/dateService'
 
 interface CalendarDayProps {
     dayKey: string;
     day: number;
     isToday?: boolean;
+    isSelected?: boolean;
     month: number;
     year: number;
     wateringDay?: WateringDay;
@@ -25,11 +26,24 @@ interface HeaderDayProps {
 }
 
 // Base component for calendar days
-const CalendarDay = ({ containerClasses, textClasses, textContent, wateringDay, onPress }: BaseCalendarDayProps) => {
+const CalendarDay = React.memo(({ containerClasses, textClasses, textContent, wateringDay, onPress }: BaseCalendarDayProps) => {
+    const [isPressed, setIsPressed] = useState(false);
+
+    const handlePressIn = () => {
+        setIsPressed(true);
+    };
+
+    const handlePressOut = () => {
+        setIsPressed(false);
+    };
+
     return (
         <TouchableOpacity 
             onPress={onPress}
-            className={`${containerClasses} w-[14.28%] py-4 px-2 flex justify-start items-center relative`}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            className={`${containerClasses} w-[14.28%] py-4 px-2 flex justify-start items-center relative ${isPressed ? 'opacity-70' : ''}`}
+            activeOpacity={0.7}
         >
             <Text className={textClasses}>{textContent}</Text>
             {wateringDay && wateringDay.plants.length > 0 && (
@@ -49,77 +63,77 @@ const CalendarDay = ({ containerClasses, textClasses, textContent, wateringDay, 
             )}
         </TouchableOpacity>
     )
-}
+});
 
 // Current month weekday/weekend logic
-export const CurrentMonthWeekday = ({ dayKey, day, isToday, month, year, wateringDay, onPress }: CalendarDayProps) => {
+export const CurrentMonthWeekday = React.memo(({ dayKey, day, isToday, isSelected, month, year, wateringDay, onPress }: CalendarDayProps) => {
     const date = new Date(year, month, day);
     // Weekday: Monday (1) through Friday (5)
     return (
         <CalendarDay
             key={dayKey}
-            containerClasses={`border border-text-primary ${isToday ? 'bg-accent' : ''}`}
-            textClasses={`${isToday ? 'text-black' : 'text-text-primary'}`}
+            containerClasses={`border border-text-primary ${isSelected ? 'bg-primary-deep' : isToday ? 'bg-accent' : ''}`}
+            textClasses={`${isSelected ? 'text-white' : isToday ? 'text-black' : 'text-text-primary'}`}
             textContent={`${day}`}
             wateringDay={wateringDay}
             onPress={onPress ? () => onPress(date) : undefined}
         />
     );
-}
+});
 
-export const CurrentMonthWeekend = ({ dayKey, day, isToday, month, year, wateringDay, onPress }: CalendarDayProps) => {
+export const CurrentMonthWeekend = React.memo(({ dayKey, day, isToday, isSelected, month, year, wateringDay, onPress }: CalendarDayProps) => {
     const date = new Date(year, month, day);
     // Weekend: Saturday (6) and Sunday (0)
     return (
         <CalendarDay
             key={dayKey}
-            containerClasses={`border border-text-primary ${isToday ? 'bg-accent' : ''}`}
-            textClasses="text-text-secondary"
+            containerClasses={`border border-text-primary ${isSelected ? 'bg-primary-deep' : isToday ? 'bg-accent' : ''}`}
+            textClasses={`${isSelected ? 'text-white' : 'text-text-secondary'}`}
             textContent={`${day}`}
             wateringDay={wateringDay}
             onPress={onPress ? () => onPress(date) : undefined}
         />
     );
-}
+});
 
 // Previous month day
-export const PreviousMonthDay = ({ dayKey, day, month, year, wateringDay, onPress }: CalendarDayProps) => {
+export const PreviousMonthDay = React.memo(({ dayKey, day, isSelected, month, year, wateringDay, onPress }: CalendarDayProps) => {
     const date = new Date(year, month, day);
     return (
         <CalendarDay
             key={dayKey}
-            containerClasses="border border-text-secondary"
-            textClasses="text-text-secondary"
+            containerClasses={`border border-text-secondary ${isSelected ? 'bg-primary-deep' : ''}`}
+            textClasses={`${isSelected ? 'text-white' : 'text-text-secondary'}`}
             textContent={`${day}`}
             wateringDay={wateringDay}
             onPress={onPress ? () => onPress(date) : undefined}
         />
     );
-}
+});
 
 // Next month day
-export const NextMonthDay = ({ dayKey, day, month, year, wateringDay, onPress }: CalendarDayProps) => {
+export const NextMonthDay = React.memo(({ dayKey, day, isSelected, month, year, wateringDay, onPress }: CalendarDayProps) => {
     const date = new Date(year, month, day);
     return (
         <CalendarDay
             key={dayKey}
-            containerClasses="border border-text-secondary"
-            textClasses="text-text-secondary"
+            containerClasses={`border border-text-secondary ${isSelected ? 'bg-primary-deep' : ''}`}
+            textClasses={`${isSelected ? 'text-white' : 'text-text-secondary'}`}
             textContent={`${day}`}
             wateringDay={wateringDay}
             onPress={onPress ? () => onPress(date) : undefined}
         />
     );
-}
+});
 
 // Header day component
-export const HeaderDay = ({ day }: HeaderDayProps) => (
+export const HeaderDay = React.memo(({ day }: HeaderDayProps) => (
     <CalendarDay
         key={day}
         containerClasses="border border-text-primary"
         textClasses="text-text-primary"
         textContent={day.slice(0, 2)}
     />
-)
+));
 
 export type { CalendarDayProps, HeaderDayProps }
