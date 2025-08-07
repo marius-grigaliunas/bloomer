@@ -22,6 +22,17 @@ export function calculateDaysLate(lastWatered: Date, frequency: number): number 
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
+export function calculateDaysUntilNextWatering(lastWatered: Date, frequency: number): number {
+  const today = new Date();
+  const expectedDate = new Date(lastWatered);
+  expectedDate.setDate(expectedDate.getDate() + frequency);
+  
+  if (today >= expectedDate) return 0;
+  
+  const diffTime = Math.abs(expectedDate.getTime() - today.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
 export function generateWateringDays(
   plants: DatabasePlantType[],
   startDate: Date,

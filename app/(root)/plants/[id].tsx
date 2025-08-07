@@ -11,6 +11,7 @@ import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
 import { usePlantStore } from '@/interfaces/plantStore';
 import PlantHeader from '@/components/PlantHeader';
 import RenamePlantModal from '@/components/RenamePlantModal';
+import { calculateDaysLate, calculateDaysUntilNextWatering } from '@/lib/services/dateService';
 const { width, height } = Dimensions.get('window');
 
 type PlantDetailsParams = {
@@ -113,6 +114,52 @@ const PlantDetails = () => {
         </View>
         <PlantCareInfoComponent plant={plant as DatabasePlantType} />
         <View className='p-4'>
+          {/* Watering Status */}
+          {plant?.lastWatered && plant?.wateringFrequency && (
+            <View className="mb-4 p-4 bg-background-surface rounded-xl">
+              <Text className="text-accent text-xl mb-2">Watering Status</Text>
+              {(() => {
+                const daysLate = calculateDaysLate(new Date(plant.lastWatered), plant.wateringFrequency);
+                const daysUntilNext = calculateDaysUntilNextWatering(new Date(plant.lastWatered), plant.wateringFrequency);
+                
+                if (daysLate > 0) {
+                  return (
+                    <View className="bg-danger/20 p-3 rounded-lg">
+                      <Text className="text-danger text-lg font-semibold">
+                        {daysLate} {daysLate === 1 ? 'day' : 'days'} overdue
+                      </Text>
+                      <Text className="text-text-secondary text-sm">
+                        Your plant needs water!
+                      </Text>
+                    </View>
+                  );
+                } else if (daysUntilNext > 0) {
+                  return (
+                    <View className="bg-primary/20 p-3 rounded-lg">
+                      <Text className="text-primary text-lg font-semibold">
+                        {daysUntilNext} {daysUntilNext === 1 ? 'day' : 'days'} until next watering
+                      </Text>
+                      <Text className="text-text-secondary text-sm">
+                        Your plant is doing well!
+                      </Text>
+                    </View>
+                  );
+                } else {
+                  return (
+                    <View className="bg-accent/20 p-3 rounded-lg">
+                      <Text className="text-accent text-lg font-semibold">
+                        Water today!
+                      </Text>
+                      <Text className="text-text-secondary text-sm">
+                        Time to water your plant
+                      </Text>
+                    </View>
+                  );
+                }
+              })()}
+            </View>
+          )}
+
           <View className="space-y-2">
             <Text className="text-accent text-xl">Last watered:</Text>
             <Text className="text-text-primary text-lg">
