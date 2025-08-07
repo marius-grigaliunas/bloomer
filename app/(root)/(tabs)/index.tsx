@@ -29,9 +29,15 @@ export default function Index() {
 
   const { plants, allPlantIds, isLoading, error, fetchAllUserPlants } = usePlantStore();
 
+  const [lastUserId, setLastUserId] = useState<string | null>(null);
+
   useEffect(() => {
-    fetchAllUserPlants(contextUser?.$id ?? "");
-  }, [contextUser?.$id]);
+    const currentUserId = contextUser?.$id ?? "";
+    if (currentUserId && currentUserId !== lastUserId) {
+      setLastUserId(currentUserId);
+      fetchAllUserPlants(currentUserId);
+    }
+  }, [contextUser?.$id, lastUserId]);
 
   useEffect(() => {
     const updatePlantsCare = () => {
