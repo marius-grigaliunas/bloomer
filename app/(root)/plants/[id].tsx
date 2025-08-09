@@ -12,23 +12,44 @@ import { usePlantStore } from '@/interfaces/plantStore';
 import PlantHeader from '@/components/PlantHeader';
 import RenamePlantModal from '@/components/RenamePlantModal';
 import { calculateDaysLate, calculateDaysUntilNextWatering } from '@/lib/services/dateService';
+import { useNavigationState } from '@/lib/navigationState';
 const { width, height } = Dimensions.get('window');
 
 type PlantDetailsParams = {
   id: string;
   from?: string;
+  selectedDate?: string;
+  selectedMonth?: string;
+  selectedYear?: string;
 };
 
 const PlantDetails = () => {
-  const { id, from } = useLocalSearchParams<PlantDetailsParams>();
+  const { id, from, selectedDate, selectedMonth, selectedYear } = useLocalSearchParams<PlantDetailsParams>();
   const { isLoggedIn, user: contextUser, refetch } = useGlobalContext();
   const [ loading, setLoading] = useState(false);
   const [ modalVisible, setModalVisible ] = useState(false);
+  const { setCareState } = useNavigationState();
 
   const navigateBack = () => {
     if (from) {
       switch (from) {
         case 'care':
+          // Restore care state if we have the navigation parameters
+          if (selectedDate || selectedMonth || selectedYear) {
+            const careStateUpdate: any = {};
+            
+            if (selectedDate) {
+              careStateUpdate.selectedDate = new Date(selectedDate);
+            }
+            if (selectedMonth) {
+              careStateUpdate.selectedMonth = parseInt(selectedMonth);
+            }
+            if (selectedYear) {
+              careStateUpdate.selectedYear = parseInt(selectedYear);
+            }
+            
+            setCareState(careStateUpdate);
+          }
           router.push('/(root)/(tabs)/care');
           break;
         case 'identify':

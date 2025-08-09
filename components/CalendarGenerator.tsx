@@ -15,65 +15,70 @@ interface CalendarGeneratorProps {
     onDayPress?: (date: Date) => void;
     mondayFirstDayOfWeek?: boolean;
     selectedDate?: Date | null;
+    initialMonth?: number;
+    initialYear?: number;
 }
 
-const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = false, selectedDate }: CalendarGeneratorProps) => {
-    const [calendarElements, setCalendarElements] = useState<ReactNode[]>([])
+const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = false, selectedDate, initialMonth, initialYear }: CalendarGeneratorProps) => {
+    // Memoize today's date calculation to avoid recalculation on every render
+    const todayInfo = useMemo(() => {
+        const date = new Date();
+        const todayYear = date.getFullYear();
+        const todayMonth = date.getMonth();
+        const today = date.getDate();
+        const todayDate = `${today}-${todayMonth}-${todayYear}`;
+        return { todayYear, todayMonth, today, todayDate };
+    }, []);
     
-    const date = new Date();
-    const todayYear = date.getFullYear();
-    const todayMonth = date.getMonth();
-    const today = date.getDate();
-    const todayDate = `${today}-${todayMonth}-${todayYear}`;
+    const [selectedMonth, setSelectedMonth] = useState(initialMonth ?? todayInfo.todayMonth);
+    const [selectedYear, setSelectedYear] = useState(initialYear ?? todayInfo.todayYear);
     
-    const [selectedMonth, setSelectedMonth] = useState(todayMonth);
-    const [selectedYear, setSelectedYear] = useState(todayYear);
+    // Current calendar elements
+    const [calendarElements, setCalendarElements] = useState<ReactNode[]>([]);
     
-    
-    // Days array, order depends on mondayFirstDayOfWeek
-    const days = mondayFirstDayOfWeek
+    // Memoize static arrays to prevent recreation on every render
+    const days = useMemo(() => mondayFirstDayOfWeek
         ? ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-        : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August",
-        "September", "October", "November", "December"];    const getWateringDay = (date: Date): WateringDay | undefined => {
-        // Normalize the date to midnight UTC
-        const normalizedDate = new Date(date);
-        normalizedDate.setHours(0, 0, 0, 0);
-        
-        // Format date key in YYYY-MM-DD format to match the wateringDays map
-        const dateKey = `${normalizedDate.getFullYear()}-${String(normalizedDate.getMonth() + 1).padStart(2, '0')}-${String(normalizedDate.getDate()).padStart(2, '0')}`;
+        : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    , [mondayFirstDayOfWeek]);
+    
+    const months = useMemo(() => ["January", "February", "March", "April", "May", "June", "July", "August",
+        "September", "October", "November", "December"], []);    // Inline getWateringDay function to avoid callback recreation
+    const getWateringDay = (date: Date): WateringDay | undefined => {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const dateKey = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
         return wateringDays.get(dateKey);
-    }
+    };
 
+    // Optimize date comparison to avoid creating new Date objects
     const isDateSelected = useCallback((date: Date): boolean => {
         if (!selectedDate) return false;
         
-        const normalizedSelectedDate = new Date(selectedDate);
-        normalizedSelectedDate.setHours(0, 0, 0, 0);
-        
-        const normalizedDate = new Date(date);
-        normalizedDate.setHours(0, 0, 0, 0);
-        
-        return normalizedSelectedDate.getTime() === normalizedDate.getTime();
+        return (
+            date.getFullYear() === selectedDate.getFullYear() &&
+            date.getMonth() === selectedDate.getMonth() &&
+            date.getDate() === selectedDate.getDate()
+        );
     }, [selectedDate]);
 
-    const generateCalendar = useCallback(() => {
+    // Function to generate calendar elements for a specific month
+    const generateCalendarForMonth = useCallback((year: number, month: number): ReactNode[] => {
         const newElements: ReactNode[] = [];
 
-        // Add header days in correct order
+        // Always add header days for each month
         days.forEach(day => {
-            newElements.push(<HeaderDay key={day} day={day} />);
+            newElements.push(<HeaderDay key={`${day}-${year}-${month}`} day={day} />);
         });
 
-        // Calendar generation logic using new components
-        const dateLast_MonthPrev = new Date(selectedYear, selectedMonth, 0).getDate();
-        const dateLast = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+        // Calculate calendar metadata for the specific month
+        const dateLast_MonthPrev = new Date(year, month, 0).getDate();
+        const dateLast = new Date(year, month + 1, 0).getDate();
 
-        // Calculate first day index based on mondayFirstDayOfWeek
-        let dayFirst = new Date(selectedYear, selectedMonth, 1).getDay();
-        let dayLast = new Date(selectedYear, selectedMonth, dateLast).getDay();
+        let dayFirst = new Date(year, month, 1).getDay();
+        let dayLast = new Date(year, month, dateLast).getDay();
 
-        // Adjust dayFirst and dayLast so that 0 = first day of week
         if (mondayFirstDayOfWeek) {
             dayFirst = (dayFirst === 0) ? 6 : dayFirst - 1;
             dayLast = (dayLast === 0) ? 6 : dayLast - 1;
@@ -84,8 +89,8 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
             const lastMonthDate = dateLast_MonthPrev - dayFirst + 1;
             for (let j = 1; j <= dayFirst; j++) {
                 const prevMonthDate = new Date(
-                    selectedMonth === 0 ? selectedYear - 1 : selectedYear,
-                    selectedMonth === 0 ? 11 : selectedMonth - 1,
+                    month === 0 ? year - 1 : year,
+                    month === 0 ? 11 : month - 1,
                     lastMonthDate + j - 1
                 );
                 const wateringDay = getWateringDay(prevMonthDate);
@@ -93,11 +98,11 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
 
                 newElements.push(
                     <PreviousMonthDay
-                        key={`prev-${j}`}
-                        dayKey={`${lastMonthDate + j - 1}-${selectedMonth === 0 ? 11 : selectedMonth-1}-${selectedMonth === 0 ? selectedYear-1 : selectedYear}`}
+                        key={`prev-${j}-${year}-${month}`}
+                        dayKey={`${lastMonthDate + j - 1}-${month === 0 ? 11 : month-1}-${month === 0 ? year-1 : year}`}
                         day={lastMonthDate + j - 1}
-                        month={selectedMonth === 0 ? 11 : selectedMonth-1}
-                        year={selectedMonth === 0 ? selectedYear-1 : selectedYear}
+                        month={month === 0 ? 11 : month-1}
+                        year={month === 0 ? year-1 : year}
                         wateringDay={wateringDay}
                         isSelected={isSelected}
                         onPress={onDayPress}
@@ -108,25 +113,24 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
 
         // Current month days
         for (let i = 1; i <= dateLast; i++) {
-            const currentDate = new Date(selectedYear, selectedMonth, i);
+            const currentDate = new Date(year, month, i);
             const wateringDay = getWateringDay(currentDate);
-            const jsDay = currentDate.getDay(); // 0=Sunday, 6=Saturday
-            const isToday = i === today && selectedMonth.toString() === todayDate.split('-')[1] && selectedYear.toString() === todayDate.split('-')[2];
+            const jsDay = currentDate.getDay();
+            const isToday = i === todayInfo.today && month === todayInfo.todayMonth && year === todayInfo.todayYear;
             const isSelected = isDateSelected(currentDate);
 
-            const key = `current-${i}`;
+            const key = `current-${i}-${year}-${month}`;
             const dayProps = {
-                dayKey: `${i}-${selectedMonth}-${selectedYear}`,
+                dayKey: `${i}-${month}-${year}`,
                 day: i,
                 isToday: isToday,
                 isSelected: isSelected,
-                month: selectedMonth,
-                year: selectedYear,
+                month: month,
+                year: year,
                 wateringDay,
                 onPress: onDayPress ? () => onDayPress(currentDate) : undefined
             };
 
-            // Only color Saturday (6) and Sunday (0) as weekend
             if (jsDay === 0 || jsDay === 6) {
                 newElements.push(<CurrentMonthWeekend key={key} {...dayProps} />);
             } else {
@@ -138,19 +142,19 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         if (dayLast !== 6) {
             for (let i = 1; i <= 6 - dayLast; i++) {
                 const nextMonthDate = new Date(
-                    selectedMonth === 11 ? selectedYear + 1 : selectedYear,
-                    selectedMonth === 11 ? 0 : selectedMonth + 1,
+                    month === 11 ? year + 1 : year,
+                    month === 11 ? 0 : month + 1,
                     i
                 );
                 const wateringDay = getWateringDay(nextMonthDate);
                 const isSelected = isDateSelected(nextMonthDate);
 
-                const key = `next-${i}`;
+                const key = `next-${i}-${year}-${month}`;
                 const dayProps = {
-                    dayKey: `${i}-${selectedMonth === 11 ? 0 : selectedMonth+1}-${selectedMonth === 11 ? selectedYear+1 : selectedYear}`,
+                    dayKey: `${i}-${month === 11 ? 0 : month+1}-${month === 11 ? year+1 : year}`,
                     day: i,
-                    month: selectedMonth === 11 ? 0 : selectedMonth+1,
-                    year: selectedMonth === 11 ? selectedYear+1 : selectedYear,
+                    month: month === 11 ? 0 : month+1,
+                    year: month === 11 ? year+1 : year,
                     wateringDay,
                     isSelected: isSelected,
                     onPress: onDayPress
@@ -164,8 +168,17 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
             }
         }
 
-        setCalendarElements(newElements);
-    }, [selectedMonth, selectedYear, wateringDays, isDateSelected, onDayPress, mondayFirstDayOfWeek]);
+        return newElements;
+    }, [wateringDays, isDateSelected, onDayPress, days, todayInfo, mondayFirstDayOfWeek]);
+
+    // Generate calendar for current month
+    const generateCurrentCalendar = useCallback(() => {
+        console.log('Generating calendar for:', selectedYear, selectedMonth);
+        console.log('Watering days size:', wateringDays.size);
+        const elements = generateCalendarForMonth(selectedYear, selectedMonth);
+        console.log('Generated elements count:', elements.length);
+        setCalendarElements(elements);
+    }, [selectedYear, selectedMonth, generateCalendarForMonth, wateringDays]);
 
     const NextMonth = () => {
         if(selectedMonth === 11) {
@@ -185,10 +198,20 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         }
     }
 
+    // Effect to generate calendar when month/year/data changes
     useEffect(() => {
-        generateCalendar();
-        return () => setCalendarElements([]);
-    }, [generateCalendar]);
+        generateCurrentCalendar();
+    }, [generateCurrentCalendar]);
+
+    // Update calendar state when initial values change (for navigation restoration)
+    useEffect(() => {
+        if (initialMonth !== undefined && initialMonth !== selectedMonth) {
+            setSelectedMonth(initialMonth);
+        }
+        if (initialYear !== undefined && initialYear !== selectedYear) {
+            setSelectedYear(initialYear);
+        }
+    }, [initialMonth, initialYear]);
 
     return (
                 <View className=''>
