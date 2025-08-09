@@ -11,7 +11,7 @@ import { usePlantStore } from "@/interfaces/plantStore";
 import { getCurrentUser, getUserPlants } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
 import { calculateDaysLate } from "@/lib/services/dateService";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Image, ScrollView, Text, View, RefreshControl, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -20,7 +20,6 @@ export default function Index() {
   const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
   const [ currentUser, setCurrentUser ] = useState(contextUser);
 
-  //const [ plants, setPlants ] = useState<DatabasePlantType[]>([]);
   const [ plantsNeedCare, setPlantsNeedCare ] = useState<DatabasePlantType[]>([]);
   const [ plantsNeedCareLater, setPlantsNeedCareLater ] = useState<DatabasePlantType[]>([]);
 
@@ -39,13 +38,24 @@ export default function Index() {
     }
   }, [contextUser?.$id, lastUserId]);
 
+  // Add a ref to track if we've already calculated for this plants data
+  const plantsRef = useRef<Record<string, DatabasePlantType>>({});
+
   useEffect(() => {
     const updatePlantsCare = () => {
+      // Only recalculate if plants data has actually changed
+      const plantsString = JSON.stringify(plants);
+      const plantsRefString = JSON.stringify(plantsRef.current);
+      
+      if (plantsString === plantsRefString) {
+        return; // Skip if plants haven't changed
+      }
+      
+      plantsRef.current = plants;
+      
       const now = new Date();
       const needsCareNow = Object.values(plants).filter(plant => {
         if (!plant.lastWatered || !plant.wateringFrequency || !plant.nextWateringDate) return false;
-        
-        // Compare against nextWateringDate instead of calculating from lastWatered
         return new Date(plant.nextWateringDate) <= now;
       });
       setPlantsNeedCare(needsCareNow);
@@ -67,14 +77,9 @@ export default function Index() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchAllUserPlants(contextUser?.$id ?? "");
+    await fetchAllUserPlants(contextUser?.$id ?? "", true); // Force refresh on pull-to-refresh
     setRefreshing(false);
   };
-
-  /*useEffect(() => {
-    setLoading(true);
-    getData().finally(() => setLoading(false));
-  }, [isLoggedIn, contextUser?.$id]);*/
 
   if(error) return Alert.alert("Oops, there's an error...", error);
   

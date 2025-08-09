@@ -12,12 +12,14 @@ import { ID } from 'react-native-appwrite';
 import AddPlantModal, { PlantFormData } from '@/components/AddPlantModal';
 import LoadingScreen from '@/components/LoadingScreen';
 import PlantHeader from '@/components/PlantHeader';
+import { usePlantStore } from '@/interfaces/plantStore';
 const { width, height } = Dimensions.get('window');
 
 const IdentifiedPlant = () => {
   const { id } = useLocalSearchParams();
   const { isLoggedIn, user: contextUser, refetch} = useGlobalContext();
   const identifiedPlant = usePlantInformation((state) => state.identifiedPlant);
+  const { addPlant } = usePlantStore();
   
   const [ loading, setLoading] = useState(false);
   const [ modalVisible, setModalVisible ] = useState(false);
@@ -104,7 +106,8 @@ const IdentifiedPlant = () => {
 
       const result = await createNewDatabasePlant(plantToAdd);
       if(result) {
-        await refetch();
+        // Add plant to local store instead of refetching
+        addPlant(plantToAdd);
         router.replace('/(root)/(tabs)')
       } else {
         Alert.alert("Error", "Failed to add plant");

@@ -16,13 +16,34 @@ const { width, height } = Dimensions.get('window');
 
 type PlantDetailsParams = {
   id: string;
+  from?: string;
 };
 
 const PlantDetails = () => {
-  const { id } = useLocalSearchParams<PlantDetailsParams>();
+  const { id, from } = useLocalSearchParams<PlantDetailsParams>();
   const { isLoggedIn, user: contextUser, refetch } = useGlobalContext();
   const [ loading, setLoading] = useState(false);
   const [ modalVisible, setModalVisible ] = useState(false);
+
+  const navigateBack = () => {
+    if (from) {
+      switch (from) {
+        case 'care':
+          router.push('/(root)/(tabs)/care');
+          break;
+        case 'identify':
+          router.push('/(root)/(tabs)/identify');
+          break;
+        case 'profile':
+          router.push('/(root)/(tabs)/profile');
+          break;
+        default:
+          router.push('/(root)/(tabs)');
+      }
+    } else {
+      router.back();
+    }
+  };
   
   const { plants, allPlantIds, isLoading, error,
      fetchAllUserPlants, getPlantById, updatePlant, deletePlant, markAsWatered
@@ -42,7 +63,7 @@ const PlantDetails = () => {
       setLoading(true);
       await deletePlant(id);
       setLoading(false);
-      router.push('/(root)/(tabs)');
+      navigateBack();
     } catch (error) {
       setLoading(false);
       Alert.alert('Error', 'Failed to delete plant');
@@ -84,7 +105,7 @@ const PlantDetails = () => {
     <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
       <ScrollView className="w-screen flex-1">
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={navigateBack}
           className='flex-1'
         >
           <View className='bg-danger h-14 w-32 flex justify-center items-center rounded-2xl mb-10'>

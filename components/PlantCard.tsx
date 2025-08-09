@@ -1,11 +1,23 @@
 import { View, Text, Image, ImageSourcePropType, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { DatabasePlantType } from '@/interfaces/interfaces'
-import { Link } from 'expo-router'
+import { Link, usePathname } from 'expo-router'
 
+interface PlantCardProps extends DatabasePlantType {
+  from?: string;
+}
 
-const PlantCard = ({ plantId, imageUrl, nickname }: DatabasePlantType) => {
+const PlantCard = ({ plantId, imageUrl, nickname, from }: PlantCardProps) => {
     console.log('Image URL type:', typeof imageUrl, 'Value:', imageUrl);
+    const pathname = usePathname();
+    
+    // Determine the current tab from pathname if 'from' is not provided
+    const currentTab = from || (() => {
+        if (pathname.includes('/care')) return 'care';
+        if (pathname.includes('/identify')) return 'identify';
+        if (pathname.includes('/profile')) return 'profile';
+        return 'index';
+    })();
 
     const getImageSource = () => {
         // If imageUrl is undefined or null, return a placeholder
@@ -32,7 +44,7 @@ const PlantCard = ({ plantId, imageUrl, nickname }: DatabasePlantType) => {
 
     return (
         <Link 
-            href={`/plants/${plantId}`}
+            href={`/plants/${plantId}?from=${currentTab}`}
             asChild  
         >
             <TouchableOpacity className='mr-1 flex justify-start items-start shadow-md shadow-secondary-medium

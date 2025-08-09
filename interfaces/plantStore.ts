@@ -9,12 +9,14 @@ interface PlantState {
     allPlantIds: string[];
     isLoading: boolean;
     error: string | null;
+    isInitialized: boolean;
 
-    fetchAllUserPlants: (userId: string) => Promise<void>;
+    fetchAllUserPlants: (userId: string, forceRefresh?: boolean) => Promise<void>;
     getPlantById: (id: string) => DatabasePlantType | undefined;
     updatePlant: (plant: DatabasePlantType) => Promise<void>;
     deletePlant: (id: string) => Promise<void>;
-    markAsWatered: (id: string) => Promise<void>; 
+    markAsWatered: (id: string) => Promise<void>;
+    addPlant: (plant: DatabasePlantType) => void;
 }
 
 export const usePlantStore = create<PlantState>((set, get) => ({
@@ -22,8 +24,14 @@ export const usePlantStore = create<PlantState>((set, get) => ({
     allPlantIds: [],
     isLoading: false, 
     error: null,
+    isInitialized: false,
 
-    fetchAllUserPlants: async (userId: string) => {
+    fetchAllUserPlants: async (userId: string, forceRefresh = false) => {
+        // Skip fetch if already initialized and not forcing refresh
+        if (!forceRefresh && get().isInitialized) {
+            return;
+        }
+
         set({ isLoading: true, error: null });
         if(userId === "") {
             set({isLoading: false, error: "No active user"});
@@ -33,15 +41,6 @@ export const usePlantStore = create<PlantState>((set, get) => ({
         try {
             const plantsData = await getUserPlants(userId);
 
-            // Process plants in parallel instead of sequentially
-            const plantPromises = plantsData.map(async (plant) => {
-                await scheduleWateringReminder(plant);
-                return plant;
-            });
-            
-            await Promise.all(plantPromises);
-            await checkMissedWaterings(plantsData);
-
             const plantsById: Record<string, DatabasePlantType> = {};
             plantsData.forEach(plant => {
                 plantsById[plant.plantId] = plant;
@@ -50,16 +49,22 @@ export const usePlantStore = create<PlantState>((set, get) => ({
             set({
                 plants: plantsById,
                 allPlantIds: plantsData.map(plant => plant.plantId),
-                isLoading: false
+                isLoading: false,
+                isInitialized: true
             });
             
+            // Process notifications in the background without blocking the UI
             setTimeout(async () => {
-                const plantPromises = plantsData.map(plant => 
-                    scheduleWateringReminder(plant)
-                );
-                await Promise.all(plantPromises);
-                await checkMissedWaterings(plantsData);
-            }, 100);
+                try {
+                    const plantPromises = plantsData.map(plant => 
+                        scheduleWateringReminder(plant)
+                    );
+                    await Promise.all(plantPromises);
+                    await checkMissedWaterings(plantsData);
+                } catch (error) {
+                    console.error('Background notification processing failed:', error);
+                }
+            }, 1000);
             
         } catch (err: unknown) {
             set({isLoading: false, error: err instanceof Error ? err.message : 'An error fetching plants has occured'});
@@ -131,14 +136,29 @@ export const usePlantStore = create<PlantState>((set, get) => ({
             };
             
             await updatePlant(updatedPlant);
-            await scheduleWateringReminder(updatedPlant);
             
             set(state => ({
               plants: { ...state.plants, [id]: updatedPlant },
               isLoading: false
             }));
+            
+            // Schedule reminder in background
+            setTimeout(async () => {
+                try {
+                    await scheduleWateringReminder(updatedPlant);
+                } catch (error) {
+                    console.error('Failed to schedule reminder:', error);
+                }
+            }, 100);
         } catch (err) {
             set({isLoading: false, error: err instanceof Error ? err.message : 'An error marking the plant as watered has occured'});
         }
+    },
+
+    addPlant: (plant: DatabasePlantType) => {
+        set(state => ({
+            plants: { ...state.plants, [plant.plantId]: plant },
+            allPlantIds: [...state.allPlantIds, plant.plantId]
+        }));
     },
 }))
