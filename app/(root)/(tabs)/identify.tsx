@@ -1,4 +1,4 @@
-import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal, TouchableOpacity } from 'react-native'
+import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal, TouchableOpacity, Platform } from 'react-native'
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
@@ -35,11 +35,25 @@ const identify = () => {
   const maxImages = 5;
   const [showReplaceCamera, setShowReplaceCamera] = useState(false);
 
+  // Flash state
+  const [flashMode, setFlashMode] = useState<'off' | 'on' | 'auto'>('off');
+
   // Enhanced loading states
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [identificationError, setIdentificationError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("");
+
+  // Flash toggle function
+  const toggleFlash = () => {
+    setFlashMode(prevMode => {
+      const newMode = prevMode === 'off' ? 'on' : 'off';
+      console.log('Flash mode changed from', prevMode, 'to', newMode, 'Platform:', Platform.OS);
+      return newMode;
+    });
+  };
+
+
 
   useEffect(() => {
     const currentUris = [...imageUris];
@@ -304,14 +318,32 @@ const identify = () => {
     }
   };
 
-  const renderCamera = () => (
+  const renderCamera = () => {
+    console.log('Rendering camera with flash mode:', flashMode);
+    return (
     <View style={{ width: width, height: height * 0.8, backgroundColor: colors.background.primary}}>
       <ExpoCamera.CameraView 
         style={{ flex: 1 }}
         facing={'back'}
         ref={ref}
         mode={'picture'}
+        flash={Platform.OS === 'ios' ? flashMode : undefined}
+        enableTorch={Platform.OS === 'android' ? flashMode === 'on' : undefined}
       >
+        {/* Flash button */}
+        <View className='absolute top-10 right-4'>
+          <Pressable 
+            onPress={toggleFlash}
+            className='bg-black bg-opacity-50 p-3 rounded-full'
+            disabled={isProcessingImage}
+          >
+            <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
+          </Pressable>
+          <Text className='text-white text-xs text-center mt-1 bg-black bg-opacity-50 px-2 py-1 rounded'>
+            {flashMode.toUpperCase()} ({Platform.OS})
+          </Text>
+        </View>
+        
         <View className='absolute bottom-10 w-full flex-row justify-center'>
           <Pressable 
             onPress={takePicture}
@@ -330,7 +362,8 @@ const identify = () => {
         )}
       </ExpoCamera.CameraView>
     </View>
-  );
+    );
+  };
 
   const renderPicture = () => (
     <View style={{ width: width, height: height * 0.8}}>
@@ -477,7 +510,23 @@ const identify = () => {
               facing={'back'}
               ref={ref}
               mode={'picture'}
+              flash={Platform.OS === 'ios' ? flashMode : undefined}
+              enableTorch={Platform.OS === 'android' ? flashMode === 'on' : undefined}
             >
+              {/* Flash button */}
+              <View className='absolute top-10 right-4'>
+                <Pressable 
+                  onPress={toggleFlash}
+                  className='bg-black bg-opacity-50 p-3 rounded-full'
+                  disabled={isProcessingImage}
+                >
+                  <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
+                </Pressable>
+                <Text className='text-white text-xs text-center mt-1 bg-black bg-opacity-50 px-2 py-1 rounded'>
+                  {flashMode.toUpperCase()} ({Platform.OS})
+                </Text>
+              </View>
+              
               <View className='absolute bottom-10 w-full flex-row justify-around'>
                 <Pressable 
                   onPress={() => setShowReplaceCamera(false)}
