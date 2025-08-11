@@ -22,6 +22,8 @@
   - image compression
   - Image caching
   - Optimize Appwrite queries
+  - Calendar caching and lazy loading
+  - Pre-generation of watering days
 - Testing and debugging
   - Test full user journeys
   - Fix critical bugs
@@ -34,6 +36,7 @@
 ### TODO
 
 - [x] In the calendar, when selecting another day, the needs to be colored a different color on the calendar.
+- [x] preload the calendar with the watering days so the ui loading would be instantaneous
 - [ ] Show how many days overdue in the plant details tab
 - [ ] Check and fix every instance of the loading screen
 - [x] Forms in the settings screen need form validation

@@ -6,7 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import colors from "@/constants/colors";
-import { LoadingScreen } from "../components/LoadingScreen";
+import LoadingScreen from "../components/LoadingScreen";
 
 SplashScreen.preventAutoHideAsync();
 

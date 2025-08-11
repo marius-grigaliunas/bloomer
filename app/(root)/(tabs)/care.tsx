@@ -1,9 +1,9 @@
 import { View, Text, ScrollView, RefreshControl } from 'react-native'
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import CalendarGenerator from '@/components/CalendarGenerator'
+import CalendarGenerator, { clearCalendarCache } from '@/components/CalendarGenerator'
 import { DatabasePlantType } from '@/interfaces/interfaces'
-import { WateringDay, generateWateringDays } from '@/lib/services/dateService'
+import { WateringDay, generateWateringDays, pregenerateWateringDays, clearWateringDaysCache } from '@/lib/services/dateService'
 import { useGlobalContext } from '@/lib/globalProvider'
 import { getUserPlants } from '@/lib/appwrite'
 import colors from '@/constants/colors'
@@ -14,7 +14,6 @@ const Care = () => {
     const [wateringDays, setWateringDays] = useState<Map<string, WateringDay>>(new Map());
     const { isLoggedIn, user, databaseUser } = useGlobalContext();
     const [refreshing, setRefreshing] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedPlants, setSelectedPlants] = useState<DatabasePlantType[]>([]);
     const [allPlants, setAllPlants] = useState<DatabasePlantType[]>([]);
@@ -25,7 +24,32 @@ const Care = () => {
         allPlants.forEach(plant => map.set(plant.plantId, plant));
         return map;
     }, [allPlants]);
+    
     const { careState, setCareState } = useNavigationState();
+
+    // Memoize static arrays to avoid recreation on every call
+    const monthNames = useMemo(() => ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], []);
+    const dayNames = useMemo(() => ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], []);
+
+    // Memoize current date calculation to avoid creating new Date objects on every render
+    const currentDate = useMemo(() => new Date(), []);
+    
+    const getFormattedFullDate = useCallback((date: Date): string => {
+        const day = date.getDate();
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        return `${dayNames[date.getDay()]}, ${day} ${monthNames[month]} ${year}`;
+    }, [dayNames, monthNames]);
+    
+    const formattedCurrentDate = useMemo(() => getFormattedFullDate(currentDate), [currentDate, getFormattedFullDate]);
+
+    // Optimized date key generation with proper padding to match dateService
+    const generateDateKey = useCallback((date: Date): string => {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        return `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
+    }, []);
 
     const loadPlants = useCallback(async () => {
         try {
@@ -43,6 +67,11 @@ const Care = () => {
             
             const days = generateWateringDays(plants, startDate, endDate);
             setWateringDays(days);
+            
+            // Pre-generate additional months in the background for seamless navigation
+            setTimeout(() => {
+                pregenerateWateringDays(plants, 12); // Pre-generate 12 months ahead
+            }, 100);
 
         } catch (error) {
             console.error('Error loading plants:', error);
@@ -54,17 +83,23 @@ const Care = () => {
         loadPlants();
     }, [loadPlants]);
 
+    // Clear cache when user changes to ensure fresh data
+    useEffect(() => {
+        if (isLoggedIn && user) {
+            clearWateringDaysCache();
+            clearCalendarCache();
+        }
+    }, [isLoggedIn, user]);
+
+
+
     // Restore navigation state when component mounts or care state changes
     useEffect(() => {
         if (careState.selectedDate && allPlants.length > 0) {
             setSelectedDate(careState.selectedDate);
             
             // Optimize date key generation
-            const date = new Date(careState.selectedDate);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            const dateKey = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
+            const dateKey = generateDateKey(careState.selectedDate);
             const wateringDay = wateringDays.get(dateKey);
             
             if (wateringDay) {
@@ -75,18 +110,17 @@ const Care = () => {
                 setSelectedPlants(plantsForDay);
             }
         }
-    }, [careState.selectedDate, plantsMap, wateringDays]);
+    }, [careState.selectedDate, plantsMap, wateringDays, generateDateKey]);
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
         await loadPlants();
         setRefreshing(false);
-    }, [loadPlants]);    const handleDayPress = useCallback((date: Date) => {
+    }, [loadPlants]);
+
+    const handleDayPress = useCallback((date: Date) => {
         // Optimize date key generation to avoid string padding operations
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
-        const dateKey = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
+        const dateKey = generateDateKey(date);
         const wateringDay = wateringDays.get(dateKey);
         
         if (wateringDay) {
@@ -115,22 +149,32 @@ const Care = () => {
                 selectedPlants: []
             });
         }
-    }, [wateringDays, plantsMap, setCareState]);
+    }, [wateringDays, plantsMap, setCareState, generateDateKey]);
 
-    // Memoize static arrays to avoid recreation on every call
-    const monthNames = useMemo(() => ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], []);
-    const dayNames = useMemo(() => ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], []);
-
-    const getFormattedFullDate = useCallback((date: Date): string => {
-        const day = date.getDate();
-        const month = date.getMonth();
-        const year = date.getFullYear();
-        return `${dayNames[date.getDay()]}, ${day} ${monthNames[month]} ${year}`;
-    }, [dayNames, monthNames]);
-    
-    // Memoize current date calculation to avoid creating new Date objects on every render
-    const currentDate = useMemo(() => new Date(), []);
-    const formattedCurrentDate = useMemo(() => getFormattedFullDate(currentDate), [currentDate, getFormattedFullDate]);
+    // Memoize the selected plants section to prevent unnecessary re-renders
+    const selectedPlantsSection = useMemo(() => {
+        if (!selectedDate || selectedPlants.length === 0) return null;
+        
+        return (
+            <View className="w-full px-4 mt-4">
+                <Text className="text-text-primary text-xl font-semibold mb-2">
+                    Water on {getFormattedFullDate(selectedDate)}
+                </Text>
+                <View className="flex flex-row flex-wrap justify-start gap-2">
+                    {selectedPlants.map((plant) => (
+                        <PlantCard
+                            key={plant.plantId}
+                            {...plant}
+                            from="care"
+                            selectedDate={selectedDate}
+                            selectedMonth={careState.selectedMonth}
+                            selectedYear={careState.selectedYear}
+                        />
+                    ))}
+                </View>
+            </View>
+        );
+    }, [selectedDate, selectedPlants, getFormattedFullDate, careState.selectedMonth, careState.selectedYear]);
 
     return (
         <SafeAreaView className='bg-background-primary flex-1'>
@@ -170,25 +214,7 @@ const Care = () => {
                         />
                     </View>
 
-                    {selectedDate && selectedPlants.length > 0 && (
-                        <View className="w-full px-4 mt-4">
-                            <Text className="text-text-primary text-xl font-semibold mb-2">
-                                Water on {getFormattedFullDate(selectedDate)}
-                            </Text>
-                            <View className="flex flex-row flex-wrap justify-start gap-2">
-                                {selectedPlants.map((plant) => (
-                                    <PlantCard
-                                        key={plant.plantId}
-                                        {...plant}
-                                        from="care"
-                                        selectedDate={selectedDate}
-                                        selectedMonth={careState.selectedMonth}
-                                        selectedYear={careState.selectedYear}
-                                    />
-                                ))}
-                            </View>
-                        </View>
-                    )}
+                    {selectedPlantsSection}
 
                     <View className="h-24" />
                 </View>

@@ -346,7 +346,7 @@ export async function getCurrentUser(): Promise<User | null> {
         const response = await account.get()
 
         if(response.$id) {
-            const userAvatar = avatar.getInitials(response.name);
+            const userAvatar = avatar?.getInitials ? avatar.getInitials(response.name || 'User') : 'U';
 
             try {
                 const existingUser = await databases.listDocuments(
@@ -381,7 +381,7 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 }
 
-export const getUserDatabaseData = async (userId: string) => {
+export const getUserDatabaseData = async (userId: string): Promise<DatabaseUserType | null> => {
     try {
         const doc = await databases.getDocument(
             databaseId,
@@ -393,18 +393,18 @@ export const getUserDatabaseData = async (userId: string) => {
         return {
             userId: doc.userId,
             email: doc.email,
-            displayName: doc.displayName,
-            createdAt: doc.createdAt,
-            lastLogin: doc.lastLogin,
-            notificationsEnabled: !!doc.notificationsEnabled,
+            displayName: doc.displayName || doc.email || 'User',
+            createdAt: doc.createdAt || new Date(),
+            lastLogin: doc.lastLogin || new Date(),
+            notificationsEnabled: doc.notificationsEnabled !== undefined ? !!doc.notificationsEnabled : true,
             pushToken: doc.pushToken,
-            notificationTime: doc.notificationTime,
-            timezone: doc.timezone,
-            reminderAdvanceTime: doc.reminderAdvanceTime,
-            profilePicture: doc.profilePicture,
-            unitSystem: doc.unitSystem,
-            mondayFirstDayOfWeek: !!doc.mondayFirstDayOfWeek,
-            temperatureUnit: doc.temperatureUnit,
+            notificationTime: doc.notificationTime || '09:00',
+            timezone: doc.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+            reminderAdvanceTime: doc.reminderAdvanceTime || 24,
+            profilePicture: doc.profilePicture || 'U',
+            unitSystem: doc.unitSystem || 'metric',
+            mondayFirstDayOfWeek: doc.mondayFirstDayOfWeek !== undefined ? !!doc.mondayFirstDayOfWeek : true,
+            temperatureUnit: doc.temperatureUnit || 'celsius',
         };
     } catch (error) {
         console.error("Error getting database user:", error);
@@ -422,7 +422,7 @@ export const createNewDatabaseUser = async (user: User, profilePic: string, push
             {
                 userId: user.$id,
                 email: user.email,
-                displayName: user.name,
+                displayName: user.name || user.email || 'User',
                 createdAt: new Date(user.$createdAt),
                 notificationsEnabled: true,
                 pushToken: pushToken,
@@ -452,29 +452,29 @@ export const getUserPlants = async (userId: string): Promise<DatabasePlantType[]
         );
 
         return (await userPlants).documents.map(document => ({
-            plantId: document.plantId,
-            ownerId: document.ownerId,
-            nickname: document.nickname,
-            scientificName: document.scientificName,
-            commonNames: document.commonNames,
-            imageUrl: document.imageUrl, // Convert URL to photo prop format
-            wateringFrequency: document.wateringFrequency,
-            wateringAmountMetric: document.wateringAmountMetric,
-            wateringAmountImperial: document.wateringAmountImperial,
-            lastWatered: document.lastWatered,
-            nextWateringDate: document.nextWateringDate,
-            lightRequirements: document.lightRequirements,
-            soilPreferences: document.soilPreferences,
-            humidity: document.humidity,
-            minTemperatureCelsius: document.minTemperatureCelsius,
-            maxTemperatureCelsius: document.maxTemperatureCelsius,
-            minTemperatureFahrenheit: document.minTemperatureFahrenheit,
-            maxTemperatureFahrenheit: document.maxTemperatureFahrenheit,
-            dateAdded: document.dateAdded,
-            wateringHistory: document.wateringHistory,
-            commonIssues: document.commonIssues,
-            notes: document.notes,
-            careInstructions: document.careInstructions
+            plantId: document.plantId || document.$id,
+            ownerId: document.ownerId || userId,
+            nickname: document.nickname || 'Unknown Plant',
+            scientificName: document.scientificName || 'Unknown Species',
+            commonNames: document.commonNames || [],
+            imageUrl: document.imageUrl || undefined, // Convert URL to photo prop format
+            wateringFrequency: document.wateringFrequency || 7,
+            wateringAmountMetric: document.wateringAmountMetric || 250,
+            wateringAmountImperial: document.wateringAmountImperial || 8.5,
+            lastWatered: document.lastWatered || new Date(),
+            nextWateringDate: document.nextWateringDate || new Date(Date.now() + (document.wateringFrequency || 7) * 24 * 60 * 60 * 1000),
+            lightRequirements: document.lightRequirements || 'medium',
+            soilPreferences: document.soilPreferences || 'Well-draining potting mix',
+            humidity: document.humidity || 'medium',
+            minTemperatureCelsius: document.minTemperatureCelsius || 15,
+            maxTemperatureCelsius: document.maxTemperatureCelsius || 30,
+            minTemperatureFahrenheit: document.minTemperatureFahrenheit || 59,
+            maxTemperatureFahrenheit: document.maxTemperatureFahrenheit || 86,
+            dateAdded: document.dateAdded || new Date(),
+            wateringHistory: document.wateringHistory || [],
+            commonIssues: document.commonIssues || [],
+            notes: document.notes || [],
+            careInstructions: document.careInstructions || []
         }))
 
     } catch (error) {
