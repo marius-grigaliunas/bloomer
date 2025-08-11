@@ -28,30 +28,30 @@ const colors = {
 
     // Main background colors (dark theme)
     background: {
-      primary: '#0F0D23',
-      surface: '#2A254B'
+      primary: '#F8F8F8',
+      surface: '#FFFFFF'
     },
     
     primary: {
-      medium: '#AB8BFF',
-      deep: '#8667D8'
-    },
-    
-    secondary: {
-      medium: '#66BB6A',
+      medium: '#4F772D',
       deep: '#2E7D32'
     },
     
-    accent: '#FFB74D',
+    secondary: {
+      medium: '#90A955',
+      deep: '#4F772D'
+    },
     
-    success: '#4CAF50',   // Success green
-    warning: '#FFCA28',   // Warning yellow
-    danger: '#EF5350',    // Error/danger red
-    info: '#29B6F6',      // Info blue
+    accent: '#E6B566',
+    
+    success: '#2E7D32',   // Success green
+    warning: '#E6B566',   // Warning yellow
+    danger: '#E53935',    // Error/danger red
+    info: '#90A955',      // Info blue
     
     text: {
-      primary: '#FFFFFF',
-      secondary: '#BBBBBB'
+      primary: '#2F2F2F',
+      secondary: '#666666'
     }
   };
   
