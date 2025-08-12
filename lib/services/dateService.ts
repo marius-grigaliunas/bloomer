@@ -148,6 +148,14 @@ export function generateWateringDays(
         const isLate = nextWateringDate.getTime() < todayTime;
         const daysLate = isLate ? Math.ceil((todayTime - nextWateringDate.getTime()) / (24 * 60 * 60 * 1000)) : 0;
         
+        // Debug logging for overdue plants
+        if (isLate) {
+          console.log(`DEBUG: Plant ${plant.nickname} is overdue!`);
+          console.log(`  Next watering date: ${nextWateringDate.toISOString()}`);
+          console.log(`  Today: ${new Date(todayTime).toISOString()}`);
+          console.log(`  Days late: ${daysLate}`);
+        }
+        
         if (!wateringDays.has(dateKey)) {
           wateringDays.set(dateKey, {
             date: currentDate,

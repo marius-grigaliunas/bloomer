@@ -12,7 +12,11 @@ let weatherCache: { data: WeatherProps | null; timestamp: number; error: string 
 
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
-const WeatherComponent = () => {
+interface WeatherComponentProps {
+  onWeatherUpdate?: (weather: WeatherProps | null, error: string | null) => void;
+}
+
+const WeatherComponent = ({ onWeatherUpdate }: WeatherComponentProps) => {
     const [weather, setWeather] = useState<WeatherProps | null>(weatherCache.data);
     const [errorMessage, setErrorMessage] = useState<string | null>(weatherCache.error);
     const hasInitialized = useRef(false);
@@ -28,6 +32,7 @@ const WeatherComponent = () => {
         // If we have valid cached data, use it
         if (isCacheValid && weatherCache.data) {
             setWeather(weatherCache.data);
+            onWeatherUpdate?.(weatherCache.data, null);
             return;
         }
         
@@ -37,6 +42,7 @@ const WeatherComponent = () => {
                 const error = "Location access denied";
                 setErrorMessage(error);
                 weatherCache.error = error;
+                onWeatherUpdate?.(null, error);
                 return
             } 
 
@@ -45,14 +51,16 @@ const WeatherComponent = () => {
                 setErrorMessage(result);
                 weatherCache.error = result;
                 weatherCache.timestamp = now;
+                onWeatherUpdate?.(null, result);
             } else {
                 setWeather(result);
                 weatherCache.data = result;
                 weatherCache.error = null;
                 weatherCache.timestamp = now;
+                onWeatherUpdate?.(result, null);
             }
         })();
-    }, []);
+    }, [onWeatherUpdate]);
 
     return (
         <View className='text-text-primary'>
@@ -61,7 +69,6 @@ const WeatherComponent = () => {
             ) : !weather ? (<Text className='text-l text-text-primary'>Weather loading</Text>) :
             (
                 <View className='flex flex-row justify-between items-center'>
-                    <Text className='text-2xl text-text-primary '>{weather.location} </Text>
                     <Image 
                         style={{ width: 50, height: 50 }}  
                         source={{ uri: `https:${weather.descriptionIcon}`}}

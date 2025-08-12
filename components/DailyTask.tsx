@@ -82,7 +82,6 @@ export default function DailyTask({ plants }: DailyTaskProps) {
 
   return (
     <View className="mx-4 mb-6">
-      <Text className="text-lg font-semibold text-[#2F2F2F] mb-3">Today's Tasks</Text>
       {todaysTasks.length > 0 ? (
         todaysTasks.map((plant, index) => {
           const daysOverdue = getDaysOverdue(plant);

@@ -33,7 +33,7 @@ export const useWateringDays = (plants: Record<string, DatabasePlantType>): UseW
       // Generate watering days for the current week using dateService
       if (Object.keys(plants).length > 0) {
         const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 7); // Include past week
+        startDate.setDate(startDate.getDate() - 30); // Include past month to catch overdue plants
         const endDate = new Date();
         endDate.setDate(endDate.getDate() + 7); // Include next week
         
@@ -52,12 +52,26 @@ export const useWateringDays = (plants: Record<string, DatabasePlantType>): UseW
         if (plantsWithWateringData.length === 0 && plantsArray.length > 0) {
           console.log('Creating test watering data for demonstration');
           isUsingTestData = true;
-          plantsToUse = plantsArray.slice(0, 2).map(plant => ({
-            ...plant,
-            wateringFrequency: 3, // Water every 3 days
-            lastWatered: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-            nextWateringDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000) // Tomorrow
-          }));
+          plantsToUse = plantsArray.slice(0, 2).map((plant, index) => {
+            const wateringFrequency = 3; // Water every 3 days
+            // Set lastWatered to 10 days ago to make it clearly overdue
+            const lastWatered = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000); // 10 days ago
+            const nextWateringDate = new Date(lastWatered.getTime() + wateringFrequency * 24 * 60 * 60 * 1000); // 7 days ago (overdue)
+            
+            console.log(`Creating test data for ${plant.nickname}:`);
+            console.log(`  Watering frequency: ${wateringFrequency} days`);
+            console.log(`  Last watered: ${lastWatered.toISOString()}`);
+            console.log(`  Next watering should have been: ${nextWateringDate.toISOString()}`);
+            console.log(`  Today: ${new Date().toISOString()}`);
+            console.log(`  Should be overdue by: ${Math.ceil((Date.now() - nextWateringDate.getTime()) / (24 * 60 * 60 * 1000))} days`);
+            
+            return {
+              ...plant,
+              wateringFrequency,
+              lastWatered,
+              nextWateringDate
+            };
+          });
         }
         
         if (plantsToUse.length > 0) {
@@ -66,33 +80,35 @@ export const useWateringDays = (plants: Record<string, DatabasePlantType>): UseW
           setWateringDays(wateringDaysData);
           setIsTestData(isUsingTestData);
           
-          // Extract plants that need immediate attention from watering days
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const todayKey = `${today.getFullYear()}-${today.getMonth() + 1 < 10 ? '0' : ''}${today.getMonth() + 1}-${today.getDate() < 10 ? '0' : ''}${today.getDate()}`;
-          
-          const todayWateringDay = wateringDaysData.get(todayKey);
-          const plantsNeedCareNow = todayWateringDay ? 
-            todayWateringDay.plants.map(plant => plantsArray.find(p => p.plantId === plant.plantId)).filter((p): p is DatabasePlantType => p !== undefined) : [];
-          
-          setPlantsNeedCare(plantsNeedCareNow);
-          
-          // Extract plants that need care soon (next 3 days)
+          // Find all overdue plants (plants with isLate=true)
+          const overduePlants: DatabasePlantType[] = [];
           const plantsNeedCareSoon: DatabasePlantType[] = [];
-          for (let i = 1; i <= 3; i++) {
-            const futureDate = new Date(today);
-            futureDate.setDate(today.getDate() + i);
-            const futureKey = `${futureDate.getFullYear()}-${futureDate.getMonth() + 1 < 10 ? '0' : ''}${futureDate.getMonth() + 1}-${futureDate.getDate() < 10 ? '0' : ''}${futureDate.getDate()}`;
-            
-            const futureWateringDay = wateringDaysData.get(futureKey);
-            if (futureWateringDay) {
-              const futurePlants = futureWateringDay.plants.map(plant => 
-                plantsArray.find(p => p.plantId === plant.plantId)
-              ).filter((p): p is DatabasePlantType => p !== undefined);
-              plantsNeedCareSoon.push(...futurePlants);
-            }
-          }
           
+          console.log('Analyzing watering days for overdue plants...');
+          wateringDaysData.forEach((wateringDay, dateKey) => {
+            console.log(`Date ${dateKey}: ${wateringDay.plants.length} plants`);
+            wateringDay.plants.forEach(plantInfo => {
+              console.log(`  Plant ${plantInfo.plantId}: isLate=${plantInfo.isLate}, daysLate=${plantInfo.daysLate}`);
+              const plant = plantsArray.find(p => p.plantId === plantInfo.plantId);
+              if (plant) {
+                if (plantInfo.isLate) {
+                  // This plant is overdue
+                  if (!overduePlants.find(p => p.plantId === plant.plantId)) {
+                    console.log(`    Adding ${plant.nickname} to overdue plants`);
+                    overduePlants.push(plant);
+                  }
+                } else if (plantInfo.daysLate === 0 && !plantInfo.isNextWatering) {
+                  // This plant needs care soon (not overdue, not next watering)
+                  if (!plantsNeedCareSoon.find(p => p.plantId === plant.plantId)) {
+                    plantsNeedCareSoon.push(plant);
+                  }
+                }
+              }
+            });
+          });
+          
+          console.log(`Found ${overduePlants.length} overdue plants:`, overduePlants.map(p => p.nickname));
+          setPlantsNeedCare(overduePlants);
           setPlantsNeedCareLater(plantsNeedCareSoon);
         } else {
           console.log('No plants available for watering days');

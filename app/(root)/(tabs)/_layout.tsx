@@ -20,7 +20,7 @@ const TabIcon = ({focused, icon, title} : TabIconProps) => {
                 {icon}
             </View>
             <Text 
-                className={`text-xs font-medium text-center ${
+                className={`text-md font-medium text-center ${
                     focused ? 'text-primary-medium' : 'text-text-secondary'
                 }`}
                 numberOfLines={1}

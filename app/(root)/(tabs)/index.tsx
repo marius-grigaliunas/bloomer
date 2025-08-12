@@ -15,7 +15,7 @@ import { ScrollView, Text, View, RefreshControl, Alert, TouchableOpacity } from 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-
+import { WeatherProps } from "@/lib/services/weatherApiService";
 
 export default function Index() {
 
@@ -28,6 +28,10 @@ export default function Index() {
   const { plants, allPlantIds, isLoading, error, fetchAllUserPlants } = usePlantStore();
 
   const [lastUserId, setLastUserId] = useState<string | null>(null);
+
+  // Weather state
+  const [weatherData, setWeatherData] = useState<WeatherProps | null>(null);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
 
   // Use custom hook for watering days logic
   const { wateringDays, plantsNeedCare, plantsNeedCareLater, isTestData } = useWateringDays(plants);
@@ -56,6 +60,11 @@ export default function Index() {
     return "Good evening";
   };
 
+  const handleWeatherUpdate = (weather: WeatherProps | null, error: string | null) => {
+    setWeatherData(weather);
+    setWeatherError(error);
+  };
+
   if(error) return Alert.alert("Oops, there's an error...", error);
   
   return (
@@ -79,31 +88,17 @@ export default function Index() {
               <Text className="text-2xl font-semibold text-[#2F2F2F] mb-1">
                 {getGreeting()}, {currentUser?.name ? currentUser?.name.split(' ')[0] : "Guest"}
               </Text>
+              {weatherData?.location && (
+                <Text className="text-2xl text-[#4F772D] font-medium">
+                  {weatherData.location}
+                </Text>
+              )}
             </View>
             <View className="bg-white rounded-2xl p-3 shadow-sm shadow-black/5">
-              <WeatherComponent/>
+              <WeatherComponent onWeatherUpdate={handleWeatherUpdate}/>
             </View>
           </View>
         </View>
-
-        {/* Urgent Care Banner */}
-        {plantsNeedCare.length > 0 && (
-          <View className="mx-4 mb-6">
-            <View className="bg-[#E53935] rounded-3xl p-4 flex-row items-center justify-between">
-              <View className="flex-row items-center flex-1">
-                <Ionicons name="warning" size={20} color="white" />
-                <Text className="text-white font-medium ml-2 flex-1">
-                  {plantsNeedCare.length} plant{plantsNeedCare.length > 1 ? 's' : ''} need{plantsNeedCare.length > 1 ? '' : 's'} immediate attention
-                </Text>
-              </View>
-              <TouchableOpacity 
-                onPress={() => router.push("/(root)/(tabs)/care")}
-              >
-                <Ionicons name="chevron-forward" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
 
         {/* Quick Actions Row */}
         <View className="mx-4 mb-6">
@@ -124,6 +119,24 @@ export default function Index() {
             </TouchableOpacity>
           </View>
         </View>
+
+        <View className="mx-4 ">
+          <Text className="text-lg font-semibold text-[#2F2F2F] mb-3">Today's Tasks</Text>
+        </View>
+
+        {/* Urgent Care Banner */}
+        {plantsNeedCare.length > 0 && (
+          <View className="mx-4 mb-3">
+            <View className="bg-[#E53935] rounded-3xl p-4 flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <Ionicons name="warning" size={20} color="white" />
+                <Text className="text-white font-medium ml-2 flex-1">
+                  {plantsNeedCare.length} plant{plantsNeedCare.length > 1 ? 's' : ''} need{plantsNeedCare.length > 1 ? '' : 's'} immediate attention
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Today's Tasks */}
         <DailyTask plants={plants} />
