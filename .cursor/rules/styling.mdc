@@ -1,0 +1,6 @@
+---
+description: Designing, styling, creating or modifying UI always use nativewind. 
+alwaysApply: false
+---
+
+# use only nativewind for styling, use inline or declare styles only if specifically asked

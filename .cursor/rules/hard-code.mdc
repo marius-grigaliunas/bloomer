@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+Never create mock data unless specifically told to, don't hardcode values.
+---

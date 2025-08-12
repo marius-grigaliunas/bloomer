@@ -4,35 +4,38 @@ import { Tabs } from 'expo-router'
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
 import colors from '@/constants/colors'
+import { AntDesign, Entypo, FontAwesome5, Ionicons } from '@expo/vector-icons';
+
 
 interface TabIconProps {
     focused: boolean;
-    icon: ImageProps;
+    icon: React.ReactNode;
     title: string;
 }
 
 const TabIcon = ({focused, icon, title} : TabIconProps) => {
-    if(focused) {
-        return (
-            <View
-                className='flex flex-row w-full flex-1 min-w-[112px] min-h-16 
-                mt-4 justify-center items-center rounded-full overflow-hidden
-                bg-primary-medium '
+    return (
+        <View className='flex flex-col justify-center items-center py-1 px-1'>
+            <View className='h-8'>
+                {icon}
+            </View>
+            <Text 
+                className={`text-xs font-medium text-center ${
+                    focused ? 'text-primary-medium' : 'text-text-secondary'
+                }`}
+                numberOfLines={1}
+                style={{ minWidth: 70 }}
             >
-                <Image source={icon} tintColor={colors.text.primary} className='size-5'/>
-                <Text className='text-text-primary
-                 text-base font-semibold ml-2' >
-                    {title}
-                </Text>
-            </View>
-        )
-    } else {
-        return (
-            <View className='size-full justify-center items-center mt-4 rounded-full'>
-                <Image source={icon} tintColor={colors.text.secondary} className='size-5'/>
-            </View>
-        )
-    }
+                {title}
+            </Text>
+            {focused && (
+                <View 
+                    className='w-8 h-0.5 rounded-full'
+                    style={{ backgroundColor: colors.primary.medium }}
+                />
+            )}
+        </View>
+    )
 }
 
 const _layout = () => {
@@ -41,22 +44,17 @@ const _layout = () => {
         screenOptions={{
             tabBarShowLabel: false,
             tabBarItemStyle: {
-                width: '100%',
-                height: '100%',
-                justifyContent: 'center',
-                alignItems: 'center'
+                paddingVertical: 8,
+                paddingHorizontal: 4,
+                minWidth: 90
             },
             tabBarStyle: {
-                backgroundColor: colors.primary.deep,
-                borderRadius: 50,
-                marginHorizontal: 20,
-                marginBottom: 20,
-                height: 52,
-                position: 'absolute',
-                overflow: "hidden",
-                borderWidth: 2,
-                borderTopWidth: 2,
-                borderColor: colors.accent
+                backgroundColor: colors.background.surface,
+                borderTopWidth: 1,
+                borderTopColor: '#E5E5E5',
+                height: 64,
+                paddingBottom: 8,
+                paddingTop: 8
             }
         }}
     >
@@ -66,17 +64,21 @@ const _layout = () => {
                 title: "Home",
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
-                    <TabIcon focused={focused} title='Home' icon={icons.home}/>
+                    <TabIcon focused={focused} title='Home' icon={
+                        <Entypo name="home" size={24} color={focused ? colors.primary.medium : colors.text.secondary} />
+                    }/>
                 )
             }}
         />
         <Tabs.Screen
             name='care'
             options={{
-                title: "Care",
+                title: "Schedule",
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
-                    <TabIcon focused={focused} title='Care' icon={icons.arrow}/>
+                    <TabIcon focused={focused} title='Schedule' icon={
+                        <FontAwesome5 name="calendar-day" size={24} color={focused ? colors.primary.medium : colors.text.secondary} />
+                    }/>
                 )
             }}
         />
@@ -86,17 +88,29 @@ const _layout = () => {
                 title: "Identify",
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
-                    <TabIcon focused={focused} title='Identify' icon={icons.search}/>
+                    <TabIcon focused={focused} title='Identify' icon={
+                        <Ionicons
+                            name="search"
+                            size={24}
+                            color={focused ? colors.primary.medium : colors.text.secondary}
+                        />
+                    }/>
                 )
             }}
         />
         <Tabs.Screen
             name='profile'
             options={{
-                title: "Profile",
+                title: "Settings",
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
-                    <TabIcon focused={focused} title='Profile' icon={icons.person}/>
+                    <TabIcon focused={focused} title='Settings' icon={
+                        <AntDesign
+                            name='setting'
+                            size={24}
+                            color={focused ? colors.primary.medium : colors.text.secondary}
+                        />
+                    }/>
                 )
             }}
         />
