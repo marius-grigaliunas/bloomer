@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import colors from "@/constants/colors";
 import LoadingScreen from "../components/LoadingScreen";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,15 +48,17 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background.primary }} onLayout={onLayoutRootView}>
-      <GlobalProvider>
-        <StatusBar style="light" />
-        <Stack screenOptions={{
-           headerShown: false, 
-            contentStyle: { backgroundColor: colors.background.primary }   
-           }} 
-        />
-      </GlobalProvider>
-    </View>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: colors.background.primary }} onLayout={onLayoutRootView}>
+        <GlobalProvider>
+          <StatusBar style="light" />
+          <Stack screenOptions={{
+             headerShown: false, 
+              contentStyle: { backgroundColor: colors.background.primary }   
+             }} 
+          />
+        </GlobalProvider>
+      </View>
+    </GestureHandlerRootView>
   )
 }

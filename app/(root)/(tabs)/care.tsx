@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Animated, Dimensions } from 'react-native'
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import CalendarGenerator, { clearCalendarCache } from '@/components/CalendarGenerator'
 import { DatabasePlantType } from '@/interfaces/interfaces'
@@ -10,6 +10,8 @@ import colors from '@/constants/colors'
 import TaskCard from '@/components/TaskCard'
 import { useNavigationState } from '@/lib/navigationState'
 
+const { width: screenWidth } = Dimensions.get('window');
+
 const Care = () => {
     const [wateringDays, setWateringDays] = useState<Map<string, WateringDay>>(new Map());
     const { isLoggedIn, user, databaseUser } = useGlobalContext();
@@ -17,6 +19,11 @@ const Care = () => {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedPlants, setSelectedPlants] = useState<DatabasePlantType[]>([]);
     const [allPlants, setAllPlants] = useState<DatabasePlantType[]>([]);
+    
+    // Animation values for tasks sliding
+    const tasksTranslateX = useRef(new Animated.Value(0)).current;
+    const tasksOpacity = useRef(new Animated.Value(1)).current;
+    const [isTasksAnimating, setIsTasksAnimating] = useState(false);
     
     // Create a memoized plants map for faster lookups
     const plantsMap = useMemo(() => {
@@ -129,12 +136,63 @@ const Care = () => {
         setRefreshing(false);
     }, [loadPlants]);
 
+    // Function to animate tasks transition
+    const animateTasksTransition = useCallback((newDate: Date, newPlants: DatabasePlantType[]) => {
+        if (isTasksAnimating) return;
+        
+        setIsTasksAnimating(true);
+        
+        // Animate current tasks out to the left
+        Animated.parallel([
+            Animated.timing(tasksTranslateX, {
+                toValue: -screenWidth,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+            Animated.timing(tasksOpacity, {
+                toValue: 0.3,
+                duration: 100,
+                useNativeDriver: true,
+            })
+        ]).start(() => {
+            // Update the tasks data
+            setSelectedDate(newDate);
+            setSelectedPlants(newPlants);
+            
+            // Save to navigation state for restoration
+            setCareState({
+                selectedDate: newDate,
+                selectedMonth: newDate.getMonth(),
+                selectedYear: newDate.getFullYear(),
+                selectedPlants: newPlants.map(p => p.plantId)
+            });
+            
+            // Reset animation values for new tasks
+            tasksTranslateX.setValue(screenWidth);
+            tasksOpacity.setValue(0.3);
+            
+            // Animate new tasks in from the right
+            Animated.parallel([
+                Animated.timing(tasksTranslateX, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(tasksOpacity, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true,
+                })
+            ]).start(() => {
+                setIsTasksAnimating(false);
+            });
+        });
+    }, [isTasksAnimating, tasksTranslateX, tasksOpacity, screenWidth, setCareState]);
+
     const handleDayPress = useCallback((date: Date) => {
         // Optimize date key generation to avoid string padding operations
         const dateKey = generateDateKey(date);
         const wateringDay = wateringDays.get(dateKey);
-        
-        setSelectedDate(date);
         
         if (wateringDay) {
             // Find full plant data for each plant in the watering day using optimized Map lookup
@@ -142,28 +200,13 @@ const Care = () => {
                 return plantsMap.get(plant.plantId)!;
             }).filter(Boolean); // Remove any undefined values just in case
             
-            setSelectedPlants(plantsForDay);
-            
-            // Save to navigation state for restoration
-            setCareState({
-                selectedDate: date,
-                selectedMonth: date.getMonth(),
-                selectedYear: date.getFullYear(),
-                selectedPlants: plantsForDay.map(p => p.plantId)
-            });
+            // Animate the transition to new tasks
+            animateTasksTransition(date, plantsForDay);
         } else {
             // No watering tasks for this day, but still allow selection
-            setSelectedPlants([]);
-            
-            // Save to navigation state for restoration
-            setCareState({
-                selectedDate: date,
-                selectedMonth: date.getMonth(),
-                selectedYear: date.getFullYear(),
-                selectedPlants: []
-            });
+            animateTasksTransition(date, []);
         }
-    }, [wateringDays, plantsMap, setCareState, generateDateKey]);
+    }, [wateringDays, plantsMap, animateTasksTransition, generateDateKey]);
 
     // Determine task status based on watering day data
     const getTaskStatus = useCallback((plant: DatabasePlantType, wateringDay: WateringDay | undefined) => {
@@ -184,7 +227,13 @@ const Care = () => {
         const wateringDay = wateringDays.get(dateKey);
         
         return (
-            <View className="w-full px-4 mt-6">
+            <Animated.View 
+                className="w-full px-4 mt-6"
+                style={{
+                    transform: [{ translateX: tasksTranslateX }],
+                    opacity: tasksOpacity,
+                }}
+            >
                 <Text className="text-green-600 text-xl font-semibold mb-4">
                     Tasks for {getFormattedFullDate(selectedDate)}
                 </Text>
@@ -211,15 +260,17 @@ const Care = () => {
                         </View>
                     </View>
                 )}
-            </View>
+            </Animated.View>
         );
-    }, [selectedDate, selectedPlants, getFormattedFullDate, careState.selectedMonth, careState.selectedYear, wateringDays, generateDateKey, getTaskStatus]);
+    }, [selectedDate, selectedPlants, getFormattedFullDate, careState.selectedMonth, careState.selectedYear, wateringDays, generateDateKey, getTaskStatus, tasksTranslateX, tasksOpacity]);
 
     return (
         <SafeAreaView className='bg-background-primary flex-1'>
             <ScrollView 
                 showsVerticalScrollIndicator={true}
                 scrollEnabled={true}
+                horizontal={false}
+                directionalLockEnabled={true}
                 style={{ flex: 1 }}
                 contentContainerStyle={{ paddingBottom: 80 }}
                 refreshControl={

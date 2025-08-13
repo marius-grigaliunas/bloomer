@@ -1,4 +1,4 @@
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { ScrollView, Text, TouchableOpacity, View, Animated, Dimensions, PanResponder } from 'react-native'
 import React, { ReactNode, useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { WateringDay } from '@/lib/services/dateService'
 import { 
@@ -10,6 +10,7 @@ import {
 } from './CalendarDay'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import CalendarSkeleton from './CalendarSkeleton'
+
 
 interface CalendarGeneratorProps {
     wateringDays: Map<string, WateringDay>;
@@ -43,6 +44,8 @@ const createDateObject = (year: number, month: number, day: number): Date => {
     return new Date(year, month, day);
 };
 
+const { width: screenWidth } = Dimensions.get('window');
+
 const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = false, selectedDate, initialMonth, initialYear }: CalendarGeneratorProps) => {
     // Memoize today's date calculation to avoid recalculation on every render
     const todayInfo = useMemo(() => {
@@ -56,12 +59,21 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
     const [selectedMonth, setSelectedMonth] = useState(initialMonth ?? todayInfo.todayMonth);
     const [selectedYear, setSelectedYear] = useState(initialYear ?? todayInfo.todayYear);
     
+    // Animation values for sliding
+    const translateX = useRef(new Animated.Value(0)).current;
+    const opacity = useRef(new Animated.Value(1)).current;
+    
     // Current calendar elements with loading state
     const [calendarElements, setCalendarElements] = useState<ReactNode[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
     
     // Ref to track if we're currently generating to prevent multiple simultaneous generations
     const generatingRef = useRef(false);
+    
+    // Animation state
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [targetMonth, setTargetMonth] = useState<number | null>(null);
+    const [targetYear, setTargetYear] = useState<number | null>(null);
     
     // Memoize static arrays to prevent recreation on every render
     const days = useMemo(() => mondayFirstDayOfWeek
@@ -286,30 +298,185 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
         const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
         
-        // Generate in background with lower priority
-        setTimeout(() => {
-            generateCalendarForMonth(nextYear, nextMonth);
-            generateCalendarForMonth(prevYear, prevMonth);
-        }, 200);
+        // Generate immediately for better performance
+        generateCalendarForMonth(nextYear, nextMonth);
+        generateCalendarForMonth(prevYear, prevMonth);
     }, [selectedMonth, selectedYear, generateCalendarForMonth]);
 
-    const NextMonth = useCallback(() => {
-        if(selectedMonth === 11) {
-            setSelectedMonth(0);
-            setSelectedYear(prev => prev+1);
+    // Function to immediately update calendar content
+    const updateCalendarContent = useCallback((newMonth: number, newYear: number) => {
+        // Immediately generate calendar for the new month
+        const cacheKey = getCacheKey(newYear, newMonth);
+        if (!calendarCache.has(cacheKey)) {
+            // Generate the calendar elements for the new month immediately
+            const elements = generateCalendarForMonth(newYear, newMonth);
+            setCalendarElements(elements);
         } else {
-            setSelectedMonth(prev => prev+1);
+            // Use cached elements
+            setCalendarElements(calendarCache.get(cacheKey)!);
         }
-    }, [selectedMonth]);
+    }, [getCacheKey, generateCalendarForMonth]);
 
-    const PreviousMonth = useCallback(() => {
-        if(selectedMonth === 0) {
-            setSelectedMonth(11);
-            setSelectedYear(prev => prev-1);
-        } else {
-            setSelectedMonth(prev => prev-1);
-        }
-    }, [selectedMonth]);
+    // Animated month navigation functions
+    const animateToNextMonth = useCallback(() => {
+        if (isAnimating) return;
+        
+        setIsAnimating(true);
+        
+        // Calculate target month and year
+        const nextMonth = selectedMonth === 11 ? 0 : selectedMonth + 1;
+        const nextYear = selectedMonth === 11 ? selectedYear + 1 : selectedYear;
+        
+        // Immediately update calendar content
+        updateCalendarContent(nextMonth, nextYear);
+        
+        // Animate out to the left
+        Animated.parallel([
+            Animated.timing(translateX, {
+                toValue: -screenWidth,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+            Animated.timing(opacity, {
+                toValue: 0.5,
+                duration: 100,
+                useNativeDriver: true,
+            })
+        ]).start(() => {
+            // Update month state
+            setSelectedMonth(nextMonth);
+            setSelectedYear(nextYear);
+            
+            // Reset animation values
+            translateX.setValue(screenWidth);
+            opacity.setValue(0.5);
+            
+            // Animate in from the right
+            Animated.parallel([
+                Animated.timing(translateX, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(opacity, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true,
+                })
+            ]).start(() => {
+                setIsAnimating(false);
+            });
+        });
+    }, [selectedMonth, selectedYear, isAnimating, translateX, opacity, updateCalendarContent]);
+
+    const animateToPreviousMonth = useCallback(() => {
+        if (isAnimating) return;
+        
+        setIsAnimating(true);
+        
+        // Calculate target month and year
+        const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
+        const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
+        
+        // Immediately update calendar content
+        updateCalendarContent(prevMonth, prevYear);
+        
+        // Animate out to the right
+        Animated.parallel([
+            Animated.timing(translateX, {
+                toValue: screenWidth,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+            Animated.timing(opacity, {
+                toValue: 0.5,
+                duration: 100,
+                useNativeDriver: true,
+            })
+        ]).start(() => {
+            // Update month state
+            setSelectedMonth(prevMonth);
+            setSelectedYear(prevYear);
+            
+            // Reset animation values
+            translateX.setValue(-screenWidth);
+            opacity.setValue(0.5);
+            
+            // Animate in from the left
+            Animated.parallel([
+                Animated.timing(translateX, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(opacity, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true,
+                })
+            ]).start(() => {
+                setIsAnimating(false);
+            });
+        });
+    }, [selectedMonth, selectedYear, isAnimating, translateX, opacity, updateCalendarContent]);
+
+    // PanResponder for swipe detection
+    const panResponder = useMemo(() => PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: (evt, gestureState) => {
+            const { dx, dy } = gestureState;
+            return Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10;
+        },
+        onPanResponderGrant: () => {
+            // Pan responder granted
+        },
+        onPanResponderMove: (evt, gestureState) => {
+            const { dx } = gestureState;
+            // Follow finger during drag with some resistance
+            const resistance = 0.5;
+            translateX.setValue(dx * resistance);
+            
+            // Add subtle opacity change during drag
+            const opacityChange = Math.abs(dx) / screenWidth * 0.3;
+            opacity.setValue(1 - opacityChange);
+        },
+        onPanResponderRelease: (evt, gestureState) => {
+            const { dx, vx } = gestureState;
+            const swipeThreshold = screenWidth * 0.15; // 15% of screen width
+            
+            if (Math.abs(dx) > swipeThreshold && !isAnimating) {
+                if (dx > 0) {
+                    animateToPreviousMonth();
+                } else {
+                    animateToNextMonth();
+                }
+            } else {
+                // Snap back to center with spring animation
+                Animated.parallel([
+                    Animated.spring(translateX, {
+                        toValue: 0,
+                        useNativeDriver: true,
+                        tension: 150,
+                        friction: 6,
+                    }),
+                    Animated.timing(opacity, {
+                        toValue: 1,
+                        duration: 150,
+                        useNativeDriver: true,
+                    })
+                ]).start();
+            }
+        },
+        onPanResponderTerminate: () => {
+            // Reset to center if gesture is terminated
+            Animated.spring(translateX, {
+                toValue: 0,
+                useNativeDriver: true,
+                tension: 150,
+                friction: 6,
+            }).start();
+        },
+    }), [translateX, opacity, screenWidth, isAnimating, animateToNextMonth, animateToPreviousMonth]);
 
     // Effect to generate calendar when month/year/data changes
     useEffect(() => {
@@ -359,9 +526,10 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
             {/* Calendar Header */}
             <View className="flex flex-row justify-center items-center w-full h-16 mb-4">
                 <TouchableOpacity
-                    onPress={PreviousMonth}
-                    onLongPress={PreviousMonth}
+                    onPress={animateToPreviousMonth}
+                    onLongPress={animateToPreviousMonth}
                     className='w-10 h-10 rounded-full flex justify-center items-center'
+                    disabled={isAnimating}
                 >
                     <Text className='text-2xl text-gray-600'>
                         {"<"}
@@ -372,8 +540,9 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                     <Text className='text-2xl font-semibold text-gray-900'>{selectedYear}</Text>
                 </View>
                 <TouchableOpacity
-                    onPress={NextMonth}
+                    onPress={animateToNextMonth}
                     className='w-10 h-10 rounded-full flex justify-center items-center'
+                    disabled={isAnimating}
                 >
                     <Text className='text-2xl text-gray-600'>
                         {">"}
@@ -381,14 +550,23 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                 </TouchableOpacity>
             </View>
             
-            {/* Calendar Grid */}
-            <View className='flex flex-row flex-wrap w-full'>
+            {/* Calendar Grid with Animation */}
+            <Animated.View 
+                className='flex flex-row flex-wrap w-full relative'
+                style={{
+                    transform: [{ translateX }],
+                    opacity,
+                }}
+                {...panResponder.panHandlers}
+            >
                 {isGenerating && calendarElements.length === 0 ? (
                     <CalendarSkeleton />
                 ) : (
                     calendarElements
                 )}
-            </View>
+                
+
+            </Animated.View>
         </View>
     );
 }
