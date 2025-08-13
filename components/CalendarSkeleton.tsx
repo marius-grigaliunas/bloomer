@@ -25,51 +25,51 @@ const CalendarSkeleton = () => {
   return (
     <View className="w-full">
       {/* Header skeleton */}
-      <View className="flex flex-row justify-center w-screen h-16 rounded-2xl items-center bg-background-surface mt-2">
+      <View className="flex flex-row justify-center items-center w-full h-16 mb-4">
         <Animated.View 
           style={{ opacity: fadeAnim }}
-          className="bg-gray-300 w-10 h-10 rounded-full" 
+          className="w-10 h-10 rounded-full bg-gray-200" 
         />
-        <View className="w-64 flex flex-row justify-center">
+        <View className="flex-1 flex flex-row justify-center items-center">
           <Animated.View 
             style={{ opacity: fadeAnim }}
-            className="w-8/12 h-8 bg-gray-300 rounded mx-2" 
+            className="w-24 h-8 bg-gray-200 rounded mr-2" 
           />
           <Animated.View 
             style={{ opacity: fadeAnim }}
-            className="w-4/12 h-8 bg-gray-300 rounded mx-2" 
+            className="w-16 h-8 bg-gray-200 rounded" 
           />
         </View>
         <Animated.View 
           style={{ opacity: fadeAnim }}
-          className="bg-gray-300 w-10 h-10 rounded-full" 
+          className="w-10 h-10 rounded-full bg-gray-200" 
         />
       </View>
       
       {/* Calendar grid skeleton */}
-      <View className="flex flex-row flex-wrap w-full mt-2">
+      <View className="flex flex-row flex-wrap w-full">
         {/* Header days */}
         {Array.from({ length: 7 }).map((_, index) => (
-          <View key={`header-${index}`} className="w-[14.28%] py-4 px-2 flex justify-start items-center border border-gray-200">
+          <View key={`header-${index}`} className="w-[14.28%] py-3 px-1 flex justify-center items-center">
             <Animated.View 
               style={{ opacity: fadeAnim }}
-              className="w-8 h-4 bg-gray-300 rounded" 
+              className="w-8 h-4 bg-gray-200 rounded" 
             />
           </View>
         ))}
         
         {/* Calendar days */}
         {Array.from({ length: 35 }).map((_, index) => (
-          <View key={`day-${index}`} className="w-[14.28%] py-4 px-2 flex justify-start items-center border border-gray-200 relative">
+          <View key={`day-${index}`} className="w-[14.28%] py-3 px-1 flex justify-center items-center relative">
             <Animated.View 
               style={{ opacity: fadeAnim }}
-              className="w-6 h-6 bg-gray-300 rounded" 
+              className="w-6 h-6 bg-gray-200 rounded" 
             />
             {/* Random watering indicators */}
             {Math.random() > 0.7 && (
               <Animated.View 
                 style={{ opacity: fadeAnim }}
-                className="absolute bottom-[2px] w-full h-4 bg-gray-300 rounded" 
+                className="absolute bottom-1 w-2 h-2 bg-gray-200 rounded-full" 
               />
             )}
           </View>

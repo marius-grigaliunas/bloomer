@@ -27,30 +27,16 @@ interface HeaderDayProps {
 
 // Memoized watering day indicator component
 const WateringDayIndicator = React.memo(({ wateringDay }: { wateringDay: WateringDay }) => {
-    const displayText = useMemo(() => {
-        if (wateringDay.plants.length === 1) {
-            const plant = wateringDay.plants[0];
-            return `${plant.nickname}${plant.isLate ? ' (Late)' : ''}`;
-        } else {
-            const hasLatePlants = wateringDay.plants.some(p => p.isLate);
-            return `${wateringDay.plants.length} Plants${hasLatePlants ? ' (Late)' : ''}`;
-        }
+    const hasLatePlants = useMemo(() => {
+        return wateringDay.plants.some(p => p.isLate);
     }, [wateringDay.plants]);
 
     const backgroundColor = useMemo(() => {
-        return wateringDay.plants.some(p => p.isLate) ? 'bg-danger' : 'bg-secondary-deep';
-    }, [wateringDay.plants]);
+        return hasLatePlants ? 'bg-danger' : 'bg-success';
+    }, [hasLatePlants]);
 
     return (
-        <View className={`absolute bottom-[2px] w-full flex-1 rounded-xl border-[1px] border-primary-deep ${backgroundColor}`}>
-            <Text 
-                className="text-xs text-center text-accent"
-                numberOfLines={1}
-                ellipsizeMode="tail"
-            >
-                {displayText}
-            </Text>
-        </View>
+        <View className={`absolute bottom-1 w-2 h-2 rounded-full ${backgroundColor}`} />
     );
 });
 
@@ -67,7 +53,7 @@ const CalendarDay = React.memo(({ containerClasses, textClasses, textContent, wa
     }, []);
 
     const containerStyle = useMemo(() => {
-        return `${containerClasses} w-[14.28%] py-4 px-2 flex justify-start items-center relative ${isPressed ? 'opacity-70' : ''}`;
+        return `${containerClasses} w-[14.28%] py-3 px-1 flex justify-center items-center relative ${isPressed ? 'opacity-70' : ''}`;
     }, [containerClasses, isPressed]);
 
     return (
@@ -96,18 +82,29 @@ export const CurrentMonthWeekday = React.memo(({ dayKey, day, isToday, isSelecte
     const date = useMemo(() => createDate(year, month, day), [year, month, day]);
     
     const containerClasses = useMemo(() => {
-        return `border border-text-primary ${isSelected ? 'bg-primary-deep' : isToday ? 'bg-accent' : ''}`;
+        if (isSelected) {
+            return 'bg-accent rounded-lg';
+        }
+        if (isToday) {
+            return 'bg-primary-medium rounded-lg';
+        }
+        return '';
     }, [isSelected, isToday]);
 
     const textClasses = useMemo(() => {
-        return `${isSelected ? 'text-white' : isToday ? 'text-black' : 'text-text-primary'}`;
+        if (isSelected) {
+            return 'text-text-primary font-semibold text-lg';
+        }
+        if (isToday) {
+            return 'text-background-surface font-semibold text-lg';
+        }
+        return 'text-text-primary text-lg';
     }, [isSelected, isToday]);
 
     const handlePress = useCallback(() => {
         if (onPress) onPress(date);
     }, [onPress, date]);
 
-    // Weekday: Monday (1) through Friday (5)
     return (
         <CalendarDay
             key={dayKey}
@@ -124,18 +121,29 @@ export const CurrentMonthWeekend = React.memo(({ dayKey, day, isToday, isSelecte
     const date = useMemo(() => createDate(year, month, day), [year, month, day]);
     
     const containerClasses = useMemo(() => {
-        return `border border-text-primary ${isSelected ? 'bg-primary-deep' : isToday ? 'bg-accent' : ''}`;
+        if (isSelected) {
+            return 'bg-accent rounded-lg';
+        }
+        if (isToday) {
+            return 'bg-primary-medium rounded-lg';
+        }
+        return '';
     }, [isSelected, isToday]);
 
     const textClasses = useMemo(() => {
-        return `${isSelected ? 'text-white' : 'text-text-secondary'}`;
-    }, [isSelected]);
+        if (isSelected) {
+            return 'text-text-primary font-semibold text-lg';
+        }
+        if (isToday) {
+            return 'text-background-surface font-semibold text-lg';
+        }
+        return 'text-text-secondary text-lg';
+    }, [isSelected, isToday]);
 
     const handlePress = useCallback(() => {
         if (onPress) onPress(date);
     }, [onPress, date]);
 
-    // Weekend: Saturday (6) and Sunday (0)
     return (
         <CalendarDay
             key={dayKey}
@@ -153,11 +161,11 @@ export const PreviousMonthDay = React.memo(({ dayKey, day, isSelected, month, ye
     const date = useMemo(() => createDate(year, month, day), [year, month, day]);
     
     const containerClasses = useMemo(() => {
-        return `border border-text-secondary ${isSelected ? 'bg-primary-deep' : ''}`;
+        return isSelected ? 'bg-accent rounded-lg' : '';
     }, [isSelected]);
 
     const textClasses = useMemo(() => {
-        return `${isSelected ? 'text-white' : 'text-text-secondary'}`;
+        return isSelected ? 'text-text-primary font-semibold text-lg' : 'text-text-secondary text-lg';
     }, [isSelected]);
 
     const handlePress = useCallback(() => {
@@ -181,11 +189,11 @@ export const NextMonthDay = React.memo(({ dayKey, day, isSelected, month, year, 
     const date = useMemo(() => createDate(year, month, day), [year, month, day]);
     
     const containerClasses = useMemo(() => {
-        return `border border-text-secondary ${isSelected ? 'bg-primary-deep' : ''}`;
+        return isSelected ? 'bg-accent rounded-lg' : '';
     }, [isSelected]);
 
     const textClasses = useMemo(() => {
-        return `${isSelected ? 'text-white' : 'text-text-secondary'}`;
+        return isSelected ? 'text-text-primary font-semibold text-lg' : 'text-text-secondary text-lg';
     }, [isSelected]);
 
     const handlePress = useCallback(() => {
@@ -208,9 +216,9 @@ export const NextMonthDay = React.memo(({ dayKey, day, isSelected, month, year, 
 export const HeaderDay = React.memo(({ day }: HeaderDayProps) => (
     <CalendarDay
         key={day}
-        containerClasses="border border-text-primary"
-        textClasses="text-text-primary"
-        textContent={day.slice(0, 2)}
+        containerClasses=""
+        textClasses="text-text-secondary font-medium text-sm"
+        textContent={day}
     />
 ));
 

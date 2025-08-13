@@ -65,8 +65,8 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
     
     // Memoize static arrays to prevent recreation on every render
     const days = useMemo(() => mondayFirstDayOfWeek
-        ? ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-        : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        ? ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+        : ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
     , [mondayFirstDayOfWeek]);
     
     const months = useMemo(() => ["January", "February", "March", "April", "May", "June", "July", "August",
@@ -76,8 +76,6 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
     const getWateringDay = useCallback((year: number, month: number, day: number): WateringDay | undefined => {
         const dateKey = generateDateKey(year, month, day);
         const wateringDay = wateringDays.get(dateKey);
-        
-
         
         return wateringDay;
     }, [wateringDays]);
@@ -358,33 +356,33 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
 
     return (
         <View className=''>
-            <View className="flex flex-row justify-center w-screen h-16 rounded-2xl items-center bg-background-surface mt-2 " 
-            >
+            {/* Calendar Header */}
+            <View className="flex flex-row justify-center items-center w-full h-16 mb-4">
                 <TouchableOpacity
                     onPress={PreviousMonth}
                     onLongPress={PreviousMonth}
-                    className='bg-primary-deep w-10 h-10 rounded-full flex justify-center items-center'
+                    className='w-10 h-10 rounded-full flex justify-center items-center'
                 >
-                    <Text className='text-3xl text-text-primary'
-                    >
+                    <Text className='text-2xl text-gray-600'>
                         {"<"}
                     </Text>
                 </TouchableOpacity>
-                <View className='w-64 flex flex-row justify-center'>
-                    <Text className='w-8/12 text-4xl text-text-primary text-center' >{months[selectedMonth]}</Text>
-                    <Text className='w-4/12 text-4xl text-text-primary text-center ' >{selectedYear}</Text>
+                <View className='flex-1 flex flex-row justify-center items-center'>
+                    <Text className='text-2xl font-semibold text-gray-900 mr-2'>{months[selectedMonth]}</Text>
+                    <Text className='text-2xl font-semibold text-gray-900'>{selectedYear}</Text>
                 </View>
                 <TouchableOpacity
                     onPress={NextMonth}
-                    className='bg-primary-deep w-10 h-10 rounded-full flex justify-center items-center'
+                    className='w-10 h-10 rounded-full flex justify-center items-center'
                 >
-                    <Text className='text-3xl text-text-primary'
-                    >
+                    <Text className='text-2xl text-gray-600'>
                         {">"}
                     </Text>
                 </TouchableOpacity>
             </View>
-            <View className='flex flex-row flex-wrap w-full mt-2'>
+            
+            {/* Calendar Grid */}
+            <View className='flex flex-row flex-wrap w-full'>
                 {isGenerating && calendarElements.length === 0 ? (
                     <CalendarSkeleton />
                 ) : (
