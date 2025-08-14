@@ -1,6 +1,6 @@
 import { View, Text, Modal, TouchableWithoutFeedback, Keyboard, TextInput, Platform, TouchableOpacity } from 'react-native'
-import { useState } from 'react'
-import colors from '@/constants/colors';
+import { useState, useEffect } from 'react'
+import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export interface PlantFormData {
@@ -9,18 +9,26 @@ export interface PlantFormData {
   dateAdded: Date;
 }
 
-interface AddPlantModalPropss {
+interface AddPlantModalProps {
     visible: boolean;
     onClose: () => void;
     onSave: (data: PlantFormData) => void;
     plantName: string;
 }
 
-export default function AddPlantModal({visible, onClose, onSave, plantName}: AddPlantModalPropss) {
+export default function AddPlantModal({visible, onClose, onSave, plantName}: AddPlantModalProps) {
     
   const [ nickname, setNickname ] = useState(plantName);
   const [ lastWatered, setLastWatered ] = useState(new Date());
   const [ datePickerVisible, setDatePickerVisible ] = useState(false);
+  
+  // Reset form when modal opens
+  useEffect(() => {
+    if (visible) {
+      setNickname(plantName);
+      setLastWatered(new Date());
+    }
+  }, [visible, plantName]);
   
   const dismissKeyboard = () => {
       Keyboard.dismiss();
@@ -43,90 +51,116 @@ export default function AddPlantModal({visible, onClose, onSave, plantName}: Add
 
     if(!plantData.lastWatered) {
       plantData.lastWatered = new Date();
-    };
+    }
 
     onSave(plantData);
+  }
 
-    setNickname('');
+  const handleClose = () => {
+    setNickname(plantName);
     setLastWatered(new Date());
+    onClose();
   }
 
   return (
     <Modal
       transparent
       visible={visible}
-      animationType='slide'
-      onRequestClose={onClose}
+      animationType='fade'
+      onRequestClose={handleClose}
     >
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
-        <View className='bg-background-primary px-6 py-4'>
-          <View className='flex-col justify-start h-full'>
-            {/* Header */}
-            <View className='items-center'>
-              <Text className='text-text-primary text-3xl font-bold mb-2 text-center'>
-                Let's add your new plant to Your Garden
-              </Text>
-              <Text className='text-text-secondary text-lg text-center'>
-                First, we just need some information
-              </Text>
-            </View>
-            {/* Form Fields */}
-            <View className='flex-1 justify-center h-2/6'>
-              <View className=''>
-                <Text className='text-text-primary text-xl text-center mb-2'>Name your plant</Text>
+        <View className="flex-1 bg-black/50 justify-center items-center px-4">
+          <TouchableWithoutFeedback onPress={() => {}}>
+            <View className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-lg">
+              {/* Header */}
+              <View className="flex-row items-center justify-between mb-6">
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 rounded-2xl bg-primary-medium/10 items-center justify-center mr-3">
+                    <Ionicons name="add-circle" size={20} color="#4F772D" />
+                  </View>
+                  <Text className="text-text-primary text-xl font-semibold">
+                    Add to Garden
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={handleClose}
+                  className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center"
+                >
+                  <Ionicons name="close" size={16} color="#666666" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Plant Name Input */}
+              <View className="mb-6">
+                <Text className="text-text-secondary text-sm font-medium mb-2">
+                  Plant name
+                </Text>
                 <TextInput
-                  placeholder="Enter the plant's name"
-                  placeholderTextColor={colors.text.secondary}
+                  placeholder="Enter plant name"
+                  placeholderTextColor="#999999"
                   value={nickname}
                   onChangeText={setNickname}
-                  className='text-text-primary text-center text-lg p-4 rounded-xl bg-background-surface border border-primary-medium'
+                  className="text-text-primary text-base p-4 rounded-xl bg-background-surface border border-gray-200 focus:border-primary-medium"
+                  autoFocus={true}
                 />
               </View>
 
-              <View className='mt-6'>
-                <Text className='text-text-primary text-xl mb-2 text-center'>Last watered</Text>
+              {/* Last Watered Date Picker */}
+              <View className="mb-6">
+                <Text className="text-text-secondary text-sm font-medium mb-2">
+                  Last watered
+                </Text>
                 <TouchableOpacity
                   onPress={() => setDatePickerVisible(true)}
-                  className='p-4 rounded-xl bg-background-surface border border-primary-medium'
+                  className="p-4 rounded-xl bg-background-surface border border-gray-200"
                 >
-                  <Text className='text-text-primary text-lg text-center'>
-                    {lastWatered.toLocaleDateString()}
-                  </Text>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-text-primary text-base">
+                      {lastWatered.toLocaleDateString()}
+                    </Text>
+                    <Ionicons name="calendar-outline" size={20} color="#666666" />
+                  </View>
                 </TouchableOpacity>
 
                 {datePickerVisible && (
                   <DateTimePicker
                     value={lastWatered}
                     mode='date'
-                    display='calendar'
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                     onChange={handleDateChange}
                     maximumDate={new Date()}
                   />
                 )}
               </View>
-            </View>
 
-            {/* Action Buttons */}
-            <View className='mt-4'>
-              <TouchableOpacity 
-                onPress={handleSave}
-                className='bg-secondary-deep p-4 rounded-xl'
-              >
-                <Text className='text-text-primary text-xl text-center font-bold'>
-                  Add Plant
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                onPress={onClose}
-                className='bg-background-surface p-4 rounded-xl border border-danger'
-              >
-                <Text className='text-danger text-xl text-center font-bold'>
-                  Cancel
-                </Text>
-              </TouchableOpacity>
+              {/* Action Buttons */}
+              <View className="space-y-3">
+                <TouchableOpacity 
+                  onPress={handleSave}
+                  disabled={!nickname.trim()}
+                  className={`p-4 rounded-xl items-center ${
+                    nickname.trim() ? 'bg-primary-medium' : 'bg-gray-300'
+                  }`}
+                >
+                  <Text className={`text-lg font-semibold ${
+                    nickname.trim() ? 'text-white' : 'text-gray-500'
+                  }`}>
+                    Add Plant
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  onPress={handleClose}
+                  className="p-4 rounded-xl items-center border border-gray-200"
+                >
+                  <Text className="text-text-secondary text-lg font-medium">
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
     </Modal>

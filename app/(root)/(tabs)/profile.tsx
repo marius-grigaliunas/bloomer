@@ -7,6 +7,7 @@ import { DatabaseUserType } from '@/interfaces/interfaces';
 import { Picker } from '@react-native-picker/picker';
 import colors from '@/constants/colors';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const Profile: React.FC = () => {
   const { refetch, isLoggedIn, user: contextUser, databaseUser } = useGlobalContext();
@@ -96,107 +97,132 @@ const Profile: React.FC = () => {
   };
 
   const renderPersonalSection = () => (
-    <View className="bg-background-surface p-4 rounded-xl mb-4">
-      <Text className="text-lg text-text-primary mb-2">Personal Information</Text>
+    <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
+      <View className="flex-row items-center mb-4">
+        <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
+          <AntDesign name="user" size={20} color="white" />
+        </View>
+        <Text className="text-xl font-semibold text-text-primary">Personal Information</Text>
+      </View>
       <TextInput
-        className="bg-background-primary p-2 rounded text-text-primary"
+        className="bg-background-primary p-4 rounded-xl text-text-primary border border-gray-200"
         value={userSettings.displayName}
         onChangeText={(text) => handleSettingChange('displayName', text)}
-        placeholder="Display Name"
+        placeholder="Enter your display name"
         placeholderTextColor={colors.text.secondary}
       />
     </View>
   );
 
   const renderNotificationSection = () => (
-    <View className="bg-background-surface p-4 rounded-xl mb-4">
-      <Text className="text-lg text-text-primary mb-2">Notifications</Text>
-      <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-text-primary">Enable Notifications</Text>
-        <Switch
-          value={userSettings.notificationsEnabled}
-          onValueChange={(value) => handleSettingChange('notificationsEnabled', value)}
-        />
+    <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
+      <View className="flex-row items-center mb-4">
+        <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
+          <AntDesign name="bells" size={20} color="white" />
+        </View>
+        <Text className="text-xl font-semibold text-text-primary">Notifications</Text>
       </View>
-      <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-text-primary">Notification Time</Text>
-        <TouchableOpacity
-          onPress={() => setShowTimePicker(true)}
-          className="bg-background-primary p-2 rounded mb-2 w-1/6"
-        >
-          <Text className="text-text-primary text-right">
-            {userSettings.notificationTime ? getLocalTimeFromUTC(userSettings.notificationTime) : "Set Time"}
-          </Text>
-        </TouchableOpacity>
-        {showTimePicker && (
-          <DateTimePicker
-            value={
-              userSettings.notificationTime 
-                ? createLocalDateFromUTC(userSettings.notificationTime)
-                : new Date()
-            }
-            mode="time"
-            is24Hour={true}
-            display="default"
-            onChange={handleTimeChange}
+      
+      <View>
+        <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl mb-4">
+          <View className="flex-1">
+            <Text className="text-text-primary font-medium">Enable Notifications</Text>
+            <Text className="text-text-secondary text-sm">Get reminded about watering tasks</Text>
+          </View>
+          <Switch
+            value={userSettings.notificationsEnabled}
+            onValueChange={(value) => handleSettingChange('notificationsEnabled', value)}
+            trackColor={{ false: '#E5E7EB', true: colors.primary.medium }}
+            thumbColor={userSettings.notificationsEnabled ? 'white' : '#F3F4F6'}
           />
-        )}
+        </View>
+        
+        <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl">
+          <View className="flex-1">
+            <Text className="text-text-primary font-medium">Notification Time</Text>
+            <Text className="text-text-secondary text-sm">Daily reminder time</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => setShowTimePicker(true)}
+            className="bg-primary-medium px-4 py-2 rounded-lg"
+          >
+            <Text className="text-white font-medium">
+              {userSettings.notificationTime ? getLocalTimeFromUTC(userSettings.notificationTime) : "Set Time"}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      {/*
-      <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-text-primary">Reminder before watering (hours)</Text>
-        <TextInput
-          className="bg-background-primary p-2 rounded text-text-primary w-1/6 text-right"
-          value={String(userSettings.reminderAdvanceTime)}
-          onChangeText={(text) => handleSettingChange('reminderAdvanceTime', parseInt(text))}
-          placeholder="Reminder Hours in Advance"
-          keyboardType="numeric"
-          placeholderTextColor={colors.text.secondary}
+      
+      {showTimePicker && (
+        <DateTimePicker
+          value={
+            userSettings.notificationTime 
+              ? createLocalDateFromUTC(userSettings.notificationTime)
+              : new Date()
+          }
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={handleTimeChange}
         />
-      </View>
-      */}
+      )}
     </View>
   );
 
   const renderPreferencesSection = () => (
-    <View className="bg-background-surface p-4 rounded-xl mb-4">
-      <Text className="text-lg text-text-primary mb-2">Preferences</Text>
-      <View className="mb-2">
-        <Text className="text-text-primary mb-1">Unit System</Text>
-        <View className="bg-background-primary rounded">
-          <Picker
-            selectedValue={userSettings.unitSystem}
-            onValueChange={(value) => handleSettingChange('unitSystem', value)}
-            style={pickerStyle}
-            dropdownIconColor={colors.text.primary}
-            mode="dropdown"
-          >
-            <Picker.Item label="Metric" value="metric" />
-            <Picker.Item label="Imperial" value="imperial" />
-          </Picker>
+    <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
+      <View className="flex-row items-center mb-4">
+        <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
+          <AntDesign name="setting" size={20} color="white" />
         </View>
+        <Text className="text-xl font-semibold text-text-primary">Preferences</Text>
       </View>
-      <View className="mb-2">
-        <Text className="text-text-primary mb-1">Temperature Unit</Text>
-        <View className="bg-background-primary rounded">
-          <Picker
-            selectedValue={userSettings.temperatureUnit}
-            onValueChange={(value) => handleSettingChange('temperatureUnit', value)}
-            style={pickerStyle}
-            dropdownIconColor={colors.text.primary}
-            mode="dropdown"
-          >
-            <Picker.Item label="Celsius" value="celsius" />
-            <Picker.Item label="Fahrenheit" value="fahrenheit" />
-          </Picker>
+      
+      <View>
+        <View className="mb-4">
+          <Text className="text-text-primary font-medium mb-2">Unit System</Text>
+          <View className="bg-background-primary rounded-xl border border-gray-200">
+            <Picker
+              selectedValue={userSettings.unitSystem}
+              onValueChange={(value) => handleSettingChange('unitSystem', value)}
+              style={pickerStyle}
+              dropdownIconColor={colors.text.primary}
+              mode="dropdown"
+            >
+              <Picker.Item label="Metric (cm, kg)" value="metric" />
+              <Picker.Item label="Imperial (in, lb)" value="imperial" />
+            </Picker>
+          </View>
         </View>
-      </View>
-      <View className="flex-row justify-between items-center">
-        <Text className="text-text-primary">Monday as First Day</Text>
-        <Switch
-          value={userSettings.mondayFirstDayOfWeek}
-          onValueChange={(value) => handleSettingChange('mondayFirstDayOfWeek', value)}
-        />
+        
+        <View className="mb-4">
+          <Text className="text-text-primary font-medium mb-2">Temperature Unit</Text>
+          <View className="bg-background-primary rounded-xl border border-gray-200">
+            <Picker
+              selectedValue={userSettings.temperatureUnit}
+              onValueChange={(value) => handleSettingChange('temperatureUnit', value)}
+              style={pickerStyle}
+              dropdownIconColor={colors.text.primary}
+              mode="dropdown"
+            >
+              <Picker.Item label="Celsius (°C)" value="celsius" />
+              <Picker.Item label="Fahrenheit (°F)" value="fahrenheit" />
+            </Picker>
+          </View>
+        </View>
+        
+        <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl">
+          <View className="flex-1">
+            <Text className="text-text-primary font-medium">Monday as First Day</Text>
+            <Text className="text-text-secondary text-sm">Start week on Monday</Text>
+          </View>
+          <Switch
+            value={userSettings.mondayFirstDayOfWeek}
+            onValueChange={(value) => handleSettingChange('mondayFirstDayOfWeek', value)}
+            trackColor={{ false: '#E5E7EB', true: colors.primary.medium }}
+            thumbColor={userSettings.mondayFirstDayOfWeek ? 'white' : '#F3F4F6'}
+          />
+        </View>
       </View>
     </View>
   );
@@ -237,9 +263,15 @@ const Profile: React.FC = () => {
   if (!isLoggedIn) {
     return (
       <SafeAreaView className="bg-background-primary h-full">
-        <View className="flex justify-center items-center h-full">
-          <Text className="text-2xl text-text-primary text-center">
-            Please sign in to access your profile
+        <View className="flex justify-center items-center h-full px-6">
+          <View className="w-20 h-20 bg-primary-medium rounded-full items-center justify-center mb-6">
+            <AntDesign name="user" size={40} color="white" />
+          </View>
+          <Text className="text-2xl font-bold text-text-primary text-center mb-2">
+            Welcome to Bloomer
+          </Text>
+          <Text className="text-text-secondary text-center text-lg">
+            Please sign in to access your profile and manage your plant care settings
           </Text>
         </View>
       </SafeAreaView>
@@ -248,24 +280,78 @@ const Profile: React.FC = () => {
 
   return (
     <SafeAreaView className="bg-background-primary h-full">
-      <ScrollView className="p-4">
-        {renderPersonalSection()}
-        {renderNotificationSection()}
-        {renderPreferencesSection()}
+      <ScrollView 
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 80 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View className="w-full px-4 pt-4 pb-6">
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-text-primary text-3xl font-bold">
+              Profile
+            </Text>
+            <View className="w-12 h-12 bg-primary-medium rounded-full items-center justify-center">
+              <AntDesign name="user" size={24} color="white" />
+            </View>
+          </View>
+          <View className="flex-row justify-between items-center">
+            <Text className="text-text-secondary text-lg">
+              Manage your account settings
+            </Text>
+            <Text className="text-text-secondary text-lg">
+              {userSettings.displayName || 'User'}
+            </Text>
+          </View>
+        </View>
         
-        <TouchableOpacity
-          onPress={handleSaveSettings}
-          className="bg-accent p-4 rounded-full mb-4"
-        >
-          <Text className="text-text-primary text-center text-lg">Save Settings</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          onPress={handleSignOut}
-          className="bg-danger p-4 rounded-full"
-        >
-          <Text className="text-text-primary text-center text-lg">Sign Out</Text>
-        </TouchableOpacity>
+        {/* Settings Sections */}
+        <View className="px-4">
+          {renderPersonalSection()}
+          {renderNotificationSection()}
+          {renderPreferencesSection()}
+          
+          {/* Action Buttons */}
+          <View className="mb-6">
+            <TouchableOpacity
+              onPress={handleSaveSettings}
+              className="bg-primary-medium p-4 rounded-xl shadow-sm mb-4"
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+              }}
+            >
+              <View className="flex-row items-center justify-center">
+                <AntDesign name="save" size={20} color="white" className="mr-2" />
+                <Text className="text-white text-center text-lg font-semibold ml-2">
+                  Save Settings
+                </Text>
+              </View>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              onPress={handleSignOut}
+              className="bg-danger p-4 rounded-xl shadow-sm"
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+              }}
+            >
+              <View className="flex-row items-center justify-center">
+                <AntDesign name="logout" size={20} color="white" className="mr-2" />
+                <Text className="text-white text-center text-lg font-semibold ml-2">
+                  Sign Out
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

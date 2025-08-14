@@ -1,5 +1,5 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, Image, Animated } from 'react-native'
+import React, { useEffect, useRef } from 'react'
 
 interface LoadingScreenProps {
     message?: string;
@@ -7,6 +7,28 @@ interface LoadingScreenProps {
 }
 
 const LoadingScreen = ({ message = "Loading...", showCalendarSkeleton = false }: LoadingScreenProps) => {
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        const pulse = Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1.1,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+            ])
+        );
+        pulse.start();
+
+        return () => pulse.stop();
+    }, [pulseAnim]);
+
     if (showCalendarSkeleton) {
         return (
             <View className="flex-1 justify-center items-center bg-background-primary">
@@ -45,7 +67,19 @@ const LoadingScreen = ({ message = "Loading...", showCalendarSkeleton = false }:
 
     return (
         <View className="flex-1 justify-center items-center bg-background-primary">
-            <Text className="text-text-primary text-lg">{message}</Text>
+            <Animated.View 
+                style={{ 
+                    transform: [{ scale: pulseAnim }],
+                    marginBottom: 20
+                }}
+            >
+                <Image 
+                    source={require('../assets/images/logo-noname-500x500.png')}
+                    className="w-24 h-24"
+                    resizeMode="contain"
+                />
+            </Animated.View>
+            <Text className="text-text-primary text-lg font-medium">{message}</Text>
         </View>
     )
 }

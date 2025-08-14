@@ -28,6 +28,11 @@ export async function identifyPlants(imageUris: string[]):Promise<PlantIdentific
         }
 
         const apiUrl = `${process.env.EXPO_PUBLIC_PLANTNETAPI_ENDPOINT}?api-key=${process.env.EXPO_PUBLIC_PLANTNETAPI_API_KEY}`
+        
+        // Debug logging (remove in production)
+        console.log('PlantNet API URL:', apiUrl.replace(process.env.EXPO_PUBLIC_PLANTNETAPI_API_KEY || '', '[API_KEY_HIDDEN]'));
+        console.log('API Key exists:', !!process.env.EXPO_PUBLIC_PLANTNETAPI_API_KEY);
+        console.log('Endpoint exists:', !!process.env.EXPO_PUBLIC_PLANTNETAPI_ENDPOINT);
 
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -38,7 +43,36 @@ export async function identifyPlants(imageUris: string[]):Promise<PlantIdentific
         });
 
         if(!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`); 
+            let errorMessage = `HTTP error! status: ${response.status}`;
+            
+            // Provide more specific error messages based on status codes
+            switch (response.status) {
+                case 400:
+                    errorMessage = "Bad request - Please check your image format and try again";
+                    break;
+                case 401:
+                    errorMessage = "Unauthorized - API key may be invalid or expired";
+                    break;
+                case 403:
+                    errorMessage = "Forbidden - Access denied to the plant identification service";
+                    break;
+                case 404:
+                    errorMessage = "Service not found - Plant identification service is currently unavailable";
+                    break;
+                case 429:
+                    errorMessage = "Too many requests - Please wait a moment and try again";
+                    break;
+                case 500:
+                    errorMessage = "Server error - Plant identification service is experiencing issues";
+                    break;
+                case 503:
+                    errorMessage = "Service unavailable - Plant identification service is temporarily down";
+                    break;
+                default:
+                    errorMessage = `Plant identification service error (${response.status})`;
+            }
+            
+            throw new Error(errorMessage);
         }
 
         const responseJSON = await response.json();

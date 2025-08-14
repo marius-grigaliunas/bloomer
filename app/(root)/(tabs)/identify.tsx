@@ -10,7 +10,6 @@ import { identifyPlants } from '@/lib/services/plantNetService';
 import { getPlantCareInfo } from '@/lib/services/chutesService/deepseekService';
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { router } from 'expo-router';
-import LoadingScreen from '../../../components/LoadingScreen';
 import * as Manipulator from 'expo-image-manipulator';
 
 const { width, height } = Dimensions.get('window');
@@ -43,6 +42,7 @@ const identify = () => {
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [identificationError, setIdentificationError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   // Animation values
   const progressAnimation = useRef(new Animated.Value(0)).current;
@@ -193,18 +193,51 @@ const identify = () => {
 
   const replacePicture = async () => {
     setShowReplaceCamera(true);
+    // Add a small delay to ensure camera is properly initialized
+    setTimeout(() => {
+      if (ref.current) {
+        console.log('Camera reference is ready for replacement');
+      }
+    }, 500);
   }
 
   const handleReplacePicture = async () => {
     try {
+      if (!ref.current || !ref.current.takePictureAsync) {
+        throw new Error("Camera reference is not properly initialized.");
+      }
+
       setIsProcessingImage(true);
       setLoadingMessage("Taking photo...");
 
-      const photo = await ref.current?.takePictureAsync({
-        quality: 0.8,
-        base64: false,
-        skipProcessing: false
-      });
+      // Take photo with optimized settings and retry mechanism
+      let photo;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          photo = await ref.current.takePictureAsync({
+            quality: 0.8,
+            base64: false,
+            skipProcessing: false
+          });
+          
+          if (photo?.uri) {
+            break; // Success, exit retry loop
+          }
+        } catch (captureError) {
+          console.log(`Camera capture attempt ${retryCount + 1} failed:`, captureError);
+          retryCount++;
+          
+          if (retryCount >= maxRetries) {
+            throw new Error("Failed to capture image after multiple attempts");
+          }
+          
+          // Wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
 
       if (photo?.uri) {
         setLoadingMessage("Processing image...");
@@ -212,9 +245,13 @@ const identify = () => {
         // Delete existing file
         const oldUri = imageUris[currentImageIndex];
         if (oldUri) {
-          const fileInfo = await FileSystem.getInfoAsync(oldUri);
-          if (fileInfo.exists) {
-            await FileSystem.deleteAsync(oldUri, { idempotent: true });
+          try {
+            const fileInfo = await FileSystem.getInfoAsync(oldUri);
+            if (fileInfo.exists) {
+              await FileSystem.deleteAsync(oldUri, { idempotent: true });
+            }
+          } catch (error) {
+            console.log('Error deleting old file:', error);
           }
         }
 
@@ -241,10 +278,24 @@ const identify = () => {
           return newUris;
         });
         setShowReplaceCamera(false);
+      } else {
+        throw new Error("Photo URI is not available.");
       }
     } catch (error) {
       console.error("Error replacing picture:", error);
-      Alert.alert("Error", "Failed to replace picture. Please try again.");
+      let errorMessage = "Failed to replace picture. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("Camera reference is not properly initialized")) {
+          errorMessage = "Camera is not ready. Please close and reopen the camera.";
+        } else if (error.message.includes("Photo URI is not available")) {
+          errorMessage = "Failed to capture image. Please try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      Alert.alert("Error", errorMessage);
     } finally {
       setIsProcessingImage(false);
       setLoadingMessage("");
@@ -256,6 +307,7 @@ const identify = () => {
     try {
       setIsIdentifying(true);
       setIdentificationError(null);
+      setShowErrorModal(false);
       
       const validImageUris = imageUris.filter((uri): uri is string => uri !== null);
       
@@ -288,7 +340,22 @@ const identify = () => {
 
     } catch (error) {
       console.error('Identification failed:', error);
-      setIdentificationError(error instanceof Error ? error.message : 'Failed to identify plants');
+      let errorMessage = 'Failed to identify plants';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('404')) {
+          errorMessage = 'Plant identification service is currently unavailable. Please check your internet connection and try again.';
+        } else if (error.message.includes('401') || error.message.includes('403')) {
+          errorMessage = 'Authentication error. Please contact support.';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setIdentificationError(errorMessage);
+      setShowErrorModal(true);
     } finally {
       setIsIdentifying(false);
       setLoadingMessage("");
@@ -313,10 +380,20 @@ const identify = () => {
       setImageUris(Array(5).fill(null));
       setCurrentImageIndex(0);
       setIdentificationError(null);
+      setShowErrorModal(false);
 
     } catch (error) {
       console.error('Error resetting identification:', error);
     }
+  };
+
+  const retryWithNewPhotos = async () => {
+    await resetIdentification();
+    setShowErrorModal(false);
+  };
+
+  const retakeAllPhotos = async () => {
+    await resetIdentification();
   };
 
   const switchToSearch = async () => {
@@ -575,29 +652,44 @@ const identify = () => {
               {imageUris[currentImageIndex] && !isProcessingImage ? renderPicture() : renderCamera()}
             </View>
 
-            {/* Bottom Section with Thumbnails and Button */}
-            <View className="px-5 pb-6 pt-4">
-              {/* Thumbnail Strip */}
-              <ThumbnailStrip />
+                         {/* Bottom Section with Thumbnails and Button */}
+             <View className="px-5 pb-6 pt-4">
+               {/* Thumbnail Strip */}
+               <ThumbnailStrip />
 
-              {/* Identify Button */}
-              <View className="mb-4">
-                <Pressable 
-                  className={`p-4 rounded-xl ${imageUris.some(uri => uri !== null) ? 'bg-primary-medium' : 'bg-gray-400'}`}
-                  onPress={handleIdentify}
-                  disabled={!imageUris.some(uri => uri !== null) || isIdentifying || isProcessingImage}
-                >
-                  <Text className="text-white text-center text-lg font-semibold">
-                    {isIdentifying ? 'Identifying...' : `Identify ${imageUris.filter(uri => uri !== null).length}/5 photos`}
-                  </Text>
-                </Pressable>
-                {identificationError && (
-                  <Text className="text-danger text-center mt-2">
-                    {identificationError}
-                  </Text>
-                )}
-              </View>
-            </View>
+               {/* Retake All Photos Button - Only show when all 5 photos are taken */}
+               {imageUris.every(uri => uri !== null) && (
+                 <View className="mb-3">
+                   <Pressable 
+                     className="p-3 rounded-xl bg-gray-200 border border-gray-300"
+                     onPress={retakeAllPhotos}
+                     disabled={isIdentifying || isProcessingImage}
+                   >
+                     <Text className="text-text-primary text-center text-base font-medium">
+                       Retake All Photos
+                     </Text>
+                   </Pressable>
+                 </View>
+               )}
+
+               {/* Identify Button */}
+               <View className="mb-4">
+                 <Pressable 
+                   className={`p-4 rounded-xl ${imageUris.some(uri => uri !== null) ? 'bg-primary-medium' : 'bg-gray-400'}`}
+                   onPress={handleIdentify}
+                   disabled={!imageUris.some(uri => uri !== null) || isIdentifying || isProcessingImage}
+                 >
+                   <Text className="text-white text-center text-lg font-semibold">
+                     {isIdentifying ? 'Identifying...' : `Identify ${imageUris.filter(uri => uri !== null).length}/5 photos`}
+                   </Text>
+                 </Pressable>
+                 {identificationError && (
+                   <Text className="text-danger text-center mt-2">
+                     {identificationError}
+                   </Text>
+                 )}
+               </View>
+             </View>
           </View>
         ) : (
           <View className="flex-1 mt-10">
@@ -688,6 +780,13 @@ const identify = () => {
                          />
                        </Pressable>
                      </Animated.View>
+                     
+                     {/* Camera ready indicator */}
+                     {!isProcessingImage && (
+                       <Text className="text-white text-sm mt-2 text-center bg-black bg-opacity-50 px-3 py-1 rounded-full">
+                         Tap to capture
+                       </Text>
+                     )}
                    </View>
 
                   {/* Processing message */}
@@ -702,8 +801,63 @@ const identify = () => {
           </SafeAreaView>
         </Modal>
         
-        {/* Only show loading screen for identification, not for image processing */}
-        {isIdentifying && <LoadingScreen />}
+        {/* Loading overlay for identification */}
+        {isIdentifying && (
+          <View className="absolute inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+            <View className="bg-background-surface rounded-xl p-6 mx-4 items-center">
+              <Text className="text-text-primary text-lg font-semibold mb-2">
+                Identifying Plant...
+              </Text>
+              <Text className="text-text-secondary text-sm text-center">
+                {loadingMessage || "Analyzing your photos"}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* Error Modal */}
+        <Modal
+          visible={showErrorModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowErrorModal(false)}
+        >
+          <View className="flex-1 bg-black bg-opacity-50 items-center justify-center">
+            <View className="bg-background-surface rounded-xl p-6 mx-4 items-center max-w-sm">
+              <View className="w-16 h-16 bg-danger rounded-full items-center justify-center mb-4">
+                <AntDesign name="exclamationcircleo" size={32} color="white" />
+              </View>
+              
+              <Text className="text-text-primary text-lg font-semibold mb-2 text-center">
+                Identification Failed
+              </Text>
+              
+              <Text className="text-text-secondary text-sm text-center mb-6">
+                {identificationError}
+              </Text>
+              
+              <View className="flex-row">
+                <Pressable 
+                  className="flex-1 bg-gray-300 p-3 rounded-lg mr-2"
+                  onPress={() => setShowErrorModal(false)}
+                >
+                  <Text className="text-text-primary text-center font-medium">
+                    Cancel
+                  </Text>
+                </Pressable>
+                
+                <Pressable 
+                  className="flex-1 bg-primary-medium p-3 rounded-lg ml-2"
+                  onPress={retryWithNewPhotos}
+                >
+                  <Text className="text-white text-center font-medium">
+                    Take New Photos
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </SafeAreaView>
   )

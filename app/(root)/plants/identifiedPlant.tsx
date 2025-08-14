@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import colors from '@/constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
 import { createNewDatabasePlant, uploadPlantPicture } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/globalProvider';
@@ -13,6 +13,7 @@ import AddPlantModal, { PlantFormData } from '@/components/AddPlantModal';
 import LoadingScreen from '@/components/LoadingScreen';
 import PlantHeader from '@/components/PlantHeader';
 import { usePlantStore } from '@/interfaces/plantStore';
+
 const { width, height } = Dimensions.get('window');
 
 const IdentifiedPlant = () => {
@@ -26,14 +27,26 @@ const IdentifiedPlant = () => {
 
   if(!identifiedPlant || !identifiedPlant.plant) {
     return (
-      <SafeAreaView>
-        <Text className='text-danger text-3xl'>Sorry! Plant not found</Text>
+      <SafeAreaView className="bg-background-primary flex-1">
+        <View className="flex-1 items-center justify-center px-4">
+          <View className="bg-white rounded-3xl p-6 shadow-sm shadow-black/5">
+            <View className="items-center">
+              <Ionicons name="warning" size={48} color="#E53935" />
+              <Text className="text-text-primary text-xl font-semibold mt-4 text-center">
+                Plant not found
+              </Text>
+              <Text className="text-text-secondary text-base mt-2 text-center">
+                Sorry! The plant information could not be loaded.
+              </Text>
+            </View>
+          </View>
+        </View>
       </SafeAreaView>
     );
   }
 
   const handleResetIdentification = () => {
-    usePlantInformation.getState().clearIdentifiedPlant(); // Correct - this calls the function
+    usePlantInformation.getState().clearIdentifiedPlant();
     router.replace('/(root)/(tabs)/identify');
     refetch;
   }
@@ -121,7 +134,6 @@ const IdentifiedPlant = () => {
   }
 
   const handleSavePlant = async (plantData: PlantFormData) => {
-
     await handleAddPlant(plantData.nickname, plantData.lastWatered, plantData.dateAdded);
   }
 
@@ -130,31 +142,83 @@ const IdentifiedPlant = () => {
   if(loading) return <LoadingScreen/>
 
   return (
-    <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
-      <ScrollView className="w-screen flex-1">
+    <SafeAreaView className="bg-background-primary flex-1">
+      <ScrollView 
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View className="px-4 pt-4 pb-6">
+          <View className="flex-row items-center justify-between mb-4">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="bg-white p-3 rounded-2xl shadow-sm shadow-black/5"
+            >
+              <Ionicons name="arrow-back" size={24} color="#4F772D" />
+            </TouchableOpacity>
+            <View className="bg-white p-3 rounded-2xl shadow-sm shadow-black/5">
+              <Ionicons name="leaf" size={24} color="#4F772D" />
+            </View>
+          </View>
+        </View>
+
+        {/* Plant Header */}
         <PlantHeader
           scientificName={scientificName}
           commonNames={commonNames}
           imageUri={imageUri}
           confidence={confidence}
         />
-        <PlantCareInfoComponent plant={identifiedPlant.plant} />
-        <TouchableOpacity 
-          className="bg-secondary-deep p-4 mt-3 rounded-xl"
-          onPress={handleShowModal}
-        >
-          <Text className="text-text-primary text-center">
-            Add this plant to your Garden
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          className="bg-primary-deep p-4 mt-3 rounded-xl"
-          onPress={handleResetIdentification}
-        >
-          <Text className="text-text-primary text-center">
-            Identify another plant
-          </Text>
-        </TouchableOpacity>
+
+        {/* Identification Success Card */}
+        <View className="mx-4 mb-6">
+          <View className="bg-success/10 rounded-3xl p-4 shadow-sm shadow-black/5">
+            <View className="flex-row items-center">
+              <Ionicons name="checkmark-circle" size={24} color="#2E7D32" />
+              <Text className="text-success text-lg font-semibold ml-2">
+                Plant Successfully Identified!
+              </Text>
+            </View>
+            <Text className="text-text-secondary text-sm mt-2">
+              We found your plant with {Math.round((confidence || 0) * 100)}% confidence
+            </Text>
+          </View>
+        </View>
+
+        {/* Plant Care Information */}
+        <View className="mx-4 mb-6">
+          <Text className="text-lg font-semibold text-text-primary mb-3">Care Information</Text>
+          <PlantCareInfoComponent plant={identifiedPlant.plant} />
+        </View>
+
+        {/* Action Buttons */}
+        <View className="mx-4 mb-6">
+          <Text className="text-lg font-semibold text-text-primary mb-3">Actions</Text>
+          <View className="space-y-4">
+            <TouchableOpacity 
+              onPress={handleShowModal}
+              className="bg-primary-medium rounded-3xl p-4 items-center shadow-sm shadow-black/5"
+            >
+              <Ionicons name="add-circle" size={24} color="white" />
+              <Text className="text-white font-medium mt-2 text-center text-lg">
+                Add to My Garden
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              onPress={handleResetIdentification}
+              className="bg-white rounded-3xl p-4 items-center shadow-sm shadow-black/5 border border-primary-medium/20"
+            >
+              <Ionicons name="camera" size={24} color="#4F772D" />
+              <Text className="text-primary-medium font-medium mt-2 text-center text-lg">
+                Identify Another Plant
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View className="h-20" />
       </ScrollView>
 
       <AddPlantModal
