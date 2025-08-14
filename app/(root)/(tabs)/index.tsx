@@ -86,7 +86,7 @@ export default function Index() {
           <View className="flex-row items-center justify-between mb-2">
             <View>
               <Text className="text-2xl font-semibold text-[#2F2F2F] mb-1">
-                {getGreeting()}, {currentUser?.name ? currentUser?.name.split(' ')[0] : "Guest"}
+                {getGreeting()}, {databaseUser?.displayName ? databaseUser.displayName.split(' ')[0] : currentUser?.name ? currentUser.name.split(' ')[0] : "Guest"}
               </Text>
               {weatherData?.location && (
                 <Text className="text-2xl text-[#4F772D] font-medium">

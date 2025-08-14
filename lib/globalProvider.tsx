@@ -108,7 +108,14 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         user,
         databaseUser,
         loading,
-        refetch,
+        refetch: async (newParams?: Record<string, string | number>) => {
+            await refetch(newParams);
+            // Also refresh the database user data when refetch is called
+            if (user?.$id) {
+                const dbUser = await getUserDatabaseData(user.$id);
+                setDatabaseUser(dbUser);
+            }
+        },
     }), [isLoggedIn, user, loading, refetch]);
 
     return (

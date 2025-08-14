@@ -57,7 +57,7 @@ const Profile: React.FC = () => {
   };
 
   const [userSettings, setUserSettings] = react.useState<Partial<DatabaseUserType>>({
-    displayName: contextUser?.name || '',
+    displayName: databaseUser?.displayName || contextUser?.name || '',
     notificationsEnabled: databaseUser?.notificationsEnabled,
     notificationTime: initializeNotificationTime(databaseUser?.notificationTime),
     timezone: databaseUser?.timezone,
@@ -68,6 +68,23 @@ const Profile: React.FC = () => {
   });
 
   const [showTimePicker, setShowTimePicker] = react.useState(false);
+
+  // Update userSettings when databaseUser changes
+  react.useEffect(() => {
+    if (databaseUser) {
+      setUserSettings(prev => ({
+        ...prev,
+        displayName: databaseUser.displayName || contextUser?.name || '',
+        notificationsEnabled: databaseUser.notificationsEnabled,
+        notificationTime: initializeNotificationTime(databaseUser.notificationTime),
+        timezone: databaseUser.timezone,
+        reminderAdvanceTime: databaseUser.reminderAdvanceTime,
+        unitSystem: databaseUser.unitSystem,
+        mondayFirstDayOfWeek: databaseUser.mondayFirstDayOfWeek,
+        temperatureUnit: databaseUser.temperatureUnit
+      }));
+    }
+  }, [databaseUser, contextUser?.name]);
 
   const handleSettingChange = (setting: keyof DatabaseUserType, value: any) => {
     setUserSettings(prev => ({
@@ -108,7 +125,7 @@ const Profile: React.FC = () => {
         className="bg-background-primary p-4 rounded-xl text-text-primary border border-gray-200"
         value={userSettings.displayName}
         onChangeText={(text) => handleSettingChange('displayName', text)}
-        placeholder="Enter your display name"
+        placeholder={databaseUser?.displayName || "Enter your display name"}
         placeholderTextColor={colors.text.secondary}
       />
     </View>
@@ -240,6 +257,7 @@ const Profile: React.FC = () => {
       const result = await updatePreferences(contextUser.$id, settingsToSave);
       if (result) {
         Alert.alert('Success', 'Settings saved successfully');
+        // Refresh the global context to update the display name across the app
         refetch?.();
       } else {
         Alert.alert('Error', 'Failed to save settings, failed to update the database');
@@ -300,7 +318,7 @@ const Profile: React.FC = () => {
               Manage your account settings
             </Text>
             <Text className="text-text-secondary text-lg">
-              {userSettings.displayName || 'User'}
+              {databaseUser?.displayName || userSettings.displayName || 'User'}
             </Text>
           </View>
         </View>
