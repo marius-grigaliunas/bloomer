@@ -59,6 +59,14 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
     const [selectedMonth, setSelectedMonth] = useState(initialMonth ?? todayInfo.todayMonth);
     const [selectedYear, setSelectedYear] = useState(initialYear ?? todayInfo.todayYear);
     
+    // Local selectedDate state for instant highlighting
+    const [localSelectedDate, setLocalSelectedDate] = useState<Date | null>(selectedDate || null);
+    
+    // Update local selectedDate when prop changes (for navigation restoration)
+    useEffect(() => {
+        setLocalSelectedDate(selectedDate || null);
+    }, [selectedDate]);
+    
     // Animation values for sliding
     const translateX = useRef(new Animated.Value(0)).current;
     const opacity = useRef(new Animated.Value(1)).current;
@@ -92,23 +100,36 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         return wateringDay;
     }, [wateringDays]);
 
+    // Handle day press with instant highlighting
+    const handleDayPress = useCallback((date: Date) => {
+        // Update local selectedDate immediately for instant highlighting
+        setLocalSelectedDate(date);
+        
+        // Call the original onDayPress handler
+        if (onDayPress) {
+            onDayPress(date);
+        }
+    }, [onDayPress]);
+
     // Optimize date comparison to avoid creating new Date objects
     const isDateSelected = useCallback((year: number, month: number, day: number): boolean => {
-        if (!selectedDate) return false;
+        if (!localSelectedDate) return false;
         
         return (
-            year === selectedDate.getFullYear() &&
-            month === selectedDate.getMonth() &&
-            day === selectedDate.getDate()
+            year === localSelectedDate.getFullYear() &&
+            month === localSelectedDate.getMonth() &&
+            day === localSelectedDate.getDate()
         );
-    }, [selectedDate]);
+    }, [localSelectedDate]);
 
     // Generate cache key for calendar elements
     const getCacheKey = useCallback((year: number, month: number): string => {
         // Include watering days hash in cache key to ensure cache invalidation when watering days change
-        const wateringDaysHash = Array.from(wateringDays.keys()).join('|');
-        return `${year}-${month}-${mondayFirstDayOfWeek}-${selectedDate?.getTime() ?? 'null'}-${wateringDaysHash}`;
-    }, [mondayFirstDayOfWeek, selectedDate, wateringDays]);
+        // Use a more stable hash that doesn't change on every render
+        const wateringDaysHash = Array.from(wateringDays.keys()).slice(0, 10).join('|'); // Limit to first 10 keys for stability
+        // Remove selectedDate from cache key to prevent cache regeneration on every selection
+        return `${year}-${month}-${mondayFirstDayOfWeek}-${wateringDaysHash}`;
+    }, [mondayFirstDayOfWeek, wateringDays]);
 
     // Enhanced cache management with LRU eviction
     const addToCache = useCallback((key: string, elements: ReactNode[]) => {
@@ -183,7 +204,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                         year={prevYear}
                         wateringDay={wateringDay}
                         isSelected={isSelected}
-                        onPress={onDayPress}
+                        onPress={handleDayPress ? () => handleDayPress(createDateObject(prevYear, prevMonth, day)) : undefined}
                     />
                 );
             }
@@ -205,7 +226,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                 month: month,
                 year: year,
                 wateringDay,
-                onPress: onDayPress ? () => onDayPress(createDateObject(year, month, i)) : undefined
+                onPress: handleDayPress ? () => handleDayPress(createDateObject(year, month, i)) : undefined
             };
 
             if (jsDay === 0 || jsDay === 6) {
@@ -232,7 +253,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                     year: nextYear,
                     wateringDay,
                     isSelected: isSelected,
-                    onPress: onDayPress ? () => onDayPress(createDateObject(nextYear, nextMonth, i)) : undefined
+                    onPress: handleDayPress ? () => handleDayPress(createDateObject(nextYear, nextMonth, i)) : undefined
                 };
                 newElements.push(
                     <NextMonthDay
@@ -247,7 +268,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         addToCache(cacheKey, newElements);
 
         return newElements;
-    }, [wateringDays, isDateSelected, onDayPress, headerElements, todayInfo, mondayFirstDayOfWeek, getCacheKey, getWateringDay, addToCache]);
+    }, [wateringDays, isDateSelected, onDayPress, headerElements, todayInfo, mondayFirstDayOfWeek, getCacheKey, getWateringDay, addToCache, handleDayPress]);
 
     // Generate calendar for current month with immediate UI update
     const generateCurrentCalendar = useCallback(async () => {
@@ -256,6 +277,14 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         generatingRef.current = true;
         setIsGenerating(true);
         
+        // Add safety timeout to prevent getting stuck in generating state
+        const safetyTimeout = setTimeout(() => {
+            if (generatingRef.current) {
+                generatingRef.current = false;
+                setIsGenerating(false);
+            }
+        }, 5000); // 5 second timeout
+        
         try {
             // Immediate UI update with cached data if available
             const cacheKey = getCacheKey(selectedYear, selectedMonth);
@@ -263,6 +292,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                 setCalendarElements(calendarCache.get(cacheKey)!);
                 setIsGenerating(false);
                 generatingRef.current = false;
+                clearTimeout(safetyTimeout);
                 return;
             }
 
@@ -280,13 +310,15 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                 setCalendarElements(elements);
                 setIsGenerating(false);
                 generatingRef.current = false;
+                clearTimeout(safetyTimeout);
             });
         } catch (error) {
             console.error('Error generating calendar:', error);
             setIsGenerating(false);
             generatingRef.current = false;
+            clearTimeout(safetyTimeout);
         }
-    }, [selectedYear, selectedMonth, generateCalendarForMonth, getCacheKey]);
+    }, [selectedYear, selectedMonth, getCacheKey, generateCalendarForMonth]);
 
     // Pre-generate adjacent months for seamless transitions
     const pregenerateAdjacentMonths = useCallback(() => {
@@ -322,6 +354,11 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         if (isAnimating) return;
         
         setIsAnimating(true);
+        
+        // Add safety timeout to prevent getting stuck
+        const safetyTimeout = setTimeout(() => {
+            setIsAnimating(false);
+        }, 2000);
         
         // Calculate target month and year
         const nextMonth = selectedMonth === 11 ? 0 : selectedMonth + 1;
@@ -364,6 +401,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                     useNativeDriver: true,
                 })
             ]).start(() => {
+                clearTimeout(safetyTimeout);
                 setIsAnimating(false);
             });
         });
@@ -373,6 +411,11 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         if (isAnimating) return;
         
         setIsAnimating(true);
+        
+        // Add safety timeout to prevent getting stuck
+        const safetyTimeout = setTimeout(() => {
+            setIsAnimating(false);
+        }, 2000);
         
         // Calculate target month and year
         const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
@@ -415,6 +458,7 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
                     useNativeDriver: true,
                 })
             ]).start(() => {
+                clearTimeout(safetyTimeout);
                 setIsAnimating(false);
             });
         });
@@ -484,6 +528,18 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         pregenerateAdjacentMonths();
     }, [generateCurrentCalendar, pregenerateAdjacentMonths]);
 
+    // Force calendar re-render when localSelectedDate changes for instant highlighting
+    useEffect(() => {
+        if (localSelectedDate) {
+            // Clear cache for current month to force regeneration with new selection
+            const cacheKey = getCacheKey(selectedYear, selectedMonth);
+            calendarCache.delete(cacheKey);
+            
+            // Regenerate calendar immediately
+            generateCurrentCalendar();
+        }
+    }, [localSelectedDate, selectedYear, selectedMonth, getCacheKey, generateCurrentCalendar]);
+
     // Update calendar state when initial values change (for navigation restoration)
     useEffect(() => {
         if (initialMonth !== undefined && initialMonth !== selectedMonth) {
@@ -494,18 +550,8 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
         }
     }, [initialMonth, initialYear]);
 
-    // Clear cache and regenerate calendar when selectedDate changes to ensure proper highlighting
-    useEffect(() => {
-        if (selectedDate) {
-            // Clear all cache to ensure proper highlighting across all months
-            clearCalendarCache();
-            
-            // Regenerate calendar for the current month with a small delay to prevent rapid successive calls
-            setTimeout(() => {
-                generateCurrentCalendar();
-            }, 50);
-        }
-    }, [selectedDate, generateCurrentCalendar]);
+    // Remove the problematic cache clearing effect that was causing the selection bug
+    // The cache should only be cleared when watering days change, not on every date selection
 
     // Optimized cache clearing - only clear when watering days actually change
     useEffect(() => {
@@ -515,11 +561,15 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
             const wateringDaysHash = Array.from(wateringDays.keys()).join('|');
             if (wateringDaysHash !== (wateringDays as any)._hash) {
                 (wateringDays as any)._hash = wateringDaysHash;
-                // Clear cache more selectively - only clear affected months
-                // This is a simplified approach; in production you might want more sophisticated cache invalidation
+                // Clear cache when watering days change to ensure proper highlighting
+                clearCalendarCache();
+                // Regenerate current calendar after cache clear
+                setTimeout(() => {
+                    generateCurrentCalendar();
+                }, 10);
             }
         }
-    }, [wateringDays]);
+    }, [wateringDays, generateCurrentCalendar]);
 
     return (
         <View className=''>

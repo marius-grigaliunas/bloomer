@@ -1,18 +1,19 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions, Image, Button } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions, Image, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { router, useLocalSearchParams, useNavigation } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import colors from '@/constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 
 import { useGlobalContext } from '@/lib/globalProvider';
 import LoadingScreen from '@/components/LoadingScreen';
-import { DatabasePlantType, PlantCareInfo } from '../../../interfaces/interfaces';
+import { DatabasePlantType } from '../../../interfaces/interfaces';
 import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
 import { usePlantStore } from '@/interfaces/plantStore';
 import PlantHeader from '@/components/PlantHeader';
 import RenamePlantModal from '@/components/RenamePlantModal';
 import { calculateDaysLate, calculateDaysUntilNextWatering } from '@/lib/services/dateService';
 import { useNavigationState } from '@/lib/navigationState';
+
 const { width, height } = Dimensions.get('window');
 
 type PlantDetailsParams = {
@@ -25,7 +26,7 @@ type PlantDetailsParams = {
 
 const PlantDetails = () => {
   const { id, from, selectedDate, selectedMonth, selectedYear } = useLocalSearchParams<PlantDetailsParams>();
-  const { isLoggedIn, user: contextUser, refetch } = useGlobalContext();
+  const { isLoggedIn, user: contextUser } = useGlobalContext();
   const [ loading, setLoading] = useState(false);
   const [ modalVisible, setModalVisible ] = useState(false);
   const { setCareState } = useNavigationState();
@@ -66,9 +67,7 @@ const PlantDetails = () => {
     }
   };
   
-  const { plants, allPlantIds, isLoading, error,
-     fetchAllUserPlants, getPlantById, updatePlant, deletePlant, markAsWatered
-  } = usePlantStore();
+  const { plants, isLoading, error, getPlantById, updatePlant, deletePlant, markAsWatered } = usePlantStore();
 
   // Move plant retrieval into useEffect to handle async state
   const [plant, setPlant] = useState(getPlantById(id));
@@ -80,15 +79,28 @@ const PlantDetails = () => {
   }, [plant, loading, isLoading]);
 
   const deletePlantButton = async () => {
-    try {
-      setLoading(true);
-      await deletePlant(id);
-      setLoading(false);
-      navigateBack();
-    } catch (error) {
-      setLoading(false);
-      Alert.alert('Error', 'Failed to delete plant');
-    }
+    Alert.alert(
+      "Delete Plant",
+      "Are you sure you want to delete this plant? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await deletePlant(id);
+              setLoading(false);
+              navigateBack();
+            } catch (error) {
+              setLoading(false);
+              Alert.alert('Error', 'Failed to delete plant');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleShowModal = () => setModalVisible(true);
@@ -108,9 +120,9 @@ const PlantDetails = () => {
   const markPlantAsWatered = async () => {
     try {
       await markAsWatered(id);
-      Alert.alert("Success", "Plant marked as watered.");
+      Alert.alert("Success", "Plant marked as watered!");
     } catch (error) {
-      Alert.alert("Error watering the plant", "Failed to mark plant as watered ")
+      Alert.alert("Error", "Failed to mark plant as watered");
     }
   };
 
@@ -122,125 +134,231 @@ const PlantDetails = () => {
     return null;
   }
 
+  // Calculate watering status
+  const getWateringStatus = () => {
+    if (!plant?.lastWatered || !plant?.wateringFrequency) {
+      return { status: 'no-schedule', message: 'No watering schedule set', color: 'text-text-secondary' };
+    }
+
+    const daysLate = calculateDaysLate(new Date(plant.lastWatered), plant.wateringFrequency);
+    const daysUntilNext = calculateDaysUntilNextWatering(new Date(plant.lastWatered), plant.wateringFrequency);
+    
+    if (daysLate > 0) {
+      return { 
+        status: 'overdue', 
+        message: `${daysLate} ${daysLate === 1 ? 'day' : 'days'} overdue`, 
+        color: 'text-danger',
+        bgColor: 'bg-danger/10'
+      };
+    } else if (daysUntilNext > 0) {
+      return { 
+        status: 'upcoming', 
+        message: `${daysUntilNext} ${daysUntilNext === 1 ? 'day' : 'days'} until next watering`, 
+        color: 'text-primary-medium',
+        bgColor: 'bg-primary-medium/10'
+      };
+    } else {
+      return { 
+        status: 'today', 
+        message: 'Water today!', 
+        color: 'text-accent',
+        bgColor: 'bg-accent/10'
+      };
+    }
+  };
+
+  const wateringStatus = getWateringStatus();
+
   return (
-    <SafeAreaView style={{ width: width,flex: 1, backgroundColor: colors.background.primary }}>
-      <ScrollView className="w-screen flex-1">
-        <TouchableOpacity
-          onPress={navigateBack}
-          className='flex-1'
-        >
-          <View className='bg-danger h-14 w-32 flex justify-center items-center rounded-2xl mb-10'>
-            <Text className='text-3xl text-text-primary'>Back</Text>
+    <SafeAreaView className="bg-background-primary flex-1">
+      <ScrollView 
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View className="px-4 pt-4 pb-6">
+          <View className="flex-row items-center justify-between mb-4">
+            <TouchableOpacity
+              onPress={navigateBack}
+              className="bg-white p-3 rounded-2xl shadow-sm shadow-black/5"
+            >
+              <Ionicons name="arrow-back" size={24} color="#4F772D" />
+            </TouchableOpacity>
+            <View className="flex-row space-x-2">
+              <TouchableOpacity
+                onPress={handleShowModal}
+                className="bg-white p-3 rounded-2xl shadow-sm shadow-black/5"
+              >
+                <Ionicons name="create-outline" size={24} color="#4F772D" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={deletePlantButton}
+                className="bg-white p-3 rounded-2xl shadow-sm shadow-black/5"
+              >
+                <Ionicons name="trash-outline" size={24} color="#E53935" />
+              </TouchableOpacity>
+            </View>
           </View>
-        </TouchableOpacity>
+        </View>
+
+        {/* Plant Header */}
         <PlantHeader
           scientificName={plant?.scientificName}
           commonNames={plant?.commonNames ?? []}
           imageUri={plant?.imageUrl ?? "Failed to load image URL"}
           nickname={plant?.nickname}
         />
-        <Text className='text-4xl text-danger'>Plant Details</Text>
-        <View>
-          <Button 
-            title='Delete Plant'
-            onPress={deletePlantButton}
-          />
-          <Button
-            title='Rename Plant'
-            onPress={handleShowModal}
-          />
-          <Button
-            title='Mark as watered'
-            onPress={markPlantAsWatered}
-          />
-        </View>
-        <PlantCareInfoComponent plant={plant as DatabasePlantType} />
-        <View className='p-4'>
-          {/* Watering Status */}
-          {plant?.lastWatered && plant?.wateringFrequency && (
-            <View className="mb-4 p-4 bg-background-surface rounded-xl">
-              <Text className="text-accent text-xl mb-2">Watering Status</Text>
-              {(() => {
-                const daysLate = calculateDaysLate(new Date(plant.lastWatered), plant.wateringFrequency);
-                const daysUntilNext = calculateDaysUntilNextWatering(new Date(plant.lastWatered), plant.wateringFrequency);
-                
-                if (daysLate > 0) {
-                  return (
-                    <View className="bg-danger/20 p-3 rounded-lg">
-                      <Text className="text-danger text-lg font-semibold">
-                        {daysLate} {daysLate === 1 ? 'day' : 'days'} overdue
-                      </Text>
-                      <Text className="text-text-secondary text-sm">
-                        Your plant needs water!
-                      </Text>
-                    </View>
-                  );
-                } else if (daysUntilNext > 0) {
-                  return (
-                    <View className="bg-primary/20 p-3 rounded-lg">
-                      <Text className="text-primary text-lg font-semibold">
-                        {daysUntilNext} {daysUntilNext === 1 ? 'day' : 'days'} until next watering
-                      </Text>
-                      <Text className="text-text-secondary text-sm">
-                        Your plant is doing well!
-                      </Text>
-                    </View>
-                  );
-                } else {
-                  return (
-                    <View className="bg-accent/20 p-3 rounded-lg">
-                      <Text className="text-accent text-lg font-semibold">
-                        Water today!
-                      </Text>
-                      <Text className="text-text-secondary text-sm">
-                        Time to water your plant
-                      </Text>
-                    </View>
-                  );
-                }
-              })()}
+
+        {/* Watering Status Card */}
+        <View className="mx-4 mb-6">
+          <View className={`bg-white rounded-3xl p-4 shadow-sm shadow-black/5 ${wateringStatus.bgColor || ''}`}>
+            <View className="flex-row items-center justify-between mb-3">
+              <View className="flex-row items-center">
+                <Ionicons 
+                  name={wateringStatus.status === 'overdue' ? 'warning' : 'water'} 
+                  size={24} 
+                  color={wateringStatus.status === 'overdue' ? '#E53935' : '#4F772D'} 
+                />
+                <Text className="text-text-primary text-lg font-semibold ml-2">
+                  Watering Status
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={markPlantAsWatered}
+                className="bg-blue-500 px-4 py-2 rounded-xl"
+              >
+                <Text className="text-white font-medium">Mark Watered</Text>
+              </TouchableOpacity>
             </View>
-          )}
-
-          <View className="space-y-2">
-            <Text className="text-accent text-xl">Last watered:</Text>
-            <Text className="text-text-primary text-lg">
-              {plant?.lastWatered ? new Date(plant.lastWatered).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              }) : 'Never watered'}
+            <Text className={`text-lg font-semibold ${wateringStatus.color}`}>
+              {wateringStatus.message}
             </Text>
+            {wateringStatus.status === 'overdue' && (
+              <Text className="text-text-secondary text-sm mt-1">
+                Your plant needs water!
+              </Text>
+            )}
           </View>
+        </View>
 
-          <View className="space-y-2">
-            <Text className="text-accent text-xl">Next watering:</Text>
-            <Text className="text-text-primary text-lg">
-              {plant?.nextWateringDate ? new Date(plant.nextWateringDate).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              }) : 'No schedule set'}
-            </Text>
-          </View>
-
-          {plant.wateringHistory && (
-            <View className="mt-5">
-              <Text className="text-accent text-xl">Watering history:</Text>
-              {plant.wateringHistory.map((date, index) => (
-                <Text key={index} className="text-text-primary text-lg">
-                  {new Date(date).toLocaleDateString('en-GB', {
+        {/* Watering Schedule Info */}
+        <View className="mx-4 mb-6">
+          <Text className="text-lg font-semibold text-text-primary mb-3">Watering Schedule</Text>
+          <View className="bg-white rounded-3xl p-4 shadow-sm shadow-black/5">
+            <View className="space-y-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row items-center">
+                  <Ionicons name="calendar-outline" size={20} color="#4F772D" />
+                  <Text className="text-text-secondary ml-2">Last watered:</Text>
+                </View>
+                <Text className="text-text-primary font-medium">
+                  {plant?.lastWatered ? new Date(plant.lastWatered).toLocaleDateString('en-GB', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
-                  })}
+                  }) : 'Never watered'}
                 </Text>
-              ))}
+              </View>
+              
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row items-center">
+                  <Ionicons name="time-outline" size={20} color="#4F772D" />
+                  <Text className="text-text-secondary ml-2">Next watering:</Text>
+                </View>
+                <Text className="text-text-primary font-medium">
+                  {plant?.nextWateringDate ? new Date(plant.nextWateringDate).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  }) : 'No schedule set'}
+                </Text>
+              </View>
+
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row items-center">
+                  <Ionicons name="repeat-outline" size={20} color="#4F772D" />
+                  <Text className="text-text-secondary ml-2">Frequency:</Text>
+                </View>
+                <Text className="text-text-primary font-medium">
+                  {plant?.wateringFrequency ? `Every ${plant.wateringFrequency} days` : 'Not set'}
+                </Text>
+              </View>
             </View>
-          )}
+          </View>
         </View>
-        <View className="h-72 bg-background-primary rounded-2xl">
+
+        {/* Plant Care Information */}
+        <View className="mx-4 mb-6">
+          <Text className="text-lg font-semibold text-text-primary mb-3">Care Information</Text>
+          <PlantCareInfoComponent plant={plant as DatabasePlantType} />
         </View>
+
+        {/* Watering History */}
+        {plant.wateringHistory && plant.wateringHistory.length > 0 && (
+          <View className="mx-4 mb-6">
+            <Text className="text-lg font-semibold text-text-primary mb-3">Watering History</Text>
+            <View className="bg-white rounded-3xl p-4 shadow-sm shadow-black/5">
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View className="flex-row space-x-3">
+                  {plant.wateringHistory.slice(-10).reverse().map((date, index) => (
+                    <View key={index} className="bg-primary-medium/10 px-3 py-2 rounded-xl min-w-[80px]">
+                      <Text className="text-primary-medium text-sm font-medium text-center">
+                        {new Date(date).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short'
+                        })}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        )}
+
+        {/* Quick Actions */}
+        <View className="mx-4 mb-6">
+          <Text className="text-lg font-semibold text-text-primary mb-3">Quick Actions</Text>
+          
+          {/* First row - Plant specific actions */}
+          <View className="flex-row mb-4">
+            <TouchableOpacity
+              onPress={handleShowModal}
+              className="flex-1 bg-white rounded-3xl p-4 items-center shadow-sm shadow-black/5 border border-primary-medium/20 mr-2"
+            >
+              <Ionicons name="create-outline" size={24} color="#4F772D" />
+              <Text className="text-primary-medium font-medium mt-2 text-center">Rename Plant</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={markPlantAsWatered}
+              className="flex-1 bg-blue-500 rounded-3xl p-4 items-center shadow-sm shadow-black/5 ml-2"
+            >
+              <Ionicons name="water" size={24} color="white" />
+              <Text className="text-white font-medium mt-2 text-center">Mark Watered</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Second row - App navigation actions */}
+          <View className="flex-row">
+            <TouchableOpacity
+              onPress={() => router.push("/(root)/(tabs)/identify")}
+              className="flex-1 bg-primary-medium rounded-3xl p-4 items-center shadow-sm shadow-black/5 mr-2"
+            >
+              <Ionicons name="camera" size={24} color="white" />
+              <Text className="text-white font-medium mt-2 text-center">Identify Plant</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/(root)/(tabs)/care")}
+              className="flex-1 bg-white rounded-3xl p-4 items-center shadow-sm shadow-black/5 border border-primary-medium/20 ml-2"
+            >
+              <Ionicons name="calendar" size={24} color="#4F772D" />
+              <Text className="text-primary-medium font-medium mt-2 text-center">View Schedule</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View className="h-20" />
       </ScrollView>
 
       <RenamePlantModal 

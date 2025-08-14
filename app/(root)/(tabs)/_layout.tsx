@@ -21,7 +21,7 @@ const TabIcon = ({focused, icon, title} : TabIconProps) => {
             </View>
             <Text 
                 className={`text-md font-medium text-center ${
-                    focused ? 'text-primary-medium' : 'text-text-secondary'
+                    focused ? 'text-primary-medium' : 'text-black'
                 }`}
                 numberOfLines={1}
                 style={{ minWidth: 70 }}
@@ -65,7 +65,7 @@ const _layout = () => {
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
                     <TabIcon focused={focused} title='Home' icon={
-                        <Entypo name="home" size={24} color={focused ? colors.primary.medium : colors.text.secondary} />
+                        <Entypo name="home" size={24} color={focused ? colors.primary.medium : colors.black} />
                     }/>
                 )
             }}
@@ -77,7 +77,7 @@ const _layout = () => {
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
                     <TabIcon focused={focused} title='Schedule' icon={
-                        <FontAwesome5 name="calendar-day" size={24} color={focused ? colors.primary.medium : colors.text.secondary} />
+                        <FontAwesome5 name="calendar-day" size={24} color={focused ? colors.primary.medium : colors.black} />
                     }/>
                 )
             }}
@@ -92,7 +92,7 @@ const _layout = () => {
                         <Ionicons
                             name="search"
                             size={24}
-                            color={focused ? colors.primary.medium : colors.text.secondary}
+                            color={focused ? colors.primary.medium : colors.black}
                         />
                     }/>
                 )
@@ -108,7 +108,7 @@ const _layout = () => {
                         <AntDesign
                             name='setting'
                             size={24}
-                            color={focused ? colors.primary.medium : colors.text.secondary}
+                            color={focused ? colors.primary.medium : colors.black}
                         />
                     }/>
                 )

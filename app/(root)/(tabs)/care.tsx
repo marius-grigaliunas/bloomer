@@ -111,6 +111,30 @@ const Care = () => {
         }
     }, [isLoggedIn, user]);
 
+    // Safety cleanup effect to reset animation state if it gets stuck
+    useEffect(() => {
+        const resetAnimationState = () => {
+            if (isTasksAnimating) {
+                // Reset animation values to prevent getting stuck
+                tasksTranslateX.setValue(0);
+                tasksOpacity.setValue(1);
+                setIsTasksAnimating(false);
+            }
+        };
+
+        // Reset animation state when component unmounts or when switching tabs
+        return resetAnimationState;
+    }, [isTasksAnimating, tasksTranslateX, tasksOpacity]);
+
+    // Initialize animation values when component mounts or when no date is selected
+    useEffect(() => {
+        if (!selectedDate) {
+            // Reset animation values to default state when no date is selected
+            tasksTranslateX.setValue(0);
+            tasksOpacity.setValue(1);
+        }
+    }, [selectedDate, tasksTranslateX, tasksOpacity]);
+
     // Restore navigation state when component mounts or care state changes
     useEffect(() => {
         if (careState.selectedDate && allPlants.length > 0) {
@@ -142,21 +166,64 @@ const Care = () => {
         
         setIsTasksAnimating(true);
         
-        // Animate current tasks out to the left
-        Animated.parallel([
-            Animated.timing(tasksTranslateX, {
-                toValue: -screenWidth,
-                duration: 200,
-                useNativeDriver: true,
-            }),
-            Animated.timing(tasksOpacity, {
-                toValue: 0.3,
-                duration: 100,
-                useNativeDriver: true,
-            })
-        ]).start(() => {
-            // Update the tasks data
-            setSelectedDate(newDate);
+        // Add a timeout fallback to prevent getting stuck in animating state
+        const animationTimeout = setTimeout(() => {
+            setIsTasksAnimating(false);
+        }, 1000); // 1 second timeout
+        
+        // Check if there's current content to animate out
+        const hasCurrentContent = selectedDate !== null && selectedPlants.length > 0;
+        
+        if (hasCurrentContent) {
+            // Step 1: Animate current content out to the left
+            Animated.parallel([
+                Animated.timing(tasksTranslateX, {
+                    toValue: -screenWidth,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(tasksOpacity, {
+                    toValue: 0.3,
+                    duration: 100,
+                    useNativeDriver: true,
+                })
+            ]).start(() => {
+                // Step 2: Update the plants data while content is off-screen (selectedDate already set)
+                setSelectedPlants(newPlants);
+                
+                // Save to navigation state for restoration
+                setCareState({
+                    selectedDate: newDate,
+                    selectedMonth: newDate.getMonth(),
+                    selectedYear: newDate.getFullYear(),
+                    selectedPlants: newPlants.map(p => p.plantId)
+                });
+                
+                // Step 3: Position new content off-screen to the right and animate it in
+                tasksTranslateX.setValue(screenWidth);
+                tasksOpacity.setValue(0.3);
+                
+                // Small delay to ensure the data update has been processed
+                requestAnimationFrame(() => {
+                    Animated.parallel([
+                        Animated.timing(tasksTranslateX, {
+                            toValue: 0,
+                            duration: 150,
+                            useNativeDriver: true,
+                        }),
+                        Animated.timing(tasksOpacity, {
+                            toValue: 1,
+                            duration: 100,
+                            useNativeDriver: true,
+                        })
+                    ]).start(() => {
+                        clearTimeout(animationTimeout);
+                        setIsTasksAnimating(false);
+                    });
+                });
+            });
+        } else {
+            // No current content, just fade in the new content (selectedDate already set)
             setSelectedPlants(newPlants);
             
             // Save to navigation state for restoration
@@ -167,29 +234,30 @@ const Care = () => {
                 selectedPlants: newPlants.map(p => p.plantId)
             });
             
-            // Reset animation values for new tasks
-            tasksTranslateX.setValue(screenWidth);
-            tasksOpacity.setValue(0.3);
+            // Start with opacity 0 and fade in
+            tasksTranslateX.setValue(0);
+            tasksOpacity.setValue(0);
             
-            // Animate new tasks in from the right
-            Animated.parallel([
-                Animated.timing(tasksTranslateX, {
-                    toValue: 0,
-                    duration: 200,
-                    useNativeDriver: true,
-                }),
+            requestAnimationFrame(() => {
                 Animated.timing(tasksOpacity, {
                     toValue: 1,
-                    duration: 100,
+                    duration: 200,
                     useNativeDriver: true,
-                })
-            ]).start(() => {
-                setIsTasksAnimating(false);
+                }).start(() => {
+                    clearTimeout(animationTimeout);
+                    setIsTasksAnimating(false);
+                });
             });
-        });
-    }, [isTasksAnimating, tasksTranslateX, tasksOpacity, screenWidth, setCareState]);
+        }
+    }, [isTasksAnimating, tasksTranslateX, tasksOpacity, screenWidth, setCareState, selectedDate, selectedPlants.length]);
 
     const handleDayPress = useCallback((date: Date) => {
+        // Prevent rapid successive selections that could cause animation state issues
+        if (isTasksAnimating) return;
+        
+        // Update selectedDate immediately for instant calendar highlighting
+        setSelectedDate(date);
+        
         // Optimize date key generation to avoid string padding operations
         const dateKey = generateDateKey(date);
         const wateringDay = wateringDays.get(dateKey);
@@ -206,7 +274,7 @@ const Care = () => {
             // No watering tasks for this day, but still allow selection
             animateTasksTransition(date, []);
         }
-    }, [wateringDays, plantsMap, animateTasksTransition, generateDateKey]);
+    }, [wateringDays, plantsMap, animateTasksTransition, generateDateKey, isTasksAnimating]);
 
     // Determine task status based on watering day data
     const getTaskStatus = useCallback((plant: DatabasePlantType, wateringDay: WateringDay | undefined) => {

@@ -44,26 +44,16 @@ export const useWateringDays = (plants: Record<string, DatabasePlantType>): UseW
           plant.wateringFrequency && plant.lastWatered
         );
         
-        console.log(`Total plants: ${plantsArray.length}, Plants with watering data: ${plantsWithWateringData.length}`);
-        
         // If no plants have watering data, create some test data for demonstration
         let plantsToUse = plantsWithWateringData;
         let isUsingTestData = false;
         if (plantsWithWateringData.length === 0 && plantsArray.length > 0) {
-          console.log('Creating test watering data for demonstration');
           isUsingTestData = true;
           plantsToUse = plantsArray.slice(0, 2).map((plant, index) => {
             const wateringFrequency = 3; // Water every 3 days
             // Set lastWatered to 10 days ago to make it clearly overdue
             const lastWatered = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000); // 10 days ago
             const nextWateringDate = new Date(lastWatered.getTime() + wateringFrequency * 24 * 60 * 60 * 1000); // 7 days ago (overdue)
-            
-            console.log(`Creating test data for ${plant.nickname}:`);
-            console.log(`  Watering frequency: ${wateringFrequency} days`);
-            console.log(`  Last watered: ${lastWatered.toISOString()}`);
-            console.log(`  Next watering should have been: ${nextWateringDate.toISOString()}`);
-            console.log(`  Today: ${new Date().toISOString()}`);
-            console.log(`  Should be overdue by: ${Math.ceil((Date.now() - nextWateringDate.getTime()) / (24 * 60 * 60 * 1000))} days`);
             
             return {
               ...plant,
@@ -76,7 +66,6 @@ export const useWateringDays = (plants: Record<string, DatabasePlantType>): UseW
         
         if (plantsToUse.length > 0) {
           const wateringDaysData = generateWateringDays(plantsToUse, startDate, endDate);
-          console.log('Watering days generated:', wateringDaysData.size);
           setWateringDays(wateringDaysData);
           setIsTestData(isUsingTestData);
           
@@ -84,17 +73,13 @@ export const useWateringDays = (plants: Record<string, DatabasePlantType>): UseW
           const overduePlants: DatabasePlantType[] = [];
           const plantsNeedCareSoon: DatabasePlantType[] = [];
           
-          console.log('Analyzing watering days for overdue plants...');
           wateringDaysData.forEach((wateringDay, dateKey) => {
-            console.log(`Date ${dateKey}: ${wateringDay.plants.length} plants`);
             wateringDay.plants.forEach(plantInfo => {
-              console.log(`  Plant ${plantInfo.plantId}: isLate=${plantInfo.isLate}, daysLate=${plantInfo.daysLate}`);
               const plant = plantsArray.find(p => p.plantId === plantInfo.plantId);
               if (plant) {
                 if (plantInfo.isLate) {
                   // This plant is overdue
                   if (!overduePlants.find(p => p.plantId === plant.plantId)) {
-                    console.log(`    Adding ${plant.nickname} to overdue plants`);
                     overduePlants.push(plant);
                   }
                 } else if (plantInfo.daysLate === 0 && !plantInfo.isNextWatering) {
@@ -107,11 +92,9 @@ export const useWateringDays = (plants: Record<string, DatabasePlantType>): UseW
             });
           });
           
-          console.log(`Found ${overduePlants.length} overdue plants:`, overduePlants.map(p => p.nickname));
           setPlantsNeedCare(overduePlants);
           setPlantsNeedCareLater(plantsNeedCareSoon);
         } else {
-          console.log('No plants available for watering days');
           setWateringDays(new Map());
           setIsTestData(false);
           setPlantsNeedCare([]);

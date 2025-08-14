@@ -1,4 +1,4 @@
-import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal, TouchableOpacity, Platform, Animated } from 'react-native'
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
@@ -44,6 +44,10 @@ const identify = () => {
   const [identificationError, setIdentificationError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("");
 
+  // Animation values
+  const progressAnimation = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
+
   // Flash toggle function
   const toggleFlash = () => {
     setFlashMode(prevMode => {
@@ -53,7 +57,33 @@ const identify = () => {
     });
   };
 
+  // Animate progress when photos are taken
+  useEffect(() => {
+    const photoCount = imageUris.filter(uri => uri !== null).length;
+    const progress = photoCount / maxImages;
+    
+    Animated.timing(progressAnimation, {
+      toValue: progress,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [imageUris, progressAnimation]);
 
+  // Button press animation
+  const animateButtonPress = () => {
+    Animated.sequence([
+      Animated.timing(buttonScale, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(buttonScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   useEffect(() => {
     const currentUris = [...imageUris];
@@ -70,9 +100,6 @@ const identify = () => {
 
   const processImage = useCallback(async (imageUri: string): Promise<string> => {
     try {
-      setIsProcessingImage(true);
-      setLoadingMessage("Processing image...");
-
       // Get image info first to check original size (optional)
       const imageInfo = await FileSystem.getInfoAsync(imageUri);
       const originalSize = imageInfo.exists ? imageInfo.size : 0;
@@ -101,9 +128,6 @@ const identify = () => {
     } catch (error) {
       console.error('Error processing image:', error);
       throw error;
-    } finally {
-      setIsProcessingImage(false);
-      setLoadingMessage("");
     }
   }, []);
 
@@ -113,6 +137,7 @@ const identify = () => {
         throw new Error("Camera reference is not properly initialized.");
       }
 
+      animateButtonPress();
       setIsProcessingImage(true);
       setLoadingMessage("Taking photo...");
 
@@ -144,6 +169,7 @@ const identify = () => {
           await FileSystem.deleteAsync(photo.uri, { idempotent: true }).catch(() => {});
         }
 
+        // Update state without causing a re-render that shows white screen
         setImageUris(prevUris => {
           const newUris = [...prevUris];
           newUris[currentImageIndex] = finalUri;
@@ -208,6 +234,7 @@ const identify = () => {
           await FileSystem.deleteAsync(photo.uri, { idempotent: true }).catch(() => {});
         }
 
+        // Update state without causing a re-render that shows white screen
         setImageUris(prevUris => {
           const newUris = [...prevUris];
           newUris[currentImageIndex] = finalUri;
@@ -318,126 +345,209 @@ const identify = () => {
     }
   };
 
+  // Corner bracket component for viewfinder
+  const CornerBracket = ({ position }: { position: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight' }) => {
+    const getCornerStyle = () => {
+      const baseStyle = 'absolute w-8 h-8';
+      switch (position) {
+        case 'topLeft':
+          return `${baseStyle} top-16 left-8 border-l-2 border-t-2 border-primary-medium`;
+        case 'topRight':
+          return `${baseStyle} top-16 right-8 border-r-2 border-t-2 border-primary-medium`;
+        case 'bottomLeft':
+          return `${baseStyle} bottom-24 left-8 border-l-2 border-b-2 border-primary-medium`;
+        case 'bottomRight':
+          return `${baseStyle} bottom-24 right-8 border-r-2 border-b-2 border-primary-medium`;
+      }
+    };
+
+    return <View className={getCornerStyle()} />;
+  };
+
+  // Progress circle component
+  const ProgressCircle = () => {
+    const photoCount = imageUris.filter(uri => uri !== null).length;
+    const progress = photoCount / maxImages;
+    
+    return (
+      <View className="items-center justify-center">
+        <View className="w-16 h-16 rounded-full bg-secondary-medium items-center justify-center">
+          <Animated.View 
+            className="absolute w-16 h-16 rounded-full"
+            style={{
+              backgroundColor: '#4F772D',
+              transform: [{ scale: progressAnimation }],
+            }}
+          />
+          <Text className="text-white text-sm font-semibold z-10">
+            {photoCount}/{maxImages}
+          </Text>
+        </View>
+        <Text className="text-text-primary text-sm mt-2 font-medium">
+          Photo {photoCount} of {maxImages}
+        </Text>
+      </View>
+    );
+  };
+
+  // Thumbnail strip component
+  const ThumbnailStrip = () => {
+    return (
+      <View className="flex-row justify-between px-5 mb-6">
+        {imageUris.map((uri, index) => (
+          <View key={index} className="items-center">
+            <View className="w-14 h-14 rounded-lg overflow-hidden border-2 border-secondary-medium bg-background-surface">
+              {uri ? (
+                <Image 
+                  source={{ uri }} 
+                  className="w-full h-full"
+                  resizeMode="cover"
+                />
+              ) : (
+                <View className="w-full h-full bg-background-surface items-center justify-center">
+                  <Text className="text-text-secondary text-xs">+</Text>
+                </View>
+              )}
+            </View>
+            <Text className="text-text-secondary text-xs mt-1">
+              {index + 1}
+            </Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   const renderCamera = () => {
     console.log('Rendering camera with flash mode:', flashMode);
     return (
-    <View style={{ width: width, height: height * 0.8, backgroundColor: colors.background.primary}}>
-      <ExpoCamera.CameraView 
-        style={{ flex: 1 }}
-        facing={'back'}
-        ref={ref}
-        mode={'picture'}
-        flash={Platform.OS === 'ios' ? flashMode : undefined}
-        enableTorch={Platform.OS === 'android' ? flashMode === 'on' : undefined}
-      >
-        {/* Flash button */}
-        <View className='absolute top-10 right-4'>
-          <Pressable 
-            onPress={toggleFlash}
-            className='bg-black bg-opacity-50 p-3 rounded-full'
-            disabled={isProcessingImage}
-          >
-            <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
-          </Pressable>
-          <Text className='text-white text-xs text-center mt-1 bg-black bg-opacity-50 px-2 py-1 rounded'>
-            {flashMode.toUpperCase()} ({Platform.OS})
-          </Text>
-        </View>
-        
-        <View className='absolute bottom-10 w-full flex-row justify-center'>
-          <Pressable 
-            onPress={takePicture}
-            className='w-20 h-20 rounded-full bg-white border-4 border-secondary-medium'
-            disabled={isProcessingImage}
-          >
-            <View className='flex-1 rounded-full m-1 bg-secondary-medium' />
-          </Pressable>
-        </View>
-        {isProcessingImage && (
-          <View className='absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center'>
-            <View className='bg-white p-4 rounded-lg'>
-              <Text className='text-black text-center'>{loadingMessage}</Text>
+      <View style={{ flex: 1, backgroundColor: '#F8F8F8', minHeight: 400 }}>
+        <ExpoCamera.CameraView 
+          style={{ flex: 1, width: '100%', height: '100%' }}
+          facing={'back'}
+          ref={ref}
+          mode={'picture'}
+          flash={Platform.OS === 'ios' ? flashMode : undefined}
+          enableTorch={Platform.OS === 'android' ? flashMode === 'on' : undefined}
+        >
+          {/* Corner brackets for viewfinder */}
+          <CornerBracket position="topLeft" />
+          <CornerBracket position="topRight" />
+          <CornerBracket position="bottomLeft" />
+          <CornerBracket position="bottomRight" />
+
+          {/* Processing message - positioned at top */}
+          {isProcessingImage && (
+            <View className="absolute top-4 left-4 right-4 bg-black bg-opacity-75 rounded-lg p-3 z-10">
+              <Text className="text-white text-center text-sm font-medium">{loadingMessage}</Text>
             </View>
+          )}
+
+          {/* Flash button */}
+          <View className="absolute top-8 left-4">
+            <Pressable 
+              onPress={toggleFlash}
+              className="bg-black bg-opacity-50 p-3 rounded-full"
+              disabled={isProcessingImage}
+            >
+              <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
+            </Pressable>
           </View>
-        )}
-      </ExpoCamera.CameraView>
-    </View>
+          
+          {/* Progress indicator */}
+          <View className="absolute top-8 right-4">
+            <ProgressCircle />
+          </View>
+          
+          {/* Camera button */}
+          <View className="absolute bottom-16 w-full items-center">
+            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+              <Pressable 
+                onPress={takePicture}
+                className={`w-20 h-20 rounded-full items-center justify-center shadow-lg ${
+                  isProcessingImage ? 'bg-gray-400' : 'bg-primary-medium'
+                }`}
+                disabled={isProcessingImage}
+                style={{
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 8,
+                  elevation: 6,
+                }}
+              >
+                <AntDesign 
+                  name="camera" 
+                  size={32} 
+                  color={isProcessingImage ? '#666666' : 'white'} 
+                />
+              </Pressable>
+            </Animated.View>
+          </View>
+        </ExpoCamera.CameraView>
+      </View>
     );
   };
 
   const renderPicture = () => (
-    <View style={{ width: width, height: height * 0.8}}>
+    <View className="flex-1 bg-background-primary">
       {imageUris[currentImageIndex] && (
         <Image 
           source={{ uri: imageUris[currentImageIndex] }}
-          style={{ width: '100%', height: '100%' }}
+          className="flex-1"
           resizeMode='cover'
         />
       )}
-      <View className='absolute bottom-10 w-full flex-row justify-around'>
+      <View className="absolute bottom-16 w-full flex-row justify-around px-8">
         <Pressable 
-          className='bg-secondary-medium p-4 rounded-full'
+          className="bg-primary-medium p-4 rounded-full"
           onPress={() => {
             setCurrentImageIndex(prevIndex => Math.max(0, prevIndex - 1));
           }}
           disabled={currentImageIndex === 0}
         >
-          <AntDesign name="arrowleft" size={32} color="white" />
+          <AntDesign name="arrowleft" size={24} color="white" />
         </Pressable>
         <Pressable 
-          className='bg-secondary-medium p-4 rounded-full'
+          className="bg-primary-medium p-4 rounded-full"
           onPress={replacePicture}
           disabled={isProcessingImage}
         >
-          <AntDesign name="camera" size={32} color="white" />
+          <AntDesign name="camera" size={24} color="white" />
         </Pressable>
         <Pressable 
-          className='bg-secondary-medium p-4 rounded-full'
+          className="bg-primary-medium p-4 rounded-full"
           onPress={() => {
             setCurrentImageIndex(prevIndex => Math.min(maxImages - 1, prevIndex + 1));
           }}
           disabled={currentImageIndex === maxImages - 1}
         >
-          <AntDesign name="arrowright" size={32} color="white" />
+          <AntDesign name="arrowright" size={24} color="white" />
         </Pressable>
       </View>
-      <Text className='absolute top-10 self-center text-white text-xl'>{currentImageIndex + 1} / {maxImages}</Text>
+      <View className="absolute top-16 right-5">
+        <ProgressCircle />
+      </View>
     </View>
   );
 
-  // Loading screen overlay
-  const renderLoadingOverlay = () => {
-    if (!isIdentifying && !isProcessingImage) return null;
-    
-    return (
-      <View className='absolute inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
-        <View className='bg-white p-6 rounded-lg mx-4'>
-          <Text className='text-black text-center text-lg mb-2'>
-            {isProcessingImage ? 'Processing Image...' : 'Identifying Plant...'}
-          </Text>
-          {loadingMessage && (
-            <Text className='text-gray-600 text-center'>
-              {loadingMessage}
-            </Text>
-          )}
-        </View>
-      </View>
-    );
-  };
+
 
   // Check camera permission
+  console.log('Camera permission status:', cameraPermission);
+  
   if (!cameraPermission) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.primary }}>
-        <Text className='text-3xl text-text-primary'>Loading permissions...</Text>
+      <View className="flex-1 items-center justify-center bg-background-primary">
+        <Text className="text-3xl text-text-primary">Loading permissions...</Text>
       </View>
     );
   }
 
   if (!cameraPermission.granted) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.primary }}>
-        <Text className='text-3xl text-text-primary mb-4'>We need camera permissions</Text>
+      <View className="flex-1 items-center justify-center bg-background-primary">
+        <Text className="text-3xl text-text-primary mb-4">We need camera permissions</Text>
         <Button 
           onPress={async () => {
             await requestCameraPermission();
@@ -449,41 +559,50 @@ const identify = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background.primary }}>
-      <View style={{ flex: 1 }}>
+    <SafeAreaView className="flex-1 bg-background-primary">
+      <View className="flex-1">
         {showCamera ? (
           <View className="flex-1">
-            {imageUris[currentImageIndex] ? renderPicture() : renderCamera()}
-            <View className="px-4 mt-1 space-y-4">
-              <Pressable 
-                className={`p-4 rounded-xl ${imageUris.some(uri => uri !== null) ? 'bg-secondary-medium' : 'bg-gray-400'}`}
-                onPress={handleIdentify}
-                disabled={!imageUris.some(uri => uri !== null) || isIdentifying || isProcessingImage}
-              >
-                <Text className="text-white text-center text-lg font-semibold">
-                  {isIdentifying ? 'Identifying...' : `Identify ${imageUris.filter(uri => uri !== null).length}/5 photos`}
-                </Text>
-              </Pressable>
-              {identificationError && (
-                <Text className="text-red-500 text-center mt-2">
-                  {identificationError}
-                </Text>
-              )}
-              <TouchableOpacity 
-                className="bg-secondary-deep p-4 mt-3 rounded-xl"
-                onPress={switchToSearch}
-                disabled={isIdentifying || isProcessingImage}
-              >
-                <Text className="text-text-primary text-center">
-                  Search your plant instead
-                </Text>
-              </TouchableOpacity>
+            {/* Header Section */}
+            <View className="px-5 pt-16 pb-6">
+              <Text className="text-3xl font-bold text-primary-medium text-center">
+                Identify Plant
+              </Text>
+            </View>
+
+            {/* Camera or Picture View - Takes most of the screen */}
+            <View className="flex-1">
+              {imageUris[currentImageIndex] && !isProcessingImage ? renderPicture() : renderCamera()}
+            </View>
+
+            {/* Bottom Section with Thumbnails and Button */}
+            <View className="px-5 pb-6 pt-4">
+              {/* Thumbnail Strip */}
+              <ThumbnailStrip />
+
+              {/* Identify Button */}
+              <View className="mb-4">
+                <Pressable 
+                  className={`p-4 rounded-xl ${imageUris.some(uri => uri !== null) ? 'bg-primary-medium' : 'bg-gray-400'}`}
+                  onPress={handleIdentify}
+                  disabled={!imageUris.some(uri => uri !== null) || isIdentifying || isProcessingImage}
+                >
+                  <Text className="text-white text-center text-lg font-semibold">
+                    {isIdentifying ? 'Identifying...' : `Identify ${imageUris.filter(uri => uri !== null).length}/5 photos`}
+                  </Text>
+                </Pressable>
+                {identificationError && (
+                  <Text className="text-danger text-center mt-2">
+                    {identificationError}
+                  </Text>
+                )}
+              </View>
             </View>
           </View>
         ) : (
-          <View className="flex-1 mt-10 px-4 pt-8">
+          <View className="flex-1 mt-10">
             <Pressable 
-              className="bg-secondary-medium p-4 rounded-xl mb-4"
+              className="bg-primary-medium p-4 rounded-xl mb-4"
               onPress={switchToCamera}
             >
               <Text className="text-white text-center text-lg font-semibold">
@@ -504,52 +623,86 @@ const identify = () => {
           animationType="slide"
           onRequestClose={() => setShowReplaceCamera(false)}
         >
-          <View style={{ flex: 1, backgroundColor: colors.background.primary }}>
-            <ExpoCamera.CameraView 
-              style={{ flex: 1 }}
-              facing={'back'}
-              ref={ref}
-              mode={'picture'}
-              flash={Platform.OS === 'ios' ? flashMode : undefined}
-              enableTorch={Platform.OS === 'android' ? flashMode === 'on' : undefined}
-            >
-              {/* Flash button */}
-              <View className='absolute top-10 right-4'>
-                <Pressable 
-                  onPress={toggleFlash}
-                  className='bg-black bg-opacity-50 p-3 rounded-full'
-                  disabled={isProcessingImage}
-                >
-                  <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
-                </Pressable>
-                <Text className='text-white text-xs text-center mt-1 bg-black bg-opacity-50 px-2 py-1 rounded'>
-                  {flashMode.toUpperCase()} ({Platform.OS})
-                </Text>
-              </View>
-              
-              <View className='absolute bottom-10 w-full flex-row justify-around'>
+          <SafeAreaView className="flex-1 bg-background-primary">
+            <View className="flex-1">
+              {/* Header */}
+              <View className="px-5 pt-4 pb-4 flex-row items-center justify-between">
                 <Pressable 
                   onPress={() => setShowReplaceCamera(false)}
-                  className='bg-secondary-medium p-4 rounded-full'
-                  disabled={isProcessingImage}
+                  className="bg-primary-medium p-3 rounded-full"
                 >
-                  <AntDesign name="close" size={32} color="white" />
+                  <AntDesign name="close" size={20} color="white" />
                 </Pressable>
-                <Pressable 
-                  onPress={handleReplacePicture}
-                  className='w-20 h-20 rounded-full bg-white border-4 border-secondary-medium'
-                  disabled={isProcessingImage}
-                >
-                  <View className='flex-1 rounded-full m-1 bg-secondary-medium' />
-                </Pressable>
+                <Text className="text-lg font-semibold text-text-primary">Retake Photo</Text>
+                <View className="w-11" />
               </View>
-              {renderLoadingOverlay()}
-            </ExpoCamera.CameraView>
-          </View>
+
+              {/* Camera View */}
+              <View className="flex-1">
+                <ExpoCamera.CameraView 
+                  style={{ flex: 1, width: '100%', height: '100%' }}
+                  facing={'back'}
+                  ref={ref}
+                  mode={'picture'}
+                  flash={Platform.OS === 'ios' ? flashMode : undefined}
+                  enableTorch={Platform.OS === 'android' ? flashMode === 'on' : undefined}
+                >
+                  {/* Corner brackets for viewfinder */}
+                  <CornerBracket position="topLeft" />
+                  <CornerBracket position="topRight" />
+                  <CornerBracket position="bottomLeft" />
+                  <CornerBracket position="bottomRight" />
+
+                  {/* Flash button */}
+                  <View className="absolute top-8 left-4">
+                    <Pressable 
+                      onPress={toggleFlash}
+                      className="bg-black bg-opacity-50 p-3 rounded-full"
+                      disabled={isProcessingImage}
+                    >
+                      <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
+                    </Pressable>
+                  </View>
+                  
+                                     {/* Camera button */}
+                   <View className="absolute bottom-16 w-full items-center">
+                     <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+                       <Pressable 
+                         onPress={handleReplacePicture}
+                         className={`w-20 h-20 rounded-full items-center justify-center shadow-lg ${
+                           isProcessingImage ? 'bg-gray-400' : 'bg-primary-medium'
+                         }`}
+                         disabled={isProcessingImage}
+                         style={{
+                           shadowColor: '#000',
+                           shadowOffset: { width: 0, height: 4 },
+                           shadowOpacity: 0.15,
+                           shadowRadius: 8,
+                           elevation: 6,
+                         }}
+                       >
+                         <AntDesign 
+                           name="camera" 
+                           size={32} 
+                           color={isProcessingImage ? '#666666' : 'white'} 
+                         />
+                       </Pressable>
+                     </Animated.View>
+                   </View>
+
+                  {/* Processing message */}
+                  {isProcessingImage && (
+                    <View className="absolute top-4 left-4 right-4 bg-black bg-opacity-75 rounded-lg p-3">
+                      <Text className="text-white text-center text-sm font-medium">{loadingMessage}</Text>
+                    </View>
+                  )}
+                </ExpoCamera.CameraView>
+              </View>
+            </View>
+          </SafeAreaView>
         </Modal>
         
-        {/* Loading overlay */}
-        {renderLoadingOverlay()}
+        {/* Only show loading screen for identification, not for image processing */}
         {isIdentifying && <LoadingScreen />}
       </View>
     </SafeAreaView>
