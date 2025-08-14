@@ -39,13 +39,13 @@
 - [x] Show how many days overdue in the plant details tab
 - [x] Forms in the settings screen need form validation
   - implemented selectables only.
-- [ ] User is seeing the image steps and loading message while waiting for the response, make it look cohesive
+- [x] User is seeing the image steps and loading message while waiting for the response, make it look cohesive
 - [x] Add a flash to the camera
 
-- [ ] Redesing the app
-  - [ ] Redesign the home tab
-  - [ ] Redesign the care tab
-  - [ ] Redesign the camera tab
-  - [ ] Redesign the profile tab
-  - [ ] Redesign the identified plant tab
-  - [ ] Redesign the plant details tab
+- [x] Redesing the app
+  - [x] Redesign the home tab
+  - [x] Redesign the care tab
+  - [x] Redesign the camera tab
+  - [x] Redesign the profile tab
+  - [x] Redesign the identified plant tab
+  - [x] Redesign the plant details tab
