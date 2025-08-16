@@ -17,8 +17,9 @@
       "supportsTablet": true
     },
     "android": {
+      "icon": "./assets/images/logo-noname-1024.png",
       "splash": {
-        "image": "./assets/images/logo-noname-1024.png",
+        "image": "./assets/images/logo-500x500.png",
         "backgroundColor": "#121F12",
         "resizeMode": "contain"
       },
@@ -73,7 +74,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/logo-noname-500x500.png",
+          "icon": "./assets/images/logo-noname-1024.png",
           "backgroundColor": "#ffffff"
         }
       ]

@@ -276,11 +276,10 @@ export async function testBothEndpoints() {
 // Alternative approach using createOAuth2Token (recommended)
 export async function login() {
     try {
-        const redirectUri = AuthSession.makeRedirectUri({
-            scheme: 'appwrite-callback-67d145de00084a32d0d6',
-        });
+        // Use the exact scheme from app.json
+        const redirectUri = 'appwrite-callback-67d145de00084a32d0d6://';
 
-        console.log("AuthSession redirect URI:", redirectUri);
+        console.log("Using app.json scheme:", redirectUri);
 
         const loginUrl = await account.createOAuth2Token(
             OAuthProvider.Google,
@@ -290,41 +289,49 @@ export async function login() {
 
         console.log("OAuth Token URL:", loginUrl);
 
-        const result = await WebBrowser.openAuthSessionAsync(
-            `${loginUrl}`,
-            redirectUri
-        );
+        const result = await WebBrowser.openAuthSessionAsync(`${loginUrl}`, redirectUri);
 
         console.log("AuthSession result:", result);
 
         if (result.type === 'success' && result.url) {
-            // Parse the redirect URL to extract token info
-            const url = new URL(result.url);
-            const userId = url.searchParams.get('userId');
-            const secret = url.searchParams.get('secret');
-            
-            console.log("Extracted userId:", userId);
-            console.log("Extracted secret:", secret);
+            try {
+                console.log("Success URL:", result.url);
+                
+                // Extract credentials from OAuth redirect URL
+                const url = new URL(result.url);
+                const secret = url.searchParams.get('secret');
+                const userId = url.searchParams.get('userId');
 
-            if (userId && secret) {
-                try {
-                    // Create session from the OAuth token
-                    const session = await account.createSession(userId, secret);
-                    console.log("Session created:", session);
-                    
-                    // Now get the user
-                    const user = await account.get();
-                    console.log("User authenticated:", user);
-                    await updateLoginInfo(user.$id);
-                    return true;
-                } catch (sessionError) {
-                    console.error("Failed to create session:", sessionError);
+                console.log("Extracted secret:", secret ? "present" : "missing");
+                console.log("Extracted userId:", userId ? "present" : "missing");
+
+                if (!secret || !userId) {
+                    console.error("Missing OAuth parameters");
                     return false;
                 }
-            }
-        }
 
-        return false;
+                // Create session with OAuth credentials
+                const session = await account.createSession(userId, secret);
+                if (!session) {
+                    console.error("Failed to create session");
+                    return false;
+                }
+
+                const user = await account.get();
+                console.log("User authenticated:", user);
+                await updateLoginInfo(user.$id);
+                return true;
+            } catch (sessionError) {
+                console.error("Failed to get user after OAuth:", sessionError);
+                return false;
+            }
+        } else if (result.type === 'dismiss') {
+            console.log("OAuth was dismissed by user");
+            return false;
+        } else {
+            console.log("OAuth failed with result:", result);
+            return false;
+        }
     } catch (error) {
         console.error("AuthSession login error:", error);
         return false;
