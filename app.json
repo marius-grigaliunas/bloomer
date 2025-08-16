@@ -4,12 +4,12 @@
     "slug": "bloomer",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo-noname-500x500.png",
+    "icon": "./assets/images/logo-noname-1024.png",
     "scheme": "appwrite-callback-67d145de00084a32d0d6",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/logo-500x500.png",
+      "image": "./assets/images/logo-noname-1024.png",
       "backgroundColor": "#121F12",
       "resizeMode": "contain"
     },
@@ -18,12 +18,12 @@
     },
     "android": {
       "splash": {
-        "image": "./assets/images/logo-500x500.png",
+        "image": "./assets/images/logo-noname-1024.png",
         "backgroundColor": "#121F12",
         "resizeMode": "contain"
       },
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo-noname-500x500.png",
+        "foregroundImage": "./assets/images/logo-noname-1024.png",
         "backgroundColor": "#121F12"
       },
       "permissions": [
@@ -40,18 +40,18 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo-noname-500x500.png"
+      "favicon": "./assets/images/logo-noname-1024.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo-500x500.png",
+          "image": "./assets/images/logo-noname-1024.png",
           "backgroundColor": "#121F12",
           "resizeMode": "contain",
           "dark": {
-            "image": "./assets/images/logo-500x500.png",
+            "image": "./assets/images/logo-noname-1024.png",
             "backgroundColor": "#121F12"
           },
           "imageWidth": 200
