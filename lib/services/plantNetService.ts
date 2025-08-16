@@ -27,11 +27,11 @@ export async function identifyPlants(imageUris: string[]):Promise<PlantIdentific
             formData.append('organs', 'auto');
         }
 
-        const apiUrl = `${process.env.EXPO_PUBLIC_PLANTNETAPI_ENDPOINT}?api-key=${process.env.EXPO_PUBLIC_PLANTNETAPI_API_KEY}`
+        const apiUrl = `${process.env.EXPO_PUBLIC_PLANTNETAPI_ENDPOINT}?api-key=${process.env.EXPO_PRIVATE_PLANTNETAPI_API_KEY}`
         
         // Debug logging (remove in production)
-        console.log('PlantNet API URL:', apiUrl.replace(process.env.EXPO_PUBLIC_PLANTNETAPI_API_KEY || '', '[API_KEY_HIDDEN]'));
-        console.log('API Key exists:', !!process.env.EXPO_PUBLIC_PLANTNETAPI_API_KEY);
+        console.log('PlantNet API URL:', apiUrl.replace(process.env.EXPO_PRIVATE_PLANTNETAPI_API_KEY || '', '[API_KEY_HIDDEN]'));
+        console.log('API Key exists:', !!process.env.EXPO_PRIVATE_PLANTNETAPI_API_KEY);
         console.log('Endpoint exists:', !!process.env.EXPO_PUBLIC_PLANTNETAPI_ENDPOINT);
 
         const response = await fetch(apiUrl, {

@@ -9,7 +9,7 @@ async function getPlantCareInfo(plant: string, commonNames: string[]): Promise<P
         const response = await fetch(`${process.env.EXPO_PUBLIC_DEEPSEEK_CHUTES_ENDPOINT}`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${process.env.EXPO_PUBLIC_DEEPSEEK_CHUTES_API_KEY}`,
+                "Authorization": `Bearer ${process.env.EXPO_PRIVATE_DEEPSEEK_CHUTES_API_KEY}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({

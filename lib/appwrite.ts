@@ -9,7 +9,7 @@ import * as WebBrowser from 'expo-web-browser';
 export const config = {
     platform: 'com.margri.bloomer',
     endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
-    projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
+    projectId: process.env.EXPO_PRIVATE_APPWRITE_PROJECT_ID,
 }
 
 export const client = new Client()
@@ -22,10 +22,10 @@ export const account = new Account(client);
 export const databases = new Databases(client);
 export const storage = new Storage(client);
 
-const databaseId = `${process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID}`;
-const usersCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID}`;
-const plantsCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_PLANTS_COLLECTION_ID}`;
-const plantImageStorageId = `${process.env.EXPO_PUBLIC_APPWRITE_IMAGES_STORAGE_BUCKET_ID}`;
+const databaseId = `${process.env.EXPO_PRIVATE_APPWRITE_DATABASE_ID}`;
+const usersCollectionId = `${process.env.EXPO_PRIVATE_APPWRITE_USERS_COLLECTION_ID}`;
+const plantsCollectionId = `${process.env.EXPO_PRIVATE_APPWRITE_PLANTS_COLLECTION_ID}`;
+const plantImageStorageId = `${process.env.EXPO_PRIVATE_APPWRITE_IMAGES_STORAGE_BUCKET_ID}`;
 
 export async function AnnonymousLogin() {
     try {

@@ -13,7 +13,7 @@ export async function getWeather(): Promise<WeatherProps | string> {
     const {latitude, longitude} = location.coords;
 
     try {
-        const weatherUrl = `${process.env.EXPO_PUBLIC_WEATHERAPI_ENDPOINT}key=${process.env.EXPO_PUBLIC_WEATHERAPI_API_KEY}&q=${latitude},${longitude}&aqi=no`                 
+        const weatherUrl = `${process.env.EXPO_PUBLIC_WEATHERAPI_ENDPOINT}key=${process.env.EXPO_PRIVATE_WEATHERAPI_API_KEY}&q=${latitude},${longitude}&aqi=no`                 
         const response = await fetch(weatherUrl);
 
         if (!response.ok) {

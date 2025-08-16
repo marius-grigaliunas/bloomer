@@ -31,7 +31,7 @@ export async function registerForPushNotificationsAsync() {
 
   // Get the token with your Expo project ID
   const expoPushToken = await Notifications.getExpoPushTokenAsync({
-    projectId: process.env.EXPO_PUBLIC_PROJECT_ID // You'll need to add this to your env variables
+    projectId: process.env.EXPO_PRIVATE_PROJECT_ID // You'll need to add this to your env variables
   });
   
   token = expoPushToken.data;
