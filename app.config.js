@@ -1,4 +1,20 @@
 export default {
+    name: "bloomer",
+    slug: "bloomer",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/images/icon.png",
+    scheme: "appwrite-callback-67d145de00084a32d0d6",
+    userInterfaceStyle: "automatic",
+    newArchEnabled: true,
+    splash: {
+        image: "./assets/images/icon.png",
+        backgroundColor: "#121F12",
+        resizeMode: "contain"
+    },
+    ios: {
+        supportsTablet: true
+    },
     android: {
         "googleServicesFile": process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
         "icon": "./assets/images/icon.png",
@@ -21,11 +37,56 @@ export default {
         ],
         "package": "com.grimar.bloomer"
     },
-    "expo": {
-        "extra": {
-            "eas": {
-                "projectId": "2bfc8a05-b5b9-4856-ac69-2c6c766a2895"
-            }
-        }
+    web: {
+        bundler: "metro",
+        output: "static",
+        favicon: "./assets/images/icon.png"
     },
+    plugins: [
+        "expo-router",
+        [
+            "expo-splash-screen",
+            {
+                image: "./assets/images/icon.png",
+                backgroundColor: "#121F12",
+                resizeMode: "contain",
+                dark: {
+                    image: "./assets/images/icon.png",
+                    backgroundColor: "#121F12"
+                },
+                imageWidth: 200
+            }
+        ],
+        [
+            "expo-camera",
+            {
+                cameraPermission: "Allow $(PRODUCT_NAME) to access your camera."
+            }
+        ],
+        [
+            "expo-media-library",
+            {
+                photosPermission: "Allow $(PRODUCT_NAME) to access your photos.",
+                savePhotosPermission: "Allow $(PRODUCT_NAME) to save photos."
+            }
+        ],
+        [
+            "expo-notifications",
+            {
+                icon: "./assets/images/icon.png",
+                backgroundColor: "#ffffff"
+            }
+        ]
+    ],
+    experiments: {
+        typedRoutes: true
+    },
+    extra: {
+        router: {
+            origin: false
+        },
+        eas: {
+            projectId: "2bfc8a05-b5b9-4856-ac69-2c6c766a2895"
+        }
+    }
 };
