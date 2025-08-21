@@ -13,11 +13,35 @@ export async function getWeather(): Promise<WeatherProps | string> {
     const {latitude, longitude} = location.coords;
 
     try {
-        const weatherUrl = `${process.env.EXPO_PUBLIC_WEATHERAPI_ENDPOINT}key=${process.env.EXPO_PRIVATE_WEATHERAPI_API_KEY}&q=${latitude},${longitude}&aqi=no`                 
+        // Ensure proper URL construction for WeatherAPI.com
+        const baseUrl = process.env.EXPO_PUBLIC_WEATHERAPI_ENDPOINT || 'http://api.weatherapi.com/v1/current.json?';
+        const apiKey = process.env.EXPO_PRIVATE_WEATHERAPI_API_KEY;
+        
+        // Debug environment variables
+        console.log('Weather API Debug Info:');
+        console.log('- Base URL:', baseUrl);
+        console.log('- API Key exists:', !!apiKey);
+        console.log('- API Key length:', apiKey ? apiKey.length : 0);
+        console.log('- API Key starts with:', apiKey ? apiKey.substring(0, 4) + '...' : 'N/A');
+        
+        if (!apiKey) {
+            throw new Error('Weather API key is not configured');
+        }
+        
+        // Construct URL properly - ensure it starts with ? if not already present
+        const separator = baseUrl.includes('?') ? '&' : '?';
+        const weatherUrl = `${baseUrl}${separator}key=${apiKey}&q=${latitude},${longitude}&aqi=no`;
+        
+        console.log('Weather API URL (without key):', weatherUrl.replace(apiKey, '[API_KEY_HIDDEN]'));
+        console.log('Coordinates:', { latitude, longitude });
+        
         const response = await fetch(weatherUrl);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('Weather API response error:', response.status, errorText);
+            console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
