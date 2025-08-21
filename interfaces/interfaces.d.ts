@@ -83,7 +83,12 @@ export interface DatabasePlantType {
   notes?: string[];
   careInstructions?: string[];
 }
-
+export interface WeatherProps {
+    location: string
+    temperature: number;
+    description: string;
+    descriptionIcon: string; 
+}
 
 /*
 $id: string;

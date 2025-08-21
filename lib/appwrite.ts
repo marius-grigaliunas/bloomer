@@ -1,10 +1,11 @@
-import { Account, Avatars, Client, Databases, ID, ImageGravity, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
+import { Account, Avatars, Client, Databases, Functions, ID, ImageGravity, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
 import { DatabasePlantType, DatabaseUserType, Plant, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import * as FileSystem from 'expo-file-system';
 import { Alert, Image, ImageSourcePropType } from "react-native"
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
+import { WeatherProps } from "@/interfaces/interfaces";
 
 export const config = {
     platform: 'com.margri.bloomer',
@@ -16,6 +17,8 @@ export const client = new Client()
     .setEndpoint(config.endpoint!)
     .setProject(config.projectId!)
     .setPlatform(config.platform)
+
+const functions = new Functions(client);
 
 export const avatar = new Avatars(client);
 export const account = new Account(client);
@@ -655,4 +658,48 @@ export async function updatePreferences(userId: string, preferences: Partial<Dat
     console.error('Error updating preferences:', error);
     return false;
   }
+}
+
+export async function getWeather(latitude: number, longitude: number): Promise<WeatherProps | string> {
+    try {
+        console.log('Appwrite getWeather called with coordinates:', { latitude, longitude });
+        
+        // Validate input parameters
+        if (latitude === undefined || longitude === undefined || 
+            isNaN(latitude) || isNaN(longitude)) {
+            console.error('Invalid coordinates passed to Appwrite function:', { latitude, longitude });
+            return 'Invalid coordinates provided to weather service';
+        }
+        
+        // Check if function ID is available
+        const functionId = process.env.EXPO_PUBLIC_WEATHER_API_SERVICE_FUNCTION_ID;
+        if (!functionId) {
+            console.error('Weather API service function ID not configured');
+            return 'Weather service not configured';
+        }
+        
+        const requestData = { latitude, longitude };
+        console.log('Sending request to Appwrite function with data:', requestData);
+        console.log('Using function ID:', functionId);
+      
+        // Call the Appwrite function
+        const result = await functions.createExecution(
+          functionId,
+          JSON.stringify(requestData)
+        );
+
+        console.log('Appwrite function response:', result);
+        const response = JSON.parse(result.responseBody);
+        console.log('Parsed response:', response);
+    
+        if (response.success) {
+          return response.data;
+        } else {
+          return `Failed to get weather data: ${response.error}`;
+        }
+    } catch (error) {
+        console.error('Weather fetch error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return `Failed to get weather data: ${errorMessage}`;
+    }
 }

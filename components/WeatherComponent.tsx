@@ -1,7 +1,8 @@
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, Alert } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import * as ExpoLocation from 'expo-location'
-import { WeatherProps, getWeather } from '@/lib/services/weatherApiService'
+import { getWeather } from '@/lib/services/weatherApiService'
+import { WeatherProps } from '@/interfaces/interfaces'
 
 // Global cache for weather data
 let weatherCache: { data: WeatherProps | null; timestamp: number; error: string | null } = {
@@ -18,7 +19,8 @@ interface WeatherComponentProps {
 
 const WeatherComponent = ({ onWeatherUpdate }: WeatherComponentProps) => {
     const [weather, setWeather] = useState<WeatherProps | null>(weatherCache.data);
-    const [errorMessage, setErrorMessage] = useState<string | null>(weatherCache.error);
+    const [isLoading, setIsLoading] = useState<boolean>(!weatherCache.data);
+    const [hasError, setHasError] = useState<boolean>(false);
     const hasInitialized = useRef(false);
 
     useEffect(() => {
@@ -32,50 +34,87 @@ const WeatherComponent = ({ onWeatherUpdate }: WeatherComponentProps) => {
         // If we have valid cached data, use it
         if (isCacheValid && weatherCache.data) {
             setWeather(weatherCache.data);
+            setIsLoading(false);
+            setHasError(false);
             onWeatherUpdate?.(weatherCache.data, null);
             return;
         }
         
         (async () => {
-            const {status} = await ExpoLocation.requestForegroundPermissionsAsync();
-            if(status !== 'granted') {
-                const error = "Location access denied";
-                setErrorMessage(error);
-                weatherCache.error = error;
-                onWeatherUpdate?.(null, error);
-                return
-            } 
+            try {
+                setIsLoading(true);
+                setHasError(false);
+                
+                const {status} = await ExpoLocation.requestForegroundPermissionsAsync();
+                if(status !== 'granted') {
+                    console.error('Location permission denied');
+                    setHasError(true);
+                    setIsLoading(false);
+                    weatherCache.error = 'Location access denied';
+                    onWeatherUpdate?.(null, 'Location access denied');
+                    Alert.alert(
+                        'Location Access Required',
+                        'Please enable location access in your device settings to get weather information.',
+                        [{ text: 'OK' }]
+                    );
+                    return;
+                } 
 
-            const result = await getWeather();
-            if (typeof result === 'string') {
-                setErrorMessage(result);
-                weatherCache.error = result;
+                const result = await getWeather();
+                if (typeof result === 'string') {
+                    console.error('Weather API error:', result);
+                    setHasError(true);
+                    setIsLoading(false);
+                    weatherCache.error = result;
+                    weatherCache.timestamp = now;
+                    onWeatherUpdate?.(null, result);
+                    Alert.alert(
+                        'Weather Unavailable',
+                        'Unable to fetch weather information at this time. Please try again later.',
+                        [{ text: 'OK' }]
+                    );
+                } else {
+                    setWeather(result);
+                    setIsLoading(false);
+                    setHasError(false);
+                    weatherCache.data = result;
+                    weatherCache.error = null;
+                    weatherCache.timestamp = now;
+                    onWeatherUpdate?.(result, null);
+                }
+            } catch (error) {
+                console.error('Unexpected error in WeatherComponent:', error);
+                setHasError(true);
+                setIsLoading(false);
+                weatherCache.error = 'Unexpected error occurred';
                 weatherCache.timestamp = now;
-                onWeatherUpdate?.(null, result);
-            } else {
-                setWeather(result);
-                weatherCache.data = result;
-                weatherCache.error = null;
-                weatherCache.timestamp = now;
-                onWeatherUpdate?.(result, null);
+                onWeatherUpdate?.(null, 'Unexpected error occurred');
+                Alert.alert(
+                    'Error',
+                    'An unexpected error occurred while fetching weather data.',
+                    [{ text: 'OK' }]
+                );
             }
         })();
     }, [onWeatherUpdate]);
 
     return (
         <View className='text-text-primary'>
-            {errorMessage ? (
-                <Text className='text-l text-text-primary'>{errorMessage}</Text>
-            ) : !weather ? (<Text className='text-l text-text-primary'>Weather loading</Text>) :
-            (
+            {isLoading ? (
+                <Text className='text-l text-text-primary'>Loading weather...</Text>
+            ) : hasError ? (
+                <Text className='text-l text-text-primary'>Weather unavailable</Text>
+            ) : weather ? (
                 <View className='flex flex-row justify-between items-center'>
                     <Image 
                         style={{ width: 50, height: 50 }}  
                         source={{ uri: `https:${weather.descriptionIcon}`}}
-                        onError={(error) => console.error('Image loading error:', error.nativeEvent.error)}
+                        onError={(error) => console.error('Weather icon loading error:', error.nativeEvent.error)}
                     />
                     <Text className='text-2xl text-text-primary'>{weather.temperature.toFixed(0)}°C</Text>
                 </View>
+            ) : (
+                <Text className='text-l text-text-primary'>Weather unavailable</Text>
             )}
         </View>
     )
