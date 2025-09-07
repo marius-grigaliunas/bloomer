@@ -115,6 +115,8 @@ const PlantDetails = () => {
     const newPlant = {...plant, nickname: name};
     handleCloseModal();
     await editPlant(plant, newPlant);
+    // Update local plant state to reflect the new name immediately
+    setPlant(newPlant);
   };
 
   const markPlantAsWatered = async () => {

@@ -47,7 +47,7 @@ const colors = {
     success: '#2E7D32',   // Success green
     warning: '#E6B566',   // Warning yellow
     danger: '#E53935',    // Error/danger red
-    info: '#90A955',      // Info blue
+    info: '#90A955',      
     
     text: {
       primary: '#2F2F2F',
