@@ -89,6 +89,13 @@ export interface WeatherProps {
     description: string;
     descriptionIcon: string; 
 }
+export interface PlantIdentificationResponse {
+    bestMatch: string;
+    commonNames: string[] | null;
+    confidence: number;
+    rawResponse: any; // This will hold the complete response
+    error?: string; // Optional error property
+}
 
 /*
 $id: string;

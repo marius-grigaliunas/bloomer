@@ -6,6 +6,7 @@ import { Alert, Image, ImageSourcePropType } from "react-native"
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { WeatherProps } from "@/interfaces/interfaces";
+import { PlantIdentificationResponse } from "@/interfaces/interfaces";
 
 export const config = {
     platform: 'com.margri.bloomer',
@@ -701,5 +702,50 @@ export async function getWeather(latitude: number, longitude: number): Promise<W
         console.error('Weather fetch error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return `Failed to get weather data: ${errorMessage}`;
+    }
+}
+
+export async function identifyPlants(
+    images: string[], 
+): Promise<PlantIdentificationResponse | string> {
+    try {
+        const functionId = process.env.EXPO_PUBLIC_PLANT_NET_FUNCTION_ID;
+        if (!functionId) {
+            console.error('PlantNet API service function ID not configured');
+            return 'PlantNet service not configured';
+        }
+
+        const response = await functions.createExecution(
+            functionId,
+            JSON.stringify({ images: images })
+        );
+
+        // Check if the execution was successful
+        if (response.status !== 'completed') {
+            throw new Error(`Function execution failed with status: ${response.status}`);
+        }
+
+        // Parse the response
+        let result: PlantIdentificationResponse;
+        try {
+            result = JSON.parse(response.responseBody);
+        } catch (parseError) {
+            const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parse error';
+            throw new Error(`Failed to parse function response: ${errorMessage}`);
+        }
+
+        // Check if the result contains an error
+        if (result.error) {
+            throw new Error(result.error);
+        }
+
+        console.log('Plant identification completed successfully');
+        console.log(`Best match: ${result.bestMatch}, Confidence: ${result.confidence}`);
+
+        return result;
+
+    } catch (error) {
+        console.error('Plant identification error:', error);
+        throw error;
     }
 }

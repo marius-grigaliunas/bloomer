@@ -7,7 +7,6 @@ import colors from '@/constants/colors';
 import * as FileSystem from 'expo-file-system';
 import { Dimensions } from 'react-native';
 import { identifyPlants } from '@/lib/services/plantNetService';
-import { getPlantCareInfo } from '@/lib/services/chutesService/deepseekService';
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { router } from 'expo-router';
 import * as Manipulator from 'expo-image-manipulator';
@@ -320,19 +319,25 @@ const identify = () => {
       // Start plant identification
       const results = await identifyPlants(validImageUris);
       
-      setLoadingMessage("Getting care information...");
+      // Check if the result is an error string
+      if (typeof results === 'string') {
+        console.error('Plant identification returned error:', results);
+        setIdentificationError(results);
+        setShowErrorModal(true);
+        return;
+      }
+      
+      setLoadingMessage("Processing results...");
       
       const scientificName = results.bestMatch;
       const plantCommonNames = results.commonNames ?? [''];
       
-      // Get care info concurrently if possible, or show interim results
-      const careInfo = await getPlantCareInfo(scientificName, plantCommonNames);
-
+      // Skip care info for now - just set basic plant information
       usePlantInformation.getState().setIdentifiedPlant({
         scientificName,
         commonNames: plantCommonNames,
         confidence: results.confidence,
-        careInfo,
+        careInfo: null, // Skip care info for now
         imageUri: validImageUris[0]
       })
 
@@ -452,7 +457,7 @@ const identify = () => {
           <Animated.View 
             className="absolute w-16 h-16 rounded-full"
             style={{
-              backgroundColor: '#4F772D',
+              backgroundColor: colors.primary.medium,
               transform: [{ scale: progressAnimation }],
             }}
           />
@@ -460,9 +465,6 @@ const identify = () => {
             {photoCount}/{maxImages}
           </Text>
         </View>
-        <Text className="text-text-primary text-sm mt-2 font-medium">
-          Photo {photoCount} of {maxImages}
-        </Text>
       </View>
     );
   };
@@ -507,11 +509,6 @@ const identify = () => {
           flash={Platform.OS === 'ios' ? flashMode : undefined}
           enableTorch={Platform.OS === 'android' ? flashMode === 'on' : undefined}
         >
-          {/* Corner brackets for viewfinder */}
-          <CornerBracket position="topLeft" />
-          <CornerBracket position="topRight" />
-          <CornerBracket position="bottomLeft" />
-          <CornerBracket position="bottomRight" />
 
           {/* Processing message - positioned at top */}
           {isProcessingImage && (
