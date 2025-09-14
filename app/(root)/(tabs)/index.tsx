@@ -1,6 +1,6 @@
 import LoadingScreen from "@/components/LoadingScreen";
 import MyPlants from "@/components/MyPlants";
-import WeatherComponent from "@/components/WeatherComponent";
+import WeatherComponent, { WeatherComponentRef } from "@/components/WeatherComponent";
 import DailyTask from "@/components/DailyTask";
 import WeekCalendar from "@/components/WeekCalendar";
 import colors from "@/constants/colors";
@@ -8,7 +8,7 @@ import { DatabasePlantType } from "@/interfaces/interfaces";
 import { usePlantStore } from "@/interfaces/plantStore";
 import { getCurrentUser, getUserPlants } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/globalProvider";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useWateringDays } from "@/lib/hooks/useWateringDays";
 import { useNavigationState } from "@/lib/navigationState";
 import { ScrollView, Text, View, RefreshControl, Alert, TouchableOpacity } from "react-native";
@@ -32,6 +32,7 @@ export default function Index() {
   // Weather state
   const [weatherData, setWeatherData] = useState<WeatherProps | null>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  const weatherComponentRef = useRef<WeatherComponentRef>(null);
 
   // Use custom hook for watering days logic
   const { wateringDays, plantsNeedCare, plantsNeedCareLater, isTestData } = useWateringDays(plants);
@@ -49,7 +50,14 @@ export default function Index() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchAllUserPlants(contextUser?.$id ?? "", true); // Force refresh on pull-to-refresh
+    
+    // Refresh both plants and weather data
+    const refreshPromises = [
+      fetchAllUserPlants(contextUser?.$id ?? "", true), // Force refresh on pull-to-refresh
+      weatherComponentRef.current?.refreshWeather() // Refresh weather data
+    ];
+    
+    await Promise.all(refreshPromises);
     setRefreshing(false);
   };
 
@@ -95,7 +103,7 @@ export default function Index() {
               )}
             </View>
             <View className="bg-white rounded-2xl p-3 shadow-sm shadow-black/5">
-              <WeatherComponent onWeatherUpdate={handleWeatherUpdate}/>
+              <WeatherComponent ref={weatherComponentRef} onWeatherUpdate={handleWeatherUpdate}/>
             </View>
           </View>
         </View>

@@ -3,6 +3,30 @@ import { PlantIdentificationResponse } from '@/interfaces/interfaces';
 import { identifyPlants as appwriteIdentifyPlants } from '@/lib/appwrite';
 
 /**
+ * Logs image size information for analysis
+ */
+async function logImageSize(uri: string, index: number): Promise<void> {
+    try {
+        const fileInfo = await FileSystem.getInfoAsync(uri);
+        if (fileInfo.exists && fileInfo.size !== undefined) {
+            const sizeInMB = (fileInfo.size / (1024 * 1024)).toFixed(2);
+            const sizeInKB = (fileInfo.size / 1024).toFixed(2);
+            console.log(`Image ${index + 1} size analysis:`, {
+                uri: uri,
+                sizeBytes: fileInfo.size,
+                sizeKB: `${sizeInKB} KB`,
+                sizeMB: `${sizeInMB} MB`,
+                isCompressed: fileInfo.size < 1024 * 1024 ? 'Likely compressed' : 'Large file - may need compression'
+            });
+        } else {
+            console.warn(`Could not get size info for image ${index + 1}:`, uri);
+        }
+    } catch (error) {
+        console.error(`Error getting size info for image ${index + 1}:`, error);
+    }
+}
+
+/**
  * Converts image URI to base64 string
  */
 async function convertImageToBase64(uri: string): Promise<string> {
@@ -31,7 +55,12 @@ export async function identifyPlants(imageUris: string[]): Promise<PlantIdentifi
         // Check if all files exist and convert to base64
         const base64Images: string[] = [];
         
-        for (const uri of imageUris) {
+        for (let i = 0; i < imageUris.length; i++) {
+            const uri = imageUris[i];
+            
+            // Log image size for analysis
+            await logImageSize(uri, i);
+            
             const fileInfo = await FileSystem.getInfoAsync(uri);
             if (!fileInfo.exists) {
                 throw new Error(`File does not exist: ${uri}`);

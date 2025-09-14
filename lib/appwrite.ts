@@ -8,6 +8,17 @@ import * as WebBrowser from 'expo-web-browser';
 import { WeatherProps } from "@/interfaces/interfaces";
 import { PlantIdentificationResponse } from "@/interfaces/interfaces";
 
+// Debug environment variables on app initialization
+console.log('=== Appwrite Configuration Debug ===');
+console.log('EXPO_PUBLIC_APPWRITE_ENDPOINT:', process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT);
+console.log('EXPO_PUBLIC_APPWRITE_PROJECT_ID:', process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID);
+console.log('All environment variables starting with EXPO_PUBLIC_:');
+Object.keys(process.env).forEach(key => {
+    if (key.startsWith('EXPO_PUBLIC_')) {
+        console.log(`  ${key}: ${process.env[key] ? 'SET' : 'NOT SET'}`);
+    }
+});
+
 export const config = {
     platform: 'com.margri.bloomer',
     endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
@@ -673,11 +684,17 @@ export async function getWeather(latitude: number, longitude: number): Promise<W
         }
         
         // Check if function ID is available
+        console.log('=== Weather Service Debug Info ===');
         const functionId = process.env.EXPO_PUBLIC_WEATHER_API_SERVICE_FUNCTION_ID;
+        console.log('EXPO_PUBLIC_WEATHER_API_SERVICE_FUNCTION_ID value:', functionId);
+        
         if (!functionId) {
-            console.error('Weather API service function ID not configured');
+            console.error('❌ Weather API service function ID not configured');
+            console.error('Expected environment variable: EXPO_PUBLIC_WEATHER_API_SERVICE_FUNCTION_ID');
             return 'Weather service not configured';
         }
+        
+        console.log('✅ Weather function ID found:', functionId);
         
         const requestData = { latitude, longitude };
         console.log('Sending request to Appwrite function with data:', requestData);
@@ -709,9 +726,9 @@ export async function identifyPlants(
     images: string[], 
 ): Promise<PlantIdentificationResponse | string> {
     try {
-        const functionId = process.env.EXPO_PUBLIC_PLANT_NET_FUNCTION_ID;
+        // Debug logging for environment variables
+        const functionId = process.env.EXPO_PUBLIC_PLANTNETAPI_FUNCTION_ID;
         if (!functionId) {
-            console.error('PlantNet API service function ID not configured');
             return 'PlantNet service not configured';
         }
 
