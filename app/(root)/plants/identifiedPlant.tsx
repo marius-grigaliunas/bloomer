@@ -208,7 +208,7 @@ const IdentifiedPlant = () => {
             
             <TouchableOpacity 
               onPress={handleResetIdentification}
-              className="bg-white rounded-3xl p-4 items-center shadow-sm shadow-black/5 border border-primary-medium/20"
+              className="bg-white rounded-3xl p-4 items-center shadow-sm shadow-black/5 border border-primary-medium/20 mt-2"
             >
               <Ionicons name="camera" size={24} color="#4F772D" />
               <Text className="text-primary-medium font-medium mt-2 text-center text-lg">

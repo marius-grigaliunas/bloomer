@@ -1,4 +1,4 @@
-import { Account, Models } from 'react-native-appwrite';
+import { Models } from 'react-native-appwrite';
 
 export interface User extends Models.User<Models.Preferences>{
   avatar?: string;
@@ -84,7 +84,7 @@ export interface DatabasePlantType {
   careInstructions?: string[];
 }
 export interface WeatherProps {
-    location: string
+    location: string;
     temperature: number;
     description: string;
     descriptionIcon: string; 

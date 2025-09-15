@@ -8,17 +8,6 @@ import * as WebBrowser from 'expo-web-browser';
 import { WeatherProps } from "@/interfaces/interfaces";
 import { PlantIdentificationResponse } from "@/interfaces/interfaces";
 
-// Debug environment variables on app initialization
-console.log('=== Appwrite Configuration Debug ===');
-console.log('EXPO_PUBLIC_APPWRITE_ENDPOINT:', process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT);
-console.log('EXPO_PUBLIC_APPWRITE_PROJECT_ID:', process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID);
-console.log('All environment variables starting with EXPO_PUBLIC_:');
-Object.keys(process.env).forEach(key => {
-    if (key.startsWith('EXPO_PUBLIC_')) {
-        console.log(`  ${key}: ${process.env[key] ? 'SET' : 'NOT SET'}`);
-    }
-});
-
 export const config = {
     platform: 'com.margri.bloomer',
     endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
