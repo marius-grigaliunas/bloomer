@@ -1,5 +1,5 @@
 import { Account, Avatars, Client, Databases, Functions, ID, ImageGravity, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
-import { DatabasePlantType, DatabaseUserType, Plant, User } from "@/interfaces/interfaces"
+import { DatabasePlantType, DatabaseUserType, Plant, PlantCareInfo, User } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import * as FileSystem from 'expo-file-system';
 import { Alert, Image, ImageSourcePropType } from "react-native"
@@ -740,11 +740,6 @@ export async function identifyPlants(
             throw new Error(`Failed to parse function response: ${errorMessage}`);
         }
 
-        // Check if the result contains an error
-        if (result.error) {
-            throw new Error(result.error);
-        }
-
         console.log('Plant identification completed successfully');
         console.log(`Best match: ${result.bestMatch}, Confidence: ${result.confidence}`);
 
@@ -753,5 +748,44 @@ export async function identifyPlants(
     } catch (error) {
         console.error('Plant identification error:', error);
         throw error;
+    }
+}
+
+export async function getPlantCareFunction(plant: string, commonNames: string[]): Promise<PlantCareInfo | string> { 
+    try {
+        const functionId = process.env.EXPO_PUBLIC_CHUTES_FUNCTION_ID;
+        if (!functionId) {
+            return "Chutes API not configured, unable to get plant data"
+        }
+
+        const response = await functions.createExecution(
+            functionId,
+            JSON.stringify({ plant, commonNames })
+        );
+
+        if (response.status !== 'completed') {
+            throw new Error(`Function execution failed with status: ${response.status}`);
+        }
+
+        let result : PlantCareInfo;
+        try {
+            result = JSON.parse(response.responseBody);
+        } catch (parseError) {
+            const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parse error';
+            throw new Error(`Failed to parse function response: ${errorMessage}`);
+        }
+
+        if (result.error) {
+            throw new Error(result.error);
+        }
+
+        console.log('Plant identification completed successfully');
+        console.log('Plant care info:', result);
+        return result;
+
+
+    } catch (err) {
+        console.error('Plant care info error:', err);
+        return `Failed to get plant care info: ${err instanceof Error ? err.message : 'Unknown error'}`;
     }
 }

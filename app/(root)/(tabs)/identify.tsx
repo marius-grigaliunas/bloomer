@@ -7,6 +7,7 @@ import colors from '@/constants/colors';
 import * as FileSystem from 'expo-file-system';
 import { Dimensions } from 'react-native';
 import { identifyPlants } from '@/lib/services/plantNetService';
+import { getPlantCareInfo } from '@/lib/services/chutesService/deepseekService';
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { router } from 'expo-router';
 import * as Manipulator from 'expo-image-manipulator';
@@ -327,17 +328,28 @@ const identify = () => {
         return;
       }
       
-      setLoadingMessage("Processing results...");
+      setLoadingMessage("Getting care information...");
       
       const scientificName = results.bestMatch;
       const plantCommonNames = results.commonNames ?? [''];
       
-      // Skip care info for now - just set basic plant information
+      // Get care info from the deepseek service
+      const careInfo = await getPlantCareInfo(scientificName, plantCommonNames);
+      
+      // Check if care info request failed
+      let finalCareInfo = null;
+      if (typeof careInfo === 'string') {
+        console.warn('Care info request failed:', careInfo);
+        // Continue with identification but without care info
+      } else {
+        finalCareInfo = careInfo;
+      }
+      
       usePlantInformation.getState().setIdentifiedPlant({
         scientificName,
         commonNames: plantCommonNames,
         confidence: results.confidence,
-        careInfo: null, // Skip care info for now
+        careInfo: finalCareInfo,
         imageUri: validImageUris[0]
       })
 

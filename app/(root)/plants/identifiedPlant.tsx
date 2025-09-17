@@ -96,25 +96,25 @@ const IdentifiedPlant = () => {
         commonNames: identifiedPlant.plant.commonNames,
         imageUrl: plantImage?.toString(),
         //
-        wateringFrequency: identifiedPlant.plant.careInfo?.wateringFrequency ?? 0,
-        wateringAmountMetric: identifiedPlant.plant.careInfo?.wateringAmountMetric ?? 0,
-        wateringAmountImperial: identifiedPlant.plant.careInfo?.wateringAmountImperial ?? 0,
+        wateringFrequency: identifiedPlant.plant.careInfo?.wateringFrequency ?? 7,
+        wateringAmountMetric: identifiedPlant.plant.careInfo?.wateringAmountMetric ?? 250,
+        wateringAmountImperial: identifiedPlant.plant.careInfo?.wateringAmountImperial ?? 8.5,
         lastWatered: lastWatered,
-        nextWateringDate: calculateNextWatering(lastWatered, identifiedPlant.plant.careInfo?.wateringFrequency ?? 0),
+        nextWateringDate: calculateNextWatering(lastWatered, identifiedPlant.plant.careInfo?.wateringFrequency ?? 7),
         lightRequirements: identifiedPlant.plant.careInfo?.lightRequirements ?? "medium",
-        soilPreferences: identifiedPlant.plant.careInfo?.soilPreferences ?? "",
+        soilPreferences: identifiedPlant.plant.careInfo?.soilPreferences ?? "Well-draining potting mix",
         humidity: identifiedPlant.plant.careInfo?.humidity ?? "medium",
         minTemperatureCelsius: identifiedPlant.plant.careInfo?.minTemperatureCelsius ?? 15,
-        maxTemperatureCelsius: identifiedPlant.plant.careInfo?.maxTemperatureCelsius ?? 40,
-        minTemperatureFahrenheit: identifiedPlant.plant.careInfo?.minTemperatureFahrenheit ?? 23,
-        maxTemperatureFahrenheit: identifiedPlant.plant.careInfo?.maxTemperatureFahrenheit ?? 104,
+        maxTemperatureCelsius: identifiedPlant.plant.careInfo?.maxTemperatureCelsius ?? 30,
+        minTemperatureFahrenheit: identifiedPlant.plant.careInfo?.minTemperatureFahrenheit ?? 59,
+        maxTemperatureFahrenheit: identifiedPlant.plant.careInfo?.maxTemperatureFahrenheit ?? 86,
         //
         dateAdded: dateAdded,
         wateringHistory: wateringHistory,
         //
-        commonIssues: identifiedPlant.plant.careInfo?.commonIssues,
-        notes: identifiedPlant.plant.careInfo?.specialNotes,
-        careInstructions: identifiedPlant.plant.careInfo?.careInstructions,
+        commonIssues: identifiedPlant.plant.careInfo?.commonIssues ?? [],
+        notes: identifiedPlant.plant.careInfo?.specialNotes ?? [],
+        careInstructions: identifiedPlant.plant.careInfo?.careInstructions ?? [],
       }
 
       const result = await createNewDatabasePlant(plantToAdd);
@@ -189,7 +189,21 @@ const IdentifiedPlant = () => {
         {/* Plant Care Information */}
         <View className="mx-4 mb-6">
           <Text className="text-lg font-semibold text-text-primary mb-3">Care Information</Text>
-          <PlantCareInfoComponent plant={identifiedPlant.plant} />
+          {identifiedPlant.plant.careInfo ? (
+            <PlantCareInfoComponent plant={identifiedPlant.plant} />
+          ) : (
+            <View className="bg-white rounded-3xl p-6 shadow-sm shadow-black/5">
+              <View className="items-center">
+                <Ionicons name="information-circle-outline" size={48} color="#90A955" />
+                <Text className="text-text-primary text-lg font-semibold mt-4 text-center">
+                  Care Information Unavailable
+                </Text>
+                <Text className="text-text-secondary text-base mt-2 text-center">
+                  We successfully identified your plant, but care information couldn't be retrieved at this time. You can still add it to your garden with default care settings.
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Action Buttons */}

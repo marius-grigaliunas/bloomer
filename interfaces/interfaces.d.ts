@@ -5,6 +5,7 @@ export interface User extends Models.User<Models.Preferences>{
 }
 
 export interface PlantCareInfo {
+  error: any;
   wateringFrequency: number;
   wateringAmountMetric: number;
   wateringAmountImperial: number;
