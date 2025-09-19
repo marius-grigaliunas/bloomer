@@ -767,21 +767,23 @@ export async function getPlantCareFunction(plant: string, commonNames: string[])
             throw new Error(`Function execution failed with status: ${response.status}`);
         }
 
-        let result : PlantCareInfo;
+        let parsedResponse;
         try {
-            result = JSON.parse(response.responseBody);
+            parsedResponse = JSON.parse(response.responseBody);
         } catch (parseError) {
             const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parse error';
             throw new Error(`Failed to parse function response: ${errorMessage}`);
         }
 
-        if (result.error) {
-            throw new Error(result.error);
-        }
+        console.log('Plant care function response:', parsedResponse);
 
-        console.log('Plant identification completed successfully');
-        console.log('Plant care info:', result);
-        return result;
+        if (parsedResponse.success) {
+            console.log('Plant identification completed successfully');
+            console.log('Plant care info:', parsedResponse.data);
+            return parsedResponse.data;
+        } else {
+            throw new Error(parsedResponse.error || 'Failed to get plant care info');
+        }
 
 
     } catch (err) {
