@@ -98,6 +98,20 @@ export interface PlantIdentificationResponse {
     error?: string; // Optional error property
 }
 
+export interface BugReportType {
+  title: string;
+  description: string;
+  stepsToReproduce: string;
+  expectedBehavior: string;
+  actualBehavior: string;
+  deviceInfo: string;
+}
+
+export interface UserMessageType {
+  email: string;
+  message: string;
+}
+
 /*
 $id: string;
   $createdAt: string;

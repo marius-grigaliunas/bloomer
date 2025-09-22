@@ -1,5 +1,5 @@
 import { Account, Avatars, Client, Databases, Functions, ID, ImageGravity, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
-import { DatabasePlantType, DatabaseUserType, Plant, PlantCareInfo, User } from "@/interfaces/interfaces"
+import { BugReportType, DatabasePlantType, DatabaseUserType, Plant, PlantCareInfo, User, UserMessageType } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
 import * as FileSystem from 'expo-file-system';
 import { Alert, Image, ImageSourcePropType } from "react-native"
@@ -30,6 +30,8 @@ const databaseId = `${process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID}`;
 const usersCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID}`;
 const plantsCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_PLANTS_COLLECTION_ID}`;
 const plantImageStorageId = `${process.env.EXPO_PUBLIC_APPWRITE_IMAGES_STORAGE_BUCKET_ID}`;
+const bugReportsCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_BUGS_COLLECTION_ID}`;
+const userMessagesCollectionId = `${process.env.EXPO_PUBLIC_APPWRITE_USER_MESSAGES_COLLECTION_ID}`;
 
 export async function AnnonymousLogin() {
     try {
@@ -659,6 +661,39 @@ export async function updatePreferences(userId: string, preferences: Partial<Dat
     console.error('Error updating preferences:', error);
     return false;
   }
+}
+
+export async function reportBug(bugReport: BugReportType) {
+
+    try {
+        await databases.createDocument(
+            databaseId,
+            bugReportsCollectionId,
+            ID.unique(),
+            bugReport
+        );
+
+        return true;
+    } catch (error) {
+        console.error('Error reporting bug:', error);
+        return false;
+    }
+}
+
+export async function uploadUserMessage(userMessage: UserMessageType) {
+    try {
+        await databases.createDocument(
+            databaseId,
+            userMessagesCollectionId,
+            ID.unique(),
+            userMessage
+        );
+
+        return true;
+    } catch (error) {
+        console.error('Error sending message:', error);
+        return false;
+    }
 }
 
 export async function getWeather(latitude: number, longitude: number): Promise<WeatherProps | string> {

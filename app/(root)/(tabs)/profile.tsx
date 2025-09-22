@@ -1,13 +1,14 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, Switch, TextInput, Platform } from 'react-native';
 import * as react from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { logout, updatePreferences } from '@/lib/appwrite';
+import { logout, reportBug, updatePreferences } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/globalProvider';
-import { DatabaseUserType } from '@/interfaces/interfaces';
+import { BugReportType, DatabaseUserType } from '@/interfaces/interfaces';
 import { Picker } from '@react-native-picker/picker';
 import colors from '@/constants/colors';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import BugReportModal from '@/components/BugReportModal';
 
 const Profile: React.FC = () => {
   const { refetch, isLoggedIn, user: contextUser, databaseUser } = useGlobalContext();
@@ -68,6 +69,7 @@ const Profile: React.FC = () => {
   });
 
   const [showTimePicker, setShowTimePicker] = react.useState(false);
+  const [showBugReportModal, setShowBugReportModal] = react.useState(false);
 
   // Update userSettings when databaseUser changes
   react.useEffect(() => {
@@ -228,7 +230,7 @@ const Profile: React.FC = () => {
           </View>
         </View>
         
-        <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl">
+        <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl mb-4">
           <View className="flex-1">
             <Text className="text-text-primary font-medium">Monday as First Day</Text>
             <Text className="text-text-secondary text-sm">Start week on Monday</Text>
@@ -240,9 +242,23 @@ const Profile: React.FC = () => {
             thumbColor={userSettings.mondayFirstDayOfWeek ? 'white' : '#F3F4F6'}
           />
         </View>
+      
       </View>
     </View>
   );
+
+  const renderContactSection = () => (
+    <TouchableOpacity
+          onPress={() => setShowBugReportModal(true)}
+          className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl"
+        >
+          <View className="flex-1">
+            <Text className="text-text-primary font-medium">Report a Bug</Text>
+            <Text className="text-text-secondary text-sm">Help us improve the app</Text>
+          </View>
+          <AntDesign name="right" size={16} color={colors.text.secondary} />
+        </TouchableOpacity>
+  )
 
   const handleSaveSettings = async (): Promise<void> => {
     try {
@@ -275,6 +291,19 @@ const Profile: React.FC = () => {
       refetch();
     } else {
       console.log("SignOut Failed");
+    }
+  };
+
+  const handleBugReportSubmit = async (bugReport: BugReportType) => {
+    try {
+      const result = await reportBug(bugReport);
+      if (result) {
+        Alert.alert('Success', 'Bug report submitted successfully! Thank you for helping us improve Bloomer.');
+      } else {
+        Alert.alert('Error', 'Failed to submit bug report, try again later');
+      }
+    } catch (error) {
+      Alert.alert('Error', `Failed to submit bug report, ${error}`);
     }
   };
 
@@ -328,6 +357,7 @@ const Profile: React.FC = () => {
           {renderPersonalSection()}
           {renderNotificationSection()}
           {renderPreferencesSection()}
+          {renderContactSection()}
           
           {/* Action Buttons */}
           <View className="mb-6">
@@ -371,6 +401,13 @@ const Profile: React.FC = () => {
           </View>
         </View>
       </ScrollView>
+      
+      {/* Bug Report Modal */}
+      <BugReportModal
+        visible={showBugReportModal}
+        onClose={() => setShowBugReportModal(false)}
+        onSubmit={handleBugReportSubmit}
+      />
     </SafeAreaView>
   );
 };

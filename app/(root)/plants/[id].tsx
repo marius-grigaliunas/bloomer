@@ -122,6 +122,11 @@ const PlantDetails = () => {
   const markPlantAsWatered = async () => {
     try {
       await markAsWatered(id);
+      // Update local plant state to reflect the changes immediately
+      const updatedPlant = getPlantById(id);
+      if (updatedPlant) {
+        setPlant(updatedPlant);
+      }
       Alert.alert("Success", "Plant marked as watered!");
     } catch (error) {
       Alert.alert("Error", "Failed to mark plant as watered");

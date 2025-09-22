@@ -41,7 +41,7 @@
   - implemented selectables only.
 - [x] User is seeing the image steps and loading message while waiting for the response, make it look cohesive
 - [x] Add a flash to the camera
-- [ ] after renaming the plant the newest name is showing on the screen, the app needs to be refreshed to show the latest change
+- [x] after renaming the plant the newest name is showing on the screen, the app needs to be refreshed to show the latest change
 
 - [x] Redesing the app
   - [x] Redesign the home tab
@@ -50,3 +50,7 @@
   - [x] Redesign the profile tab
   - [x] Redesign the identified plant tab
   - [x] Redesign the plant details tab
+
+- [ ] Photos inside the plant details and identified plant pages need to be fixed, current aspect ratio morfs the photos.
+- [ ] add a report a bug section in the setting menu
+- [ ] add a contact form in the settings menu
