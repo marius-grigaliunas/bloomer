@@ -1,14 +1,15 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, Switch, TextInput, Platform } from 'react-native';
 import * as react from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { logout, reportBug, updatePreferences } from '@/lib/appwrite';
+import { logout, reportBug, updatePreferences, uploadUserMessage } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/globalProvider';
-import { BugReportType, DatabaseUserType } from '@/interfaces/interfaces';
+import { BugReportType, DatabaseUserType, UserMessageType } from '@/interfaces/interfaces';
 import { Picker } from '@react-native-picker/picker';
 import colors from '@/constants/colors';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import BugReportModal from '@/components/BugReportModal';
+import ContactModal from '@/components/ContactModal';
 
 const Profile: React.FC = () => {
   const { refetch, isLoggedIn, user: contextUser, databaseUser } = useGlobalContext();
@@ -70,6 +71,7 @@ const Profile: React.FC = () => {
 
   const [showTimePicker, setShowTimePicker] = react.useState(false);
   const [showBugReportModal, setShowBugReportModal] = react.useState(false);
+  const [showContactModal, setShowContactModal] = react.useState(false);
 
   // Update userSettings when databaseUser changes
   react.useEffect(() => {
@@ -248,9 +250,29 @@ const Profile: React.FC = () => {
   );
 
   const renderContactSection = () => (
-    <TouchableOpacity
-          onPress={() => setShowBugReportModal(true)}
+    <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
+      <View className="flex-row items-center mb-4">
+        <View className="w-10 h-10 bg-info rounded-full items-center justify-center mr-3">
+          <AntDesign name="mail" size={20} color="white" />
+        </View>
+        <Text className="text-xl font-semibold text-text-primary">Contact & Support</Text>
+      </View>
+      
+      <View className="space">
+        <TouchableOpacity
+          onPress={() => setShowContactModal(true)}
           className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl"
+        >
+          <View className="flex-1">
+            <Text className="text-text-primary font-medium">Contact Us</Text>
+            <Text className="text-text-secondary text-sm">Send us a message or feedback</Text>
+          </View>
+          <AntDesign name="right" size={16} color={colors.text.secondary} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          onPress={() => setShowBugReportModal(true)}
+          className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl mt-2"
         >
           <View className="flex-1">
             <Text className="text-text-primary font-medium">Report a Bug</Text>
@@ -258,6 +280,8 @@ const Profile: React.FC = () => {
           </View>
           <AntDesign name="right" size={16} color={colors.text.secondary} />
         </TouchableOpacity>
+      </View>
+    </View>
   )
 
   const handleSaveSettings = async (): Promise<void> => {
@@ -304,6 +328,19 @@ const Profile: React.FC = () => {
       }
     } catch (error) {
       Alert.alert('Error', `Failed to submit bug report, ${error}`);
+    }
+  };
+
+  const handleContactSubmit = async (userMessage: UserMessageType) => {
+    try {
+      const result = await uploadUserMessage(userMessage);
+      if (result) {
+        Alert.alert('Success', 'Message sent successfully! Thank you for contacting us. We\'ll get back to you soon.');
+      } else {
+        Alert.alert('Error', 'Failed to send message, try again later');
+      }
+    } catch (error) {
+      Alert.alert('Error', `Failed to send message, ${error}`);
     }
   };
 
@@ -407,6 +444,14 @@ const Profile: React.FC = () => {
         visible={showBugReportModal}
         onClose={() => setShowBugReportModal(false)}
         onSubmit={handleBugReportSubmit}
+      />
+      
+      {/* Contact Modal */}
+      <ContactModal
+        visible={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        onSubmit={handleContactSubmit}
+        userEmail={contextUser?.email || databaseUser?.email || ''}
       />
     </SafeAreaView>
   );
