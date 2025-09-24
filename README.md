@@ -13,26 +13,6 @@
 - Plant Identification
 - Care Calendar
 
-- UI polish
-  - Refine styling and transitions
-    - Buttons on the plant details page need changing
-    - Missing day styling needs improving
-  - Implement loading states
-- Performance optimization
-  - image compression
-  - Image caching
-  - Optimize Appwrite queries
-  - Calendar caching and lazy loading
-  - Pre-generation of watering days
-- Testing and debugging
-  - Test full user journeys
-  - Fix critical bugs
-- Final testing and documentation
-  - User testing
-  - Create README and documentation
-  - Prepare for deployment
-  - Deploy
-
 ### TODO
 
 - [x] In the calendar, when selecting another day, the needs to be colored a different color on the calendar.
@@ -51,6 +31,11 @@
   - [x] Redesign the identified plant tab
   - [x] Redesign the plant details tab
 
-- [ ] Photos inside the plant details and identified plant pages need to be fixed, current aspect ratio morfs the photos.
-- [ ] add a report a bug section in the setting menu
-- [ ] add a contact form in the settings menu
+- [x] Photos inside the plant details and identified plant pages need to be fixed, current aspect ratio morfs the photos.
+- [x] add a report a bug section in the setting menu
+- [x] add a contact form in the settings menu
+- [x] when plant is watered, no immediate response, fix that
+- [ ] Refine transitions
+- [ ] improve loading states
+- [ ] Prepare for deployment, update Readme
+- [ ] Deploy

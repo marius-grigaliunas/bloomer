@@ -100,21 +100,44 @@ const identify = () => {
 
   const processImage = useCallback(async (imageUri: string): Promise<string> => {
     try {
-      // Get image info first to check original size (optional)
+      // Get image info first to check original size and dimensions
       const imageInfo = await FileSystem.getInfoAsync(imageUri);
       const originalSize = imageInfo.exists ? imageInfo.size : 0;
       
-      // Process the image: resize, compress, and optimize
+      // Get the original image dimensions to calculate proper resize
+      const originalImage = await Manipulator.manipulateAsync(imageUri, [], { base64: false });
+      const originalDimensions = await Manipulator.manipulateAsync(originalImage.uri, [], { 
+        base64: false,
+        format: Manipulator.SaveFormat.JPEG
+      });
+      
+      // Calculate new dimensions while preserving aspect ratio
+      const originalWidth = originalDimensions.width;
+      const originalHeight = originalDimensions.height;
+      const aspectRatio = originalWidth / originalHeight;
+      
+      let newWidth, newHeight;
+      
+      if (aspectRatio > 1) {
+        // Landscape: width is the limiting factor
+        newWidth = Math.min(originalWidth, IMAGE_CONFIG.maxWidth);
+        newHeight = Math.round(newWidth / aspectRatio);
+      } else {
+        // Portrait or square: height is the limiting factor
+        newHeight = Math.min(originalHeight, IMAGE_CONFIG.maxHeight);
+        newWidth = Math.round(newHeight * aspectRatio);
+      }
+      
+      // Process the image: resize while maintaining aspect ratio
       const processedImage = await Manipulator.manipulateAsync(
         imageUri,
         [
-          // Resize to maximum dimensions while maintaining aspect ratio
-          { resize: { width: IMAGE_CONFIG.maxWidth, height: IMAGE_CONFIG.maxHeight } }
+          { resize: { width: newWidth, height: newHeight } }
         ],
         {
           compress: IMAGE_CONFIG.quality,
           format: IMAGE_CONFIG.format,
-          base64: false // We don't need base64, just the file
+          base64: false
         }
       );
 
@@ -122,7 +145,7 @@ const identify = () => {
       const processedInfo = await FileSystem.getInfoAsync(processedImage.uri);
       const processedSize = processedInfo.exists ? processedInfo.size : 0;
 
-      console.log(`Image processed: ${Math.round(originalSize / 1024)}KB -> ${Math.round(processedSize / 1024)}KB`);
+      console.log(`Image processed: ${Math.round(originalSize / 1024)}KB -> ${Math.round(processedSize / 1024)}KB (${originalWidth}x${originalHeight} -> ${newWidth}x${newHeight})`);
       
       return processedImage.uri;
     } catch (error) {
@@ -578,11 +601,16 @@ const identify = () => {
   const renderPicture = () => (
     <View className="flex-1 bg-background-primary">
       {imageUris[currentImageIndex] && (
-        <Image 
-          source={{ uri: imageUris[currentImageIndex] }}
-          className="flex-1"
-          resizeMode='cover'
-        />
+        <View className="flex-1 items-center justify-center">
+          <Image 
+            source={{ uri: imageUris[currentImageIndex] }}
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+            resizeMode='cover'
+          />
+        </View>
       )}
       <View className="absolute bottom-16 w-full flex-row justify-around px-8">
         <Pressable 
@@ -663,8 +691,9 @@ const identify = () => {
 
                          {/* Bottom Section with Thumbnails and Button */}
              <View className="px-5 pb-6 pt-4">
-               {/* Thumbnail Strip */}
-               <ThumbnailStrip />
+              {
+              // <ThumbnailStrip /> {{{{{}}}}}}
+              }
 
                {/* Retake All Photos Button - Only show when all 5 photos are taken */}
                {imageUris.every(uri => uri !== null) && (

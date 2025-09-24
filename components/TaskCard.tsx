@@ -93,13 +93,23 @@ const TaskCard = memo(({ plant, from, selectedDate, selectedMonth, selectedYear,
         <Link href={navigationUrl as any} asChild>
             <TouchableOpacity className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-gray-100">
                 <View className="flex-row items-center">
-                    <Image 
-                        source={imageSource}
-                        className="w-16 h-16 rounded-lg mr-4"
-                        resizeMode="cover"
-                        style={{ width: 64, height: 64 }}
-                        onError={handleImageError}
-                    />
+                    <View style={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: 8,
+                        marginRight: 16,
+                        overflow: 'hidden',
+                    }}>
+                        <Image 
+                            source={imageSource}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                            }}
+                            resizeMode="cover"
+                            onError={handleImageError}
+                        />
+                    </View>
                     <View className="flex-1">
                         <Text className="text-lg font-semibold text-gray-900 mb-1">
                             {plant.nickname}

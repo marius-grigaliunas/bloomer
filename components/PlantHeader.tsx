@@ -20,17 +20,23 @@ const PlantHeader = ({scientificName, commonNames, imageUri, confidence, nicknam
          <View className="flex-row items-start">
            {/* Plant Image */}
            <View className="mr-4">
-             <Image
-               source={{ uri: imageUri }}
-               style={{
-                 width: 100,
-                 height: 100,
-                 borderRadius: 20,
-                 borderColor: colors.secondary.medium,
-                 borderWidth: 2,
-               }}
-               resizeMode='cover'
-             />
+             <View style={{
+               width: 120,
+               height: 120,
+               borderRadius: 20,
+               borderColor: colors.secondary.medium,
+               borderWidth: 2,
+               overflow: 'hidden',
+             }}>
+               <Image
+                 source={{ uri: imageUri }}
+                 style={{
+                   width: '100%',
+                   height: '100%',
+                 }}
+                 resizeMode='cover'
+               />
+             </View>
            </View>
            
            {/* Plant Names */}

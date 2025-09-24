@@ -77,13 +77,24 @@ const PlantCard = memo(({ plantId, imageUrl, nickname, from, selectedDate, selec
         >
             <TouchableOpacity className='mr-1 flex justify-start items-start shadow-md shadow-secondary-medium
                 bg-background-surface rounded-2xl h-52'>
-                <Image 
-                    source={imageSource}
-                    className='w-32 h-32 rounded-xl border border-accent'
-                    resizeMode="cover"
-                    style={{ width: 128, height: 128 }}
-                    onError={handleImageError}
-                />
+                <View style={{
+                    width: 128,
+                    height: 128,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: '#E6B566',
+                    overflow: 'hidden',
+                }}>
+                    <Image 
+                        source={imageSource}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                        }}
+                        resizeMode="cover"
+                        onError={handleImageError}
+                    />
+                </View>
                 <Text className='text-3xl text-text-primary'>{nickname}</Text>
             </TouchableOpacity>
         </Link>
