@@ -35,6 +35,10 @@
 - [x] add a report a bug section in the setting menu
 - [x] add a contact form in the settings menu
 - [x] when plant is watered, no immediate response, fix that
+- [x] Terms and conditions
+- [ ] Implement terms and conditions into the app
+- [ ] option to delete account
+- [ ] No vibrations on elena's phone
 - [ ] Refine transitions
 - [ ] improve loading states
 - [ ] Prepare for deployment, update Readme
