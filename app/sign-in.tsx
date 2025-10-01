@@ -3,11 +3,12 @@ import React from 'react'
 import { login, AnnonymousLogin, testAppwriteOAuth, detailedLoginTest, testBothEndpoints} from '@/lib/appwrite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalContext } from '@/lib/globalProvider';
-import { Redirect } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 const SignIn = () => {
     const { refetch, loading, isLoggedIn } = useGlobalContext()
+    const router = useRouter()
 
     if(!loading && isLoggedIn) return <Redirect href={"/"}/>
 
@@ -96,7 +97,12 @@ const SignIn = () => {
                     {/* Footer Text */}
                     <View className="mt-12 items-center">
                         <Text className="text-text-secondary text-center text-sm">
-                            By continuing, you agree to our Terms of Service and Privacy Policy
+                            By continuing, you agree to our{' '}
+                            <TouchableOpacity onPress={() => router.push('/privacy')}>
+                                <Text className="text-primary-medium underline font-medium">
+                                    Terms of Service
+                                </Text>
+                            </TouchableOpacity>
                         </Text>
                     </View>
 
