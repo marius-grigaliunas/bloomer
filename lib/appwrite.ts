@@ -707,18 +707,13 @@ export async function getWeather(latitude: number, longitude: number): Promise<W
             return 'Invalid coordinates provided to weather service';
         }
         
-        // Check if function ID is available
-        console.log('=== Weather Service Debug Info ===');
         const functionId = process.env.EXPO_PUBLIC_WEATHER_API_SERVICE_FUNCTION_ID;
-        console.log('EXPO_PUBLIC_WEATHER_API_SERVICE_FUNCTION_ID value:', functionId);
         
         if (!functionId) {
-            console.error('❌ Weather API service function ID not configured');
-            console.error('Expected environment variable: EXPO_PUBLIC_WEATHER_API_SERVICE_FUNCTION_ID');
+            console.error('Weather API service function ID not configured');
+            Alert.alert('Weather service not configured');
             return 'Weather service not configured';
         }
-        
-        console.log('✅ Weather function ID found:', functionId);
         
         const requestData = { latitude, longitude };
         console.log('Sending request to Appwrite function with data:', requestData);
@@ -825,4 +820,15 @@ export async function getPlantCareFunction(plant: string, commonNames: string[])
         console.error('Plant care info error:', err);
         return `Failed to get plant care info: ${err instanceof Error ? err.message : 'Unknown error'}`;
     }
+}
+
+
+export async function deleteUser(userId: string): Promise<boolean> {
+
+    return false;
+}
+
+export async function deleteUserPlants(userId: string) : Promise<boolean> { 
+
+    return false;
 }

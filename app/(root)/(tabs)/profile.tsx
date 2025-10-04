@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, Switch, TextInput, Platform } from 'react-native';
 import * as react from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { logout, reportBug, updatePreferences, uploadUserMessage } from '@/lib/appwrite';
+import { deleteUser, logout, reportBug, updatePreferences, uploadUserMessage } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/globalProvider';
 import { BugReportType, DatabaseUserType, UserMessageType } from '@/interfaces/interfaces';
 import { Picker } from '@react-native-picker/picker';
@@ -10,6 +10,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import BugReportModal from '@/components/BugReportModal';
 import ContactModal from '@/components/ContactModal';
+import DeleteAccountModal from '@/components/DeleteAccountModal';
+import { User } from '../../../interfaces/interfaces';
 
 const Profile: React.FC = () => {
   const { refetch, isLoggedIn, user: contextUser, databaseUser } = useGlobalContext();
@@ -72,6 +74,7 @@ const Profile: React.FC = () => {
   const [showTimePicker, setShowTimePicker] = react.useState(false);
   const [showBugReportModal, setShowBugReportModal] = react.useState(false);
   const [showContactModal, setShowContactModal] = react.useState(false);
+  const [showDeleteUserModal, setShowDeleteUserModal] = react.useState(false);
 
   // Update userSettings when databaseUser changes
   react.useEffect(() => {
@@ -284,6 +287,24 @@ const Profile: React.FC = () => {
     </View>
   )
 
+  const renderDeleteAccountSection = () => (
+    <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
+      <View className="flex-row items-center mb-4">
+        <View className="w-10 h-10 bg-danger rounded-full items-center justify-center mr-3">
+          <AntDesign name="delete" size={20} color="white" />
+        </View>
+        <Text className="text-text-primary font-medium">Delete Account</Text>
+      </View>
+      <Text className="text-text-primary font-bold my-4 text-center">Delete your account and all your data</Text>
+      <TouchableOpacity
+        onPress={() => setShowDeleteUserModal(true)}
+        className="bg-danger p-4 rounded-xl shadow-sm"
+      >
+        <Text className="text-white text-center text-lg font-semibold ml-2">Delete Account</Text>
+      </TouchableOpacity>
+    </View>
+  )
+
   const handleSaveSettings = async (): Promise<void> => {
     try {
       if (!contextUser) return;
@@ -344,6 +365,21 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!contextUser) return;
+
+    try {
+      const result = await deleteUser(contextUser?.$id);
+      if (result) {
+        Alert.alert('Success', "User deleted successfully! Thank you for using Bloomer. Please let us know your frustrations. We hope to see you again!");
+      } else {
+        Alert.alert('Error', "Failed to delete your account. Try again later, if the issue appears again, please contact us.");
+      }
+    } catch (error) {
+      Alert.alert("Error", `Failed to delete user, ${error}`);
+    }
+  }
+
   if (!isLoggedIn) {
     return (
       <SafeAreaView className="bg-background-primary h-full">
@@ -395,6 +431,7 @@ const Profile: React.FC = () => {
           {renderNotificationSection()}
           {renderPreferencesSection()}
           {renderContactSection()}
+          {renderDeleteAccountSection()}
           
           {/* Action Buttons */}
           <View className="mb-6">
@@ -419,7 +456,7 @@ const Profile: React.FC = () => {
             
             <TouchableOpacity
               onPress={handleSignOut}
-              className="bg-danger p-4 rounded-xl shadow-sm"
+              className="bg-warning p-4 rounded-xl shadow-sm"
               style={{
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
@@ -453,6 +490,14 @@ const Profile: React.FC = () => {
         onSubmit={handleContactSubmit}
         userEmail={contextUser?.email || databaseUser?.email || ''}
       />
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        visible={showDeleteUserModal}
+        onClose={() => setShowDeleteUserModal(false)}
+        onDelete={handleDeleteAccount}
+      />
+      
     </SafeAreaView>
   );
 };
