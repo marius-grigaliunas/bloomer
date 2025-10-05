@@ -17,6 +17,7 @@ export default function DeleteAccountModal({ visible, onClose, onDelete }: Delet
 
   const handleDelete = () => {
     setIsDeleting(true);
+    handleClose();
     onDelete();
   }
 

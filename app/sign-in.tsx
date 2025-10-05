@@ -1,48 +1,127 @@
 import { View, Text, Alert, ScrollView, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
-import { login, AnnonymousLogin, testAppwriteOAuth, detailedLoginTest, testBothEndpoints} from '@/lib/appwrite';
+import React, { useState, useCallback, useEffect } from 'react'
+import { login, AnnonymousLogin} from '@/lib/appwrite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalContext } from '@/lib/globalProvider';
-import { Redirect, useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Redirect, useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const SignIn = () => {
     const { refetch, loading, isLoggedIn } = useGlobalContext()
     const router = useRouter()
+    const [isSigningIn, setIsSigningIn] = useState(false)
 
+    // Check for persistent loading state on component mount
+    useEffect(() => {
+        const checkPersistentLoadingState = async () => {
+            try {
+                const persistentLoadingState = await AsyncStorage.getItem('isSigningIn');
+                if (persistentLoadingState === 'true') {
+                    setIsSigningIn(true);
+                }
+            } catch (error) {
+                console.error("Error checking persistent loading state:", error);
+            }
+        };
+        checkPersistentLoadingState();
+    }, []);
+
+    // Note: Removed useFocusEffect as it was interfering with the loading state
+    // The loading state will be managed properly in the handleSignIn function
+
+    const handleSignIn = useCallback(async () => {
+        // Set loading state immediately and synchronously
+        setIsSigningIn(true);
+        
+        // Store loading state persistently to survive component re-mounts
+        try {
+            await AsyncStorage.setItem('isSigningIn', 'true');
+        } catch (error) {
+            console.error("Error storing loading state:", error);
+        }
+        
+        // Set a timeout to clear loading state in case user dismisses OAuth flow
+        const timeoutId = setTimeout(async () => {
+            setIsSigningIn(false);
+            try {
+                await AsyncStorage.removeItem('isSigningIn');
+            } catch (error) {
+                console.error("Error removing loading state:", error);
+            }
+        }, 30000); // 30 seconds timeout
+        
+        try {
+            const result = await login();
+
+            // Clear the timeout since login completed
+            clearTimeout(timeoutId);
+
+            if(result) {
+                await refetch()
+                // Keep loading state true - user will be redirected away from this screen
+                // Clear persistent storage since login was successful
+                try {
+                    await AsyncStorage.removeItem('isSigningIn');
+                } catch (error) {
+                    console.error("Error removing loading state:", error);
+                }
+            } else {
+                Alert.alert("Error", "Failed to sign-in")
+                setIsSigningIn(false);
+                // Clear persistent storage
+                try {
+                    await AsyncStorage.removeItem('isSigningIn');
+                } catch (error) {
+                    console.error("Error removing loading state:", error);
+                }
+            }
+        } catch (error) {
+            // Clear the timeout since login failed
+            clearTimeout(timeoutId);
+            console.error("Sign-in error:", error);
+            Alert.alert("Error", "Failed to sign-in")
+            setIsSigningIn(false);
+            // Clear persistent storage
+            try {
+                await AsyncStorage.removeItem('isSigningIn');
+            } catch (storageError) {
+                console.error("Error removing loading state:", storageError);
+            }
+        }
+    }, [refetch])
+
+    const handleAnnonymousSignIn = useCallback(async () => {
+        setIsSigningIn(true);
+        try {
+            const result = await AnnonymousLogin();
+
+            if(result) {
+                await refetch()
+            } else {
+                Alert.alert("Error", "Failed to sign-in annonymously")
+                setIsSigningIn(false);
+            }
+        } catch (error) {
+            console.error("Anonymous sign-in error:", error);
+            Alert.alert("Error", "Failed to sign-in annonymously")
+            setIsSigningIn(false);
+        }
+        // Note: Don't set isSigningIn to false in finally block for anonymous login
+        // because successful login will redirect the user away from this screen
+    }, [refetch])
+
+    // Early returns after ALL hooks are called
     if(!loading && isLoggedIn) return <Redirect href={"/"}/>
 
-    const handleSignIn = async () => {
-        const result = await login();
-
-        if(result) {
-            refetch()
-        } else {
-            Alert.alert("Error", "Failed to sign-in")
-        }
+    // Show loading screen during sign-in process
+    if (isSigningIn) {
+        return <LoadingScreen message="Signing you in..." />
     }
 
-    const handleAnnonymousSignIn = async () => {
-        const result = await AnnonymousLogin();
-
-        if(result) {
-            refetch()
-        } else {
-            Alert.alert("Error", "Failed to sign-in annonymously")
-        }
-    }
-
-    const handleTestSignIn = async () => {
-        await testAppwriteOAuth();
-    }
-
-    const handleDetailedTestSignIn = async () => {
-        await detailedLoginTest();
-    }
-
-    const handleBothEndpointsSignIn = async () => {
-        await testBothEndpoints();
-    }
+    // Test functions removed - they were causing import issues
+    // and are commented out in the UI anyway
 
     return (
         <SafeAreaView className="bg-background-primary flex-1">
@@ -105,27 +184,6 @@ const SignIn = () => {
                             </TouchableOpacity>
                         </Text>
                     </View>
-
-                    {/* Hidden Test Buttons - Uncomment for debugging */}
-                    {/*
-                    <View className="mt-8 w-full">
-                        <TouchableOpacity onPress={handleTestSignIn}
-                            className="bg-secondary-medium rounded-3xl p-3 items-center mb-3"
-                        >
-                            <Text className="text-white font-medium">Test Login</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleDetailedTestSignIn}
-                            className="bg-secondary-medium rounded-3xl p-3 items-center mb-3"
-                        >
-                            <Text className="text-white font-medium">Detailed Test Login</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleBothEndpointsSignIn}
-                            className="bg-secondary-medium rounded-3xl p-3 items-center"
-                        >
-                            <Text className="text-white font-medium">Both Endpoints</Text>
-                        </TouchableOpacity>
-                    </View>
-                    */}
                 </View>
             </ScrollView>
         </SafeAreaView>

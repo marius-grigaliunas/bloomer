@@ -10,6 +10,7 @@ interface PlantState {
     isLoading: boolean;
     error: string | null;
     isInitialized: boolean;
+    currentUserId: string | null;
 
     fetchAllUserPlants: (userId: string, forceRefresh?: boolean) => Promise<void>;
     getPlantById: (id: string) => DatabasePlantType | undefined;
@@ -17,6 +18,7 @@ interface PlantState {
     deletePlant: (id: string) => Promise<void>;
     markAsWatered: (id: string) => Promise<void>;
     addPlant: (plant: DatabasePlantType) => void;
+    clearStore: () => void;
 }
 
 export const usePlantStore = create<PlantState>((set, get) => ({
@@ -25,10 +27,21 @@ export const usePlantStore = create<PlantState>((set, get) => ({
     isLoading: false, 
     error: null,
     isInitialized: false,
+    currentUserId: null,
 
     fetchAllUserPlants: async (userId: string, forceRefresh = false) => {
+        // Clear store if user has changed
+        if (get().currentUserId !== userId) {
+            set({
+                plants: {},
+                allPlantIds: [],
+                isInitialized: false,
+                currentUserId: userId
+            });
+        }
+
         // Skip fetch if already initialized and not forcing refresh
-        if (!forceRefresh && get().isInitialized) {
+        if (!forceRefresh && get().isInitialized && get().currentUserId === userId) {
             return;
         }
 
@@ -50,7 +63,8 @@ export const usePlantStore = create<PlantState>((set, get) => ({
                 plants: plantsById,
                 allPlantIds: plantsData.map(plant => plant.plantId),
                 isLoading: false,
-                isInitialized: true
+                isInitialized: true,
+                currentUserId: userId
             });
             
             // Process notifications in the background without blocking the UI
@@ -160,5 +174,16 @@ export const usePlantStore = create<PlantState>((set, get) => ({
             plants: { ...state.plants, [plant.plantId]: plant },
             allPlantIds: [...state.allPlantIds, plant.plantId]
         }));
+    },
+
+    clearStore: () => {
+        set({
+            plants: {},
+            allPlantIds: [],
+            isLoading: false,
+            error: null,
+            isInitialized: false,
+            currentUserId: null
+        });
     },
 }))

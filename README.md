@@ -37,9 +37,8 @@
 - [x] when plant is watered, no immediate response, fix that
 - [x] Terms and conditions
 - [x] Implement terms and conditions into the app
-- [ ] option to delete account
-- [ ] No vibrations on elena's phone
-- [ ] Refine transitions
-- [ ] improve loading states
-- [ ] Prepare for deployment, update Readme
+- [x] option to delete account
+- [ ] Need a served function to delete the auth record of the user
+- [x] loading state while signing in
+- [ ] Test everything
 - [ ] Deploy

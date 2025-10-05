@@ -47,96 +47,6 @@ export async function AnnonymousLogin() {
     }
 }
 
-/*export async function login () {
-    try {
-        /*
-        const redirectUri = Linking.createURL("/");
-
-        const response = await account.createOAuth2Token(OAuthProvider.Google, redirectUri); 
-        console.log("App redirect URI:", redirectUri);
-
-        if(!response) throw new Error("Failed to get OAuth URL"); 
-
-        const browserResult = await WebBrowser.openAuthSessionAsync(
-            response.toString(), 
-            redirectUri
-        );
-
-        if(browserResult.type !== "success") throw new Error("OAuth failed or cancelled");
-        
-        const url = new URL(browserResult.url);
-
-        const secret = url.searchParams.get('secret')?.toString();
-        const userId = url.searchParams.get('userId')?.toString();
-
-        if(!secret || !userId) throw new Error("Failed to get secret/userId");
-
-        const session = await account.createSession(userId, secret);
-        if(!session) throw new Error("Failed to create session");
-
-        const user = await account.get();
-        console.log('Successfully logged in:', user);
-
-        return true;
-        ///////////
-
-        const deepLink = new URL(makeRedirectUri({
-            preferLocalhost: true,
-            path: 'oauth-callback'
-        }));
-
-        if(!deepLink.hostname) {
-            deepLink.hostname = 'localhost';
-        }
-
-        console.log("Deep link: ", deepLink.toString());
-
-        const scheme = `${deepLink.protocol}//`;
-        if(!scheme || scheme === "") throw new Error("Failed to create a scheme");
-        console.log("Scheme:", scheme);
-
-        const loginUrl = await account.createOAuth2Token(
-            OAuthProvider.Google,
-            deepLink.toString(),
-            deepLink.toString()
-        );
-
-        if (!loginUrl) throw new Error("Failed to get OAuth URL");
-        console.log("Login URL:", loginUrl.toString());
-
-        const result = await WebBrowser.openAuthSessionAsync(loginUrl.toString(), scheme);
-        console.log("OAuth result:", result);
-        
-        if(result.type === "success" && result.url) {
-            console.log("Success URL:", result.url);
-
-            const url = new URL(result.url);
-            const secret = url.searchParams.get('secret');
-            const userId = url.searchParams.get('userId');
-
-            if(!secret || !userId) throw new Error("Failed to get secret/userId");
-            console.log("Secret:", secret);
-            console.log("UserId:", userId)
-        
-            const session = await account.createSession(userId, secret);
-
-            const user = await account.get();
-
-            if(!session) throw new Error("Failed to create session");
-
-            console.log('Successfully logged in:', user);
-
-            return true;            
-        }
-
-        return false;
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
-}*/
-
-// Update lastLogin and timezone for user
 export const updateLoginInfo = async (userId: string) => {
     try {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -149,8 +59,7 @@ export const updateLoginInfo = async (userId: string) => {
                 timezone: timezone
             }
         );
-        // Optionally log or alert
-        // console.log("Updated lastLogin and timezone for user", userId);
+        
         return true;
     } catch (error) {
         console.error("Error updating lastLogin/timezone:", error);
@@ -158,131 +67,8 @@ export const updateLoginInfo = async (userId: string) => {
     }
 };
 
-/*export async function login() {
-    try {
-        const redirectUri = new URL(ExpoAuthSession.makeRedirectUri({preferLocalhost: true}));
-        const scheme = `${redirectUri.protocol}://`;
-
-        console.log("Redirect URI:", redirectUri);
-
-        const loginUrl = await account.createOAuth2Token(
-            OAuthProvider.Google,
-            `${redirectUri}`,
-            `${redirectUri}`
-        );
-
-        if (!loginUrl) throw new Error("Failed to get OAuth URL");
-
-        const result = await WebBrowser.openAuthSessionAsync(`${loginUrl}`, scheme);
-
-        console.log("WebBrowser result:", result);
-
-        if (result.type === "success" && result.url) {
-            const url = new URL(result.url);
-            const secret = url.searchParams.get('secret');
-            const userId = url.searchParams.get('userId');
-            if (secret && userId) {
-                const session = await account.createSession(userId, secret);
-                if (!session) throw new Error("Failed to create session");
-                const user = await account.get();
-                await updateLoginInfo(userId);
-                return true;
-            } else {
-                throw new Error(`Missing OAuth parameters - secret: ${secret}, userId: ${userId}`);
-            }
-        }
-
-        return false;
-    } catch (error) {
-        console.error("Login error:", error);
-        return false;
-    }
-}*/
-
-export async function testAppwriteOAuth() {
-    try {
-        // Use a simple HTTP URL that will show us the response
-        const testRedirectUri = 'https://httpbin.org/get';
-        
-        const loginUrl = await account.createOAuth2Token(
-            OAuthProvider.Google,
-            testRedirectUri,
-            testRedirectUri
-        );
-
-        console.log("Test OAuth URL:", loginUrl);
-        
-        // Open in browser and see what happens
-        await WebBrowser.openBrowserAsync(`${loginUrl}`);
-        
-    } catch (error) {
-        console.error("Test OAuth error:", error);
-    }
-}
-
-export async function detailedLoginTest() {
-    try {
-        const scheme = 'appwrite-callback-67d145de00084a32d0d6';
-        const redirectUri = `${scheme}://`;
-
-        console.log("=== OAUTH DEBUG START ===");
-        console.log("Scheme:", scheme);
-        console.log("Redirect URI:", redirectUri);
-        console.log("Project ID:", "67d145de00084a32d0d6");
-        console.log("Appwrite endpoint:", "https://fra.cloud.appwrite.io/v1");
-
-        const loginUrl = await account.createOAuth2Token(
-            OAuthProvider.Google,
-            redirectUri,
-            redirectUri
-        );
-
-        console.log("Generated OAuth URL:", loginUrl);
-        console.log("=== OAUTH DEBUG END ===");
-
-        // Try to open and see what happens
-        const result = await WebBrowser.openAuthSessionAsync(
-            `${loginUrl}`,
-            redirectUri,
-            { showInRecents: true }
-        );
-
-        console.log("WebBrowser result:", JSON.stringify(result, null, 2));
-
-    } catch (error) {
-        console.error("Detailed login error:", error);
-    }
-}
-
-export async function testBothEndpoints() {
-    const testRedirect = 'https://httpbin.org/get';
-    
-    try {
-        console.log("Testing createOAuth2Token:");
-        const tokenUrl = await account.createOAuth2Token(
-            OAuthProvider.Google,
-            testRedirect,
-            testRedirect
-        );
-        console.log("Token URL:", tokenUrl);
-        
-        console.log("Testing createOAuth2Session:");
-        const sessionUrl = await account.createOAuth2Session(
-            OAuthProvider.Google,
-            testRedirect,
-            testRedirect
-        );
-        console.log("Session URL:", sessionUrl);
-        
-    } catch (error) {
-        console.error("Test error:", error);
-    }
-}
-
-// Alternative approach using createOAuth2Token (recommended)
 export async function login() {
     try {
-        // Use the exact scheme from app.json
         const redirectUri = 'appwrite-callback-67d145de00084a32d0d6://';
 
         console.log("Using app.json scheme:", redirectUri);
@@ -824,11 +610,112 @@ export async function getPlantCareFunction(plant: string, commonNames: string[])
 
 
 export async function deleteUser(userId: string): Promise<boolean> {
+    try {
+        console.log(`Starting account deletion process for user: ${userId}`);
 
-    return false;
+        // Step 1: Delete all user's plants first
+        console.log("Step 1: Deleting user's plants...");
+        const plantsDeleted = await deleteUserPlants(userId);
+        
+        if (!plantsDeleted) {
+            console.warn("Some plants may not have been deleted, but continuing with account deletion");
+            Alert.alert("Warning", "Some plants weren't succesfully deleted, please contact us for more info.")
+        } else {
+            console.log("All user plants deleted successfully");
+        }
+
+        // Step 2: Delete user from database
+        console.log("Step 2: Deleting user from database...");
+        try {
+            await databases.deleteDocument(
+                databaseId,
+                usersCollectionId,
+                userId
+            );
+            console.log("User database record deleted successfully");
+        } catch (error) {
+            console.error("Error deleting user from database:", error);
+            // Continue with sign out even if database deletion fails
+        }
+
+        // Step 3: Sign out the user (this will clear their auth session)
+        console.log("Step 3: Signing out user...");
+        await logout();
+
+        try {
+            await account.deleteSessions();
+            console.log("User signed out successfully");
+        } catch (error) {
+            console.error("Error signing out user:", error);
+            // Even if sign out fails, the account deletion is considered successful
+            // since the database record is deleted
+        }
+        
+        try {
+            await account.deleteIdentity(userId);
+            console.log("User deleted from auth logs");
+        } catch (error) {
+            console.error("Error deleting auth records:", error)
+        }
+
+        console.log(`Account deletion completed for user: ${userId}`);
+        return true;
+
+    } catch (error) {
+        console.error("Error in deleteUser:", error);
+        return false;
+    }
 }
 
-export async function deleteUserPlants(userId: string) : Promise<boolean> { 
+export async function deleteUserPlants(userId: string): Promise<boolean> {
+    try {
+        // Get all plants owned by the user
+        const plantsToDelete = await databases.listDocuments(
+            databaseId,
+            plantsCollectionId,
+            [
+                Query.equal('ownerId', userId)
+            ]
+        );
 
-    return false;
+        if (plantsToDelete.total === 0) {
+            console.log("No plants found for user:", userId);
+            return true; // No plants to delete is considered success
+        }
+
+        console.log(`Found ${plantsToDelete.total} plants to delete for user:`, userId);
+
+        const deletionPromises = plantsToDelete.documents.map(async (plant) => {
+            try {
+                const result = await deletePlant(plant.plantId || plant.$id);
+                return result !== null; // deletePlant returns null on failure
+            } catch (error) {
+                console.error(`Error deleting plant ${plant.plantId || plant.$id}:`, error);
+                return false;
+            }
+        });
+
+        // Wait for all deletions to complete
+        const results = await Promise.allSettled(deletionPromises);
+        
+        // Check if all deletions were successful
+        const successfulDeletions = results.filter(result => 
+            result.status === 'fulfilled' && result.value === true
+        ).length;
+
+        const totalPlants = plantsToDelete.total;
+        const success = successfulDeletions === totalPlants;
+
+        if (success) {
+            console.log(`Successfully deleted all ${totalPlants} plants for user:`, userId);
+        } else {
+            console.warn(`Only ${successfulDeletions} out of ${totalPlants} plants were successfully deleted for user:`, userId);
+        }
+
+        return success;
+
+    } catch (error) {
+        console.error("Error in deleteUserPlants:", error);
+        return false;
+    }
 }

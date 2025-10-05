@@ -6,6 +6,7 @@ import { router, SplashScreen } from "expo-router";
 import { registerForPushNotificationsAsync } from "./services/notificationsService";
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usePlantStore } from '@/interfaces/plantStore';
 
 interface GlobalContextType {
     isLoggedIn: boolean;
@@ -23,6 +24,7 @@ interface GlobalProviderProps {
 
 export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
     const isInitializedRef = useRef(false);
+    const { clearStore } = usePlantStore();
 
     const {
         data: user,
@@ -50,10 +52,12 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
                 setDatabaseUser(dbUser);
             } else {
                 setDatabaseUser(null);
+                // Clear plant store when user logs out
+                clearStore();
             }
         };
         getDatabaseUser();
-    }, [user])
+    }, [user, clearStore])
     
     console.log(user, loading, isLoggedIn);
     useEffect(() => {
@@ -110,13 +114,18 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         loading,
         refetch: async (newParams?: Record<string, string | number>) => {
             await refetch(newParams);
-            // Also refresh the database user data when refetch is called
-            if (user?.$id) {
-                const dbUser = await getUserDatabaseData(user.$id);
+            // Get the updated user after refetch
+            const updatedUser = await getCurrentUser();
+            // Only fetch database user data if we have a valid user
+            if (updatedUser?.$id) {
+                const dbUser = await getUserDatabaseData(updatedUser.$id);
                 setDatabaseUser(dbUser);
+            } else {
+                // Clear database user when logged out
+                setDatabaseUser(null);
             }
         },
-    }), [isLoggedIn, user, loading, refetch]);
+    }), [isLoggedIn, user, databaseUser, loading, refetch]);
 
     return (
         <GlobalContext.Provider

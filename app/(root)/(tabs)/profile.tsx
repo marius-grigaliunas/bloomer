@@ -330,12 +330,28 @@ const Profile: React.FC = () => {
   };
 
   const handleSignOut = async () => {
-    const result = await logout();
-    if (result) {
-      console.log("SignOut Successful");
-      refetch();
-    } else {
-      console.log("SignOut Failed");
+    try {
+      const result = await logout();
+      if (result) {
+        console.log("SignOut Successful");
+        // Clear local state immediately
+        setUserSettings({
+          displayName: '',
+          notificationsEnabled: false,
+          notificationTime: '',
+          timezone: '',
+          reminderAdvanceTime: 24,
+          unitSystem: 'metric',
+          mondayFirstDayOfWeek: true,
+          temperatureUnit: 'celsius'
+        });
+        // Refetch to update global state
+        await refetch();
+      } else {
+        console.log("SignOut Failed");
+      }
+    } catch (error) {
+      console.error("Error during sign out:", error);
     }
   };
 
