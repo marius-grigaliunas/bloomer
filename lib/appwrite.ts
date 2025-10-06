@@ -642,20 +642,10 @@ export async function deleteUser(userId: string): Promise<boolean> {
         console.log("Step 3: Signing out user...");
         await logout();
 
-        try {
-            await account.deleteSessions();
-            console.log("User signed out successfully");
-        } catch (error) {
-            console.error("Error signing out user:", error);
-            // Even if sign out fails, the account deletion is considered successful
-            // since the database record is deleted
-        }
+        const response = await functions.createExecution("process.env.EXPO_PUBLIC_AUTH_FUNCTION_ID");
         
-        try {
-            await account.deleteIdentity(userId);
-            console.log("User deleted from auth logs");
-        } catch (error) {
-            console.error("Error deleting auth records:", error)
+        if (response.status !== 'completed') {
+            throw new Error(`Function execution failed with status: ${response.status}`);
         }
 
         console.log(`Account deletion completed for user: ${userId}`);
