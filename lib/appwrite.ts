@@ -640,14 +640,20 @@ export async function deleteUser(userId: string): Promise<boolean> {
 
         // Step 3: Sign out the user (this will clear their auth session)
         console.log("Step 3: Signing out user...");
-        await logout();
 
-        const response = await functions.createExecution("process.env.EXPO_PUBLIC_AUTH_FUNCTION_ID");
+        const deleteFunctionId = process.env.EXPO_PUBLIC_AUTH_FUNCTION_ID;
+        if (!deleteFunctionId)
+            return false;
+
+        const response = await functions.createExecution(
+            deleteFunctionId,
+            JSON.stringify({ userId })
+        );
         
         if (response.status !== 'completed') {
             throw new Error(`Function execution failed with status: ${response.status}`);
         }
-
+        
         console.log(`Account deletion completed for user: ${userId}`);
         return true;
 

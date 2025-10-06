@@ -391,6 +391,7 @@ const Profile: React.FC = () => {
       } else {
         Alert.alert('Error', "Failed to delete your account. Try again later, if the issue appears again, please contact us.");
       }
+      await refetch();
     } catch (error) {
       Alert.alert("Error", `Failed to delete user, ${error}`);
     }
