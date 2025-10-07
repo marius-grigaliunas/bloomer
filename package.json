@@ -47,7 +47,7 @@
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
     "install": "^0.13.0",
-    "nativewind": "4.1.17",
+    "nativewind": "4.0.36",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.9",
@@ -76,11 +76,5 @@
     "react-test-renderer": "18.3.1",
     "typescript": "^5.3.3"
   },
-  "private": true,
-  "resolutions": {
-    "lightningcss": "1.21.0"
-  },
-  "overrides": {
-    "lightningcss": "1.21.0"
-  }
+  "private": true
 }
