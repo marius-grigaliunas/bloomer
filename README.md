@@ -38,7 +38,7 @@
 - [x] Terms and conditions
 - [x] Implement terms and conditions into the app
 - [x] option to delete account
-- [ ] Need a served function to delete the auth record of the user
+- [x] Need a served function to delete the auth record of the user
 - [x] loading state while signing in
 - [ ] Test everything
 - [ ] Deploy
