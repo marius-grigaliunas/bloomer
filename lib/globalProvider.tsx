@@ -13,6 +13,8 @@ interface GlobalContextType {
     user: User | null;
     databaseUser: DatabaseUserType | null;
     loading: boolean;
+    isDeletingAccount: boolean;
+    setDeletingAccount: (deleting: boolean) => void;
     refetch: (newParams?: Record<string, string | number>) => Promise<void>}
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -36,7 +38,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         skip: isInitializedRef.current,
     });
 
-    const [ databaseUser, setDatabaseUser ] = useState<DatabaseUserType | null>(null); 
+    const [ databaseUser, setDatabaseUser ] = useState<DatabaseUserType | null>(null);
+    const [ isDeletingAccount, setIsDeletingAccount ] = useState<boolean>(false);
     const isLoggedIn = React.useMemo(() => !!user, [user]);
 
     useEffect(() => {
@@ -54,6 +57,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
                 setDatabaseUser(null);
                 // Clear plant store when user logs out
                 clearStore();
+                // Reset deleting account state when user is logged out
+                setIsDeletingAccount(false);
             }
         };
         getDatabaseUser();
@@ -112,6 +117,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         user,
         databaseUser,
         loading,
+        isDeletingAccount,
+        setDeletingAccount: setIsDeletingAccount,
         refetch: async (newParams?: Record<string, string | number>) => {
             await refetch(newParams);
             // Get the updated user after refetch
@@ -123,9 +130,11 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
             } else {
                 // Clear database user when logged out
                 setDatabaseUser(null);
+                // Reset deleting account state when user is logged out
+                setIsDeletingAccount(false);
             }
         },
-    }), [isLoggedIn, user, databaseUser, loading, refetch]);
+    }), [isLoggedIn, user, databaseUser, loading, isDeletingAccount, refetch]);
 
     return (
         <GlobalContext.Provider

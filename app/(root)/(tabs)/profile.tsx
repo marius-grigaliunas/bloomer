@@ -11,10 +11,15 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import BugReportModal from '@/components/BugReportModal';
 import ContactModal from '@/components/ContactModal';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
+import LoadingScreen from '@/components/LoadingScreen';
 import { User } from '../../../interfaces/interfaces';
+import { usePlantStore } from '@/interfaces/plantStore';
+import { useRouter } from 'expo-router';
 
 const Profile: React.FC = () => {
-  const { refetch, isLoggedIn, user: contextUser, databaseUser } = useGlobalContext();
+  const { refetch, isLoggedIn, user: contextUser, databaseUser, isDeletingAccount, setDeletingAccount } = useGlobalContext();
+  const { clearStore } = usePlantStore();
+  const router = useRouter();
 
   // Helper function to create Date object from UTC ISO string for display
   const createLocalDateFromUTC = (utcString: string): Date => {
@@ -287,6 +292,30 @@ const Profile: React.FC = () => {
     </View>
   )
 
+  const renderLegalSection = () => (
+    <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
+      <View className="flex-row items-center mb-4">
+        <View className="w-10 h-10 bg-gray-400 rounded-full items-center justify-center mr-3">
+          <AntDesign name="filetext1" size={20} color="white" />
+        </View>
+        <Text className="text-xl font-semibold text-text-primary">Legal</Text>
+      </View>
+      
+      <View className="space-y-2">
+        <TouchableOpacity
+          onPress={() => router.push('/privacy')}
+          className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl"
+        >
+          <View className="flex-1">
+            <Text className="text-text-primary font-medium">Privacy Policy</Text>
+            <Text className="text-text-secondary text-sm">How we handle your data</Text>
+          </View>
+          <AntDesign name="right" size={16} color={colors.text.secondary} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   const renderDeleteAccountSection = () => (
     <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
       <View className="flex-row items-center mb-4">
@@ -345,6 +374,7 @@ const Profile: React.FC = () => {
           mondayFirstDayOfWeek: true,
           temperatureUnit: 'celsius'
         });
+        clearStore();
         // Refetch to update global state
         await refetch();
       } else {
@@ -385,15 +415,24 @@ const Profile: React.FC = () => {
     if (!contextUser) return;
 
     try {
+      // Set deleting state to show loading screen
+      setDeletingAccount(true);
+      
       const result = await deleteUser(contextUser?.$id);
       if (result) {
+        // Clear the plant store since the user account is deleted
+        clearStore();
         Alert.alert('Success', "User deleted successfully! Thank you for using Bloomer. Please let us know your frustrations. We hope to see you again!");
       } else {
         Alert.alert('Error', "Failed to delete your account. Try again later, if the issue appears again, please contact us.");
+        // Reset deleting state on failure
+        setDeletingAccount(false);
       }
       await refetch();
     } catch (error) {
       Alert.alert("Error", `Failed to delete user, ${error}`);
+      // Reset deleting state on error
+      setDeletingAccount(false);
     }
   }
 
@@ -413,6 +452,11 @@ const Profile: React.FC = () => {
         </View>
       </SafeAreaView>
     );
+  }
+
+  // Show loading screen during account deletion
+  if (isDeletingAccount) {
+    return <LoadingScreen message="Deleting your account and all data..." />;
   }
 
   return (
@@ -447,8 +491,6 @@ const Profile: React.FC = () => {
           {renderPersonalSection()}
           {renderNotificationSection()}
           {renderPreferencesSection()}
-          {renderContactSection()}
-          {renderDeleteAccountSection()}
           
           {/* Action Buttons */}
           <View className="mb-6">
@@ -473,7 +515,7 @@ const Profile: React.FC = () => {
             
             <TouchableOpacity
               onPress={handleSignOut}
-              className="bg-warning p-4 rounded-xl shadow-sm"
+              className="bg-warning p-4 rounded-xl shadow-sm mb-6"
               style={{
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
@@ -490,6 +532,10 @@ const Profile: React.FC = () => {
               </View>
             </TouchableOpacity>
           </View>
+          
+          {renderContactSection()}
+          {renderLegalSection()}
+          {renderDeleteAccountSection()}
         </View>
       </ScrollView>
       

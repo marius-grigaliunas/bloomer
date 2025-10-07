@@ -50,6 +50,31 @@ export async function AnnonymousLogin() {
 export const updateLoginInfo = async (userId: string) => {
     try {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+        // First check if the document exists
+        try {
+            await databases.getDocument(databaseId, usersCollectionId, userId);
+        } catch (getError: any) {
+            // If document doesn't exist, wait a bit and try again
+            if (getError?.code === 404 || getError?.message?.includes('not found')) {
+                console.log("User document not found, waiting for creation...");
+                // Wait 1 second and try again
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                try {
+                    await databases.getDocument(databaseId, usersCollectionId, userId);
+                } catch (retryError: any) {
+                    if (retryError?.code === 404 || retryError?.message?.includes('not found')) {
+                        console.log("User document still not found after retry, skipping update");
+                        return false;
+                    }
+                    throw retryError;
+                }
+            } else {
+                throw getError;
+            }
+        }
+        
+        // Now update the document
         await databases.updateDocument(
             databaseId,
             usersCollectionId,
@@ -111,7 +136,6 @@ export async function login() {
 
                 const user = await account.get();
                 console.log("User authenticated:", user);
-                await updateLoginInfo(user.$id);
                 return true;
             } catch (sessionError) {
                 console.error("Failed to get user after OAuth:", sessionError);
@@ -158,6 +182,11 @@ export async function getCurrentUser(): Promise<User | null> {
 
                 if(existingUser.documents.length === 0) {
                     await createNewDatabaseUser(response, userAvatar.toString());
+                    // Update login info after creating the user
+                    await updateLoginInfo(response.$id);
+                } else {
+                    // Update login info for existing users
+                    await updateLoginInfo(response.$id);
                 }
             } catch(error) {
                 console.error("Failed to create new user:", error);
@@ -440,8 +469,6 @@ export async function updatePreferences(userId: string, preferences: Partial<Dat
         userId,
         preferences
       );
-      console.log("Settings updated");
-      Alert.alert("Settings updated")
       return true;
   } catch (error) {
     console.error('Error updating preferences:', error);
