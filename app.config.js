@@ -1,6 +1,6 @@
 export default {
     name: "Bloomer",
-    slug: "Bloomer",
+    slug: "bloomer",
     version: "0.9.9",
     orientation: "portrait",
     icon: "./assets/images/icon.png",

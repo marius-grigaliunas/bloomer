@@ -76,5 +76,11 @@
     "react-test-renderer": "18.3.1",
     "typescript": "^5.3.3"
   },
-  "private": true
+  "private": true,
+  "resolutions": {
+    "lightningcss": "1.21.0"
+  },
+  "overrides": {
+    "lightningcss": "1.21.0"
+  }
 }
