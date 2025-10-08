@@ -3,7 +3,7 @@ import MyPlants from "@/components/MyPlants";
 import WeatherComponent, { WeatherComponentRef } from "@/components/WeatherComponent";
 import DailyTask from "@/components/DailyTask";
 import WeekCalendar from "@/components/WeekCalendar";
-import colors from "@/constants/colors";
+const colors = require("@/constants/colors");
 import { DatabasePlantType } from "@/interfaces/interfaces";
 import { usePlantStore } from "@/interfaces/plantStore";
 import { getCurrentUser, getUserPlants } from "@/lib/appwrite";
@@ -15,17 +15,33 @@ import { ScrollView, Text, View, RefreshControl, Alert, TouchableOpacity } from 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { WeatherProps } from "@/lib/services/weatherApiService";
+import { WeatherProps } from "@/interfaces/interfaces";
 
 export default function Index() {
 
   const { isLoggedIn, user: contextUser, refetch, databaseUser} = useGlobalContext();
+  
+  // Debug logging
+  console.log("Main screen render - isLoggedIn:", isLoggedIn, "user:", contextUser?.$id, "databaseUser:", databaseUser?.displayName);
   const [ currentUser, setCurrentUser ] = useState(contextUser);
+
+  // Update currentUser when contextUser changes
+  useEffect(() => {
+    setCurrentUser(contextUser);
+  }, [contextUser]);
+
+  // Debug: Log when databaseUser changes
+  useEffect(() => {
+    console.log("Index component - databaseUser changed:", databaseUser?.displayName);
+  }, [databaseUser]);
 
   const [ loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const { plants, allPlantIds, isLoading, error, fetchAllUserPlants } = usePlantStore();
+  
+  // Debug plant store state
+  console.log("Plant store - isLoading:", isLoading, "error:", error, "plants count:", Object.keys(plants).length);
 
   const [lastUserId, setLastUserId] = useState<string | null>(null);
 
@@ -73,10 +89,37 @@ export default function Index() {
     setWeatherError(error);
   };
 
-  if(error) return Alert.alert("Oops, there's an error...", error);
+  if(error) {
+    console.error("Error in main screen:", error);
+    return Alert.alert("Oops, there's an error...", error);
+  }
+
+  // Show loading screen if still loading
+  if(isLoading) {
+    console.log("Showing loading screen");
+    return <LoadingScreen message="Loading your garden..." />;
+  }
+
+  // Debug: Show a simple fallback if databaseUser is undefined
+  if(!databaseUser) {
+    console.log("Database user is undefined, showing fallback");
+    return (
+      <SafeAreaView className="bg-[#F8F8F8] flex-1 justify-center items-center">
+        <Text className="text-lg font-semibold text-[#2F2F2F] mb-4">
+          Loading user data...
+        </Text>
+        <Text className="text-sm text-[#666666] text-center px-4">
+          User ID: {contextUser?.$id || "None"}
+        </Text>
+        <Text className="text-sm text-[#666666] text-center px-4 mt-2">
+          Database User: {databaseUser ? "Loaded" : "Not loaded"}
+        </Text>
+      </SafeAreaView>
+    );
+  }
   
   return (
-    <SafeAreaView className="bg-[#F8F8F8] flex-1">
+    <SafeAreaView key={`index-${databaseUser?.userId || 'no-user'}`} className="bg-[#F8F8F8] flex-1">
       <ScrollView 
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 20 }}
@@ -173,9 +216,6 @@ export default function Index() {
            />
         </View>
         <View className="h-20" />
-
-        {/* Loading Screen */}
-        {isLoading && <LoadingScreen />}
       </ScrollView>
     </SafeAreaView>
   );

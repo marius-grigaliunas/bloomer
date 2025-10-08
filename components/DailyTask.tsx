@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DatabasePlantType } from '@/interfaces/interfaces';
-import colors from '@/constants/colors';
+const colors = require('@/constants/colors');
 import { router } from 'expo-router';
 
 interface DailyTaskProps {

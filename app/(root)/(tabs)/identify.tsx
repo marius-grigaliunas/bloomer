@@ -547,7 +547,17 @@ const identify = () => {
 
           {/* Processing message - positioned at top */}
           {isProcessingImage && (
-            <View className="absolute top-4 left-4 right-4 bg-black bg-opacity-75 rounded-lg p-3 z-10">
+            <View 
+              style={{ 
+                position: 'absolute',
+                top: 16,
+                left: 16,
+                right: 16,
+                backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                zIndex: 10,
+              }}
+              className="rounded-lg p-3"
+            >
               <Text className="text-white text-center text-sm font-medium">{loadingMessage}</Text>
             </View>
           )}
@@ -556,7 +566,8 @@ const identify = () => {
           <View className="absolute top-8 left-4">
             <Pressable 
               onPress={toggleFlash}
-              className="bg-black bg-opacity-50 p-3 rounded-full"
+              style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+              className="p-3 rounded-full"
               disabled={isProcessingImage}
             >
               <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
@@ -787,7 +798,8 @@ const identify = () => {
                   <View className="absolute top-8 left-4">
                     <Pressable 
                       onPress={toggleFlash}
-                      className="bg-black bg-opacity-50 p-3 rounded-full"
+                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                      className="p-3 rounded-full"
                       disabled={isProcessingImage}
                     >
                       <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
@@ -819,17 +831,29 @@ const identify = () => {
                        </Pressable>
                      </Animated.View>
                      
-                     {/* Camera ready indicator */}
-                     {!isProcessingImage && (
-                       <Text className="text-white text-sm mt-2 text-center bg-black bg-opacity-50 px-3 py-1 rounded-full">
-                         Tap to capture
-                       </Text>
-                     )}
+                    {/* Camera ready indicator */}
+                    {!isProcessingImage && (
+                      <Text 
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                        className="text-white text-sm mt-2 text-center px-3 py-1 rounded-full"
+                      >
+                        Tap to capture
+                      </Text>
+                    )}
                    </View>
 
                   {/* Processing message */}
                   {isProcessingImage && (
-                    <View className="absolute top-4 left-4 right-4 bg-black bg-opacity-75 rounded-lg p-3">
+                    <View 
+                      style={{ 
+                        position: 'absolute',
+                        top: 16,
+                        left: 16,
+                        right: 16,
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                      }}
+                      className="rounded-lg p-3"
+                    >
                       <Text className="text-white text-center text-sm font-medium">{loadingMessage}</Text>
                     </View>
                   )}
@@ -841,7 +865,18 @@ const identify = () => {
         
         {/* Loading overlay for identification */}
         {isIdentifying && (
-          <View className="absolute inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+          <View 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 50,
+            }}
+            className="items-center justify-center"
+          >
             <View className="bg-background-surface rounded-xl p-6 mx-4 items-center">
               <Text className="text-text-primary text-lg font-semibold mb-2">
                 Identifying Plant...
@@ -860,8 +895,14 @@ const identify = () => {
           animationType="fade"
           onRequestClose={() => setShowErrorModal(false)}
         >
-          <View className="flex-1 bg-black bg-opacity-50 items-center justify-center">
-            <View className="bg-background-surface rounded-xl p-6 mx-4 items-center max-w-sm">
+          <View 
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+            className="flex-1 items-center justify-center"
+          >
+            <View 
+              style={{ maxWidth: 384 }}
+              className="bg-background-surface rounded-xl p-6 mx-4 items-center"
+            >
               <View className="w-16 h-16 bg-danger rounded-full items-center justify-center mb-4">
                 <AntDesign name="exclamationcircleo" size={32} color="white" />
               </View>

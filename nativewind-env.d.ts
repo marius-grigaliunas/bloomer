@@ -1,1 +1,1 @@
-/// <reference types="nativewin/types" />
+/// <reference types="nativewind/types" />

@@ -1,4 +1,4 @@
-import React, { Children, createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import React, { Children, createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { getCurrentUser, avatar, updateUserPushToken, getUserDatabaseData } from './appwrite';
 import { useAppwrite } from "./useAppwrite";
 import { DatabaseUserType, User } from "@/interfaces/interfaces";
@@ -25,35 +25,47 @@ interface GlobalProviderProps {
 
 
 export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
-    const isInitializedRef = useRef(false);
     const { clearStore } = usePlantStore();
+    const providerId = React.useRef(Math.random().toString(36).substr(2, 9)).current;
+
+    const getCurrentUserCallback = React.useCallback(async () => {
+        return getCurrentUser();
+    }, []);
+
+    const emptyParams = React.useMemo(() => ({}), []);
 
     const {
         data: user,
         loading,
         refetch,
     } = useAppwrite<User | null, Record<string, string | number>>({
-        callFunction: async () => getCurrentUser(),
-        params: {},
-        skip: isInitializedRef.current,
+        callFunction: getCurrentUserCallback,
+        params: emptyParams,
+        skip: false,
     });
 
     const [ databaseUser, setDatabaseUser ] = useState<DatabaseUserType | null>(null);
     const [ isDeletingAccount, setIsDeletingAccount ] = useState<boolean>(false);
+    const setDeletingAccountCallback = React.useCallback((deleting: boolean) => {
+        setIsDeletingAccount(deleting);
+    }, []);
     const isLoggedIn = React.useMemo(() => !!user, [user]);
 
-    useEffect(() => {
-        if (!loading && !isInitializedRef.current) {
-            isInitializedRef.current = true;
-        }
-    }, [loading]);
 
     useEffect(() => {
         const getDatabaseUser = async () => {
             if(user?.$id) {
-                const dbUser = await getUserDatabaseData(user?.$id);
-                setDatabaseUser(dbUser);
+                console.log("Fetching database user for:", user.$id);
+                try {
+                    const dbUser = await getUserDatabaseData(user.$id);
+                    console.log("Database user result:", dbUser);
+                    setDatabaseUser(dbUser);
+                } catch (error) {
+                    console.error("Error fetching database user:", error);
+                    setDatabaseUser(null);
+                }
             } else {
+                console.log("No user ID, clearing database user");
                 setDatabaseUser(null);
                 // Clear plant store when user logs out
                 clearStore();
@@ -62,9 +74,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
             }
         };
         getDatabaseUser();
-    }, [user, clearStore])
+    }, [user?.$id])
     
-    console.log(user, loading, isLoggedIn);
+    console.log(`[${providerId}] GlobalProvider state - user:`, user?.$id, "loading:", loading, "isLoggedIn:", isLoggedIn, "databaseUser:", databaseUser?.displayName);
     useEffect(() => {
         if(user) {
             console.log("Push notification effect running for user:", user.$id);
@@ -112,33 +124,39 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         };
     }, [])
 
-    const memoizedValue = React.useMemo(() => ({
-        isLoggedIn,
-        user,
-        databaseUser,
-        loading,
-        isDeletingAccount,
-        setDeletingAccount: setIsDeletingAccount,
-        refetch: async (newParams?: Record<string, string | number>) => {
-            await refetch(newParams);
-            // Get the updated user after refetch
-            const updatedUser = await getCurrentUser();
-            // Only fetch database user data if we have a valid user
-            if (updatedUser?.$id) {
-                const dbUser = await getUserDatabaseData(updatedUser.$id);
-                setDatabaseUser(dbUser);
-            } else {
-                // Clear database user when logged out
-                setDatabaseUser(null);
-                // Reset deleting account state when user is logged out
-                setIsDeletingAccount(false);
-            }
-        },
-    }), [isLoggedIn, user, databaseUser, loading, isDeletingAccount, refetch]);
+    const handleRefetch = React.useCallback(async (newParams?: Record<string, string | number>) => {
+        await refetch(newParams);
+        // Get the updated user after refetch
+        const updatedUser = await getCurrentUser();
+        // Only fetch database user data if we have a valid user
+        if (updatedUser?.$id) {
+            const dbUser = await getUserDatabaseData(updatedUser.$id);
+            setDatabaseUser(dbUser);
+        } else {
+            // Clear database user when logged out
+            setDatabaseUser(null);
+            // Reset deleting account state when user is logged out
+            setIsDeletingAccount(false);
+        }
+    }, [refetch]);
+
+    const contextValue = React.useMemo(() => {
+        console.log(`[${providerId}] Creating new context value with databaseUser:`, databaseUser?.displayName, "user:", user?.$id);
+        return {
+            isLoggedIn,
+            user,
+            databaseUser,
+            loading,
+            isDeletingAccount,
+            setDeletingAccount: setDeletingAccountCallback,
+            refetch: handleRefetch,
+        };
+    }, [isLoggedIn, user, databaseUser, loading, isDeletingAccount, setDeletingAccountCallback, handleRefetch, providerId]);
 
     return (
         <GlobalContext.Provider
-            value={memoizedValue}
+            key={`${providerId}-${databaseUser?.userId || 'no-user'}`}
+            value={contextValue}
         >
             {children}
         </GlobalContext.Provider>
@@ -151,6 +169,7 @@ export const useGlobalContext = (): GlobalContextType => {
     if(!context) 
         throw new Error("useGlobalContext must be used within GlobalProvider")
 
+    console.log("useGlobalContext received - user:", context.user?.$id, "databaseUser:", context.databaseUser?.displayName);
     return context
 };
 

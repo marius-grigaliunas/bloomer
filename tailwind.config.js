@@ -1,37 +1,43 @@
-import colors from "./constants/colors";
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    // NOTE: Update this to include the paths to all of your component files.
     content: [
       "./app/**/*.{js,jsx,ts,tsx}",
-      "./components/**/*.{js,jsx,ts,tsx}"  // Add this line
+      "./components/**/*.{js,jsx,ts,tsx}"
     ],
-    presets: [require("nativewind/preset")],
     theme: {
       extend: {
         colors: {
           background: {
-            primary: colors.background.primary,
-            surface: colors.background.surface
+            primary: '#F8F8F8',
+            surface: '#FFFFFF'
           },
           primary: {
-            medium: colors.primary.medium,
-            deep:  colors.primary.deep
+            medium: '#4F772D',
+            deep: '#2E7D32'
           },
           secondary: {
-            medium: colors.secondary.medium,
-            deep: colors.secondary.deep
+            medium: '#90A955',
+            deep: '#4F772D'
           },
-          accent: colors.accent,
-          success: colors.success,
-          warning: colors.warning,
-          danger: colors.danger,
-          info: colors.info,
+          accent: '#E6B566',
+          success: '#2E7D32',
+          warning: '#E6B566',
+          danger: '#E53935',
+          info: '#90A955',
           text: {
-            primary: colors.text.primary,
-            secondary: colors.text.secondary
+            primary: '#2F2F2F',
+            secondary: '#666666'
           }
+        },
+        fontSize: {
+          'xs': '10px',
+          'sm': '12px',
+          'base': '14px',
+          'lg': '16px',
+          'xl': '18px',
+          '2xl': '20px',
+          '3xl': '24px',
+          '4xl': '28px',
         }
       }
     },

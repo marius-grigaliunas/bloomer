@@ -211,12 +211,16 @@ export async function getCurrentUser(): Promise<User | null> {
 
 export const getUserDatabaseData = async (userId: string): Promise<DatabaseUserType | null> => {
     try {
+        console.log("getUserDatabaseData called with userId:", userId);
+        console.log("Using databaseId:", databaseId, "usersCollectionId:", usersCollectionId);
+        
         const doc = await databases.getDocument(
             databaseId,
             usersCollectionId,
             userId
         );
 
+        console.log("Database document retrieved:", doc);
         if(!doc) throw new Error("Failed to get the user's data from the database");
         return {
             userId: doc.userId,
@@ -236,6 +240,12 @@ export const getUserDatabaseData = async (userId: string): Promise<DatabaseUserT
         };
     } catch (error) {
         console.error("Error getting database user:", error);
+        console.error("Error details:", {
+            userId,
+            databaseId,
+            usersCollectionId,
+            errorMessage: error instanceof Error ? error.message : 'Unknown error'
+        });
         return null;
     }
 }

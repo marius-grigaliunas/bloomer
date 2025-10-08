@@ -7,11 +7,18 @@ import LoadingScreen from '../../components/LoadingScreen';
 export default function AppLayout() {
     const { loading, isLoggedIn } = useGlobalContext();
 
+    console.log("AppLayout render - loading:", loading, "isLoggedIn:", isLoggedIn);
+
     if(loading) {
+        console.log("AppLayout: Showing loading screen");
         return <LoadingScreen/>
     }
 
-    if(!isLoggedIn) return <Redirect href={"/sign-in"}/>
+    if(!isLoggedIn) {
+        console.log("AppLayout: User not logged in, redirecting to sign-in");
+        return <Redirect href={"/sign-in"}/>
+    }
 
+    console.log("AppLayout: User logged in, showing Slot");
     return <Slot />
 }

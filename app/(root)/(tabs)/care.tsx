@@ -6,7 +6,7 @@ import { DatabasePlantType } from '@/interfaces/interfaces'
 import { WateringDay, generateWateringDays, pregenerateWateringDays, clearWateringDaysCache } from '@/lib/services/dateService'
 import { useGlobalContext } from '@/lib/globalProvider'
 import { getUserPlants } from '@/lib/appwrite'
-import colors from '@/constants/colors'
+const colors = require('@/constants/colors')
 import TaskCard from '@/components/TaskCard'
 import { useNavigationState } from '@/lib/navigationState'
 
@@ -331,6 +331,24 @@ const Care = () => {
             </Animated.View>
         );
     }, [selectedDate, selectedPlants, getFormattedFullDate, careState.selectedMonth, careState.selectedYear, wateringDays, generateDateKey, getTaskStatus, tasksTranslateX, tasksOpacity]);
+
+    // Debug: Show fallback if databaseUser is undefined
+    if(!databaseUser) {
+        console.log("Care screen - Database user is undefined");
+        return (
+            <SafeAreaView className='bg-background-primary flex-1 justify-center items-center'>
+                <Text className="text-lg font-semibold text-[#2F2F2F] mb-4">
+                    Loading user data...
+                </Text>
+                <Text className="text-sm text-[#666666] text-center px-4">
+                    User ID: {user?.$id || "None"}
+                </Text>
+                <Text className="text-sm text-[#666666] text-center px-4 mt-2">
+                    Database User: {databaseUser ? "Loaded" : "Not loaded"}
+                </Text>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView className='bg-background-primary flex-1'>

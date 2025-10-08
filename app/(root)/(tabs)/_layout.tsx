@@ -3,7 +3,7 @@ import React from 'react'
 import { Tabs } from 'expo-router'
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
-import colors from '@/constants/colors'
+const colors = require('@/constants/colors')
 import { AntDesign, Entypo, FontAwesome5, Ionicons } from '@expo/vector-icons';
 
 

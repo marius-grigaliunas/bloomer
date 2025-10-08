@@ -5,7 +5,7 @@ import GlobalProvider from "@/lib/globalProvider";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
-import colors from "@/constants/colors";
+const colors = require("@/constants/colors");
 import LoadingScreen from "../components/LoadingScreen";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 

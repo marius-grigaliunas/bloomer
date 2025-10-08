@@ -13,6 +13,8 @@ const SignIn = () => {
     const router = useRouter()
     const [isSigningIn, setIsSigningIn] = useState(false)
 
+    console.log("SignIn component render - loading:", loading, "isLoggedIn:", isLoggedIn, "isSigningIn:", isSigningIn)
+
     // Check for persistent loading state on component mount
     useEffect(() => {
         const checkPersistentLoadingState = async () => {
@@ -124,39 +126,49 @@ const SignIn = () => {
     // and are commented out in the UI anyway
 
     return (
-        <SafeAreaView className="bg-background-primary flex-1">
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F8F8F8' }}>
             <ScrollView 
-                className="flex-1"
+                style={{ flex: 1 }}
                 contentContainerStyle={{ flexGrow: 1 }}
                 showsVerticalScrollIndicator={false}
             >
-                <View className="flex-1 justify-center items-center px-6">
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
                     {/* Logo/Brand Section */}
-                    <View className="items-center mb-16">
-                        <View className="bg-gray-100 rounded-3xl p-6 mb-4 shadow-sm shadow-black/10">
+                    <View style={{ alignItems: 'center', marginBottom: 64 }}>
+                        <View style={{ backgroundColor: '#F3F4F6', borderRadius: 24, padding: 24, marginBottom: 16 }}>
                             <Image
                                 source={require("../assets/images/logo-noname-500x500.png")}
-                                style={{ width: 48, height: 48 }}
+                                style={{ width: 80, height: 80 }}
                                 resizeMode="contain"
                             />
                         </View>
-                        <Text className="text-text-primary text-3xl font-bold mb-2">
+                        <Text style={{ color: '#2F2F2F', fontSize: 30, fontWeight: 'bold', marginBottom: 8 }}>
                             Bloomer
                         </Text>
-                        <Text className="text-text-secondary text-lg text-center">
+                        <Text style={{ color: '#6B7280', fontSize: 18, textAlign: 'center' }}>
                             Your personal plant care companion
                         </Text>
                     </View>
 
                     {/* Sign In Buttons */}
-                    <View className="w-full">
+                    <View style={{ width: '100%' }}>
                         {/* Google Sign In */}
                         <TouchableOpacity 
                             onPress={handleSignIn}
-                            className="bg-white rounded-3xl p-4 flex-row items-center justify-center shadow-sm shadow-black/5 border border-gray-200 mb-4"
+                            style={{ 
+                                backgroundColor: 'white', 
+                                borderRadius: 24, 
+                                padding: 16, 
+                                flexDirection: 'row', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                borderWidth: 1,
+                                borderColor: '#E5E7EB',
+                                marginBottom: 16
+                            }}
                         >
                             <Ionicons name="logo-google" size={24} color="#4285F4" />
-                            <Text className="text-text-primary text-lg font-medium ml-3">
+                            <Text style={{ color: '#2F2F2F', fontSize: 18, fontWeight: '500', marginLeft: 12 }}>
                                 Continue with Google
                             </Text>
                         </TouchableOpacity>
@@ -164,21 +176,28 @@ const SignIn = () => {
                         {/* Anonymous Sign In */}
                         <TouchableOpacity 
                             onPress={handleAnnonymousSignIn}
-                            className="bg-primary-medium rounded-3xl p-4 flex-row items-center justify-center shadow-sm shadow-black/5"
+                            style={{ 
+                                backgroundColor: '#4F772D', 
+                                borderRadius: 24, 
+                                padding: 16, 
+                                flexDirection: 'row', 
+                                alignItems: 'center', 
+                                justifyContent: 'center'
+                            }}
                         >
                             <Ionicons name="person-outline" size={24} color="white" />
-                            <Text className="text-white text-lg font-medium ml-3">
+                            <Text style={{ color: 'white', fontSize: 18, fontWeight: '500', marginLeft: 12 }}>
                                 Try without account
                             </Text>
                         </TouchableOpacity>
                     </View>
 
                     {/* Footer Text */}
-                    <View className="mt-12 items-center">
-                        <Text className="text-text-secondary text-center text-sm">
+                    <View style={{ marginTop: 48, alignItems: 'center' }}>
+                        <Text style={{ color: '#6B7280', textAlign: 'center', fontSize: 14 }}>
                             By continuing, you agree to our{' '}
                             <TouchableOpacity onPress={() => router.push('/privacy')}>
-                                <Text className="text-primary-medium underline font-medium">
+                                <Text style={{ color: '#4F772D', textDecorationLine: 'underline', fontWeight: '500' }}>
                                     Terms of Service
                                 </Text>
                             </TouchableOpacity>
