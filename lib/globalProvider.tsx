@@ -26,7 +26,6 @@ interface GlobalProviderProps {
 
 export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
     const { clearStore } = usePlantStore();
-    const providerId = React.useRef(Math.random().toString(36).substr(2, 9)).current;
 
     const getCurrentUserCallback = React.useCallback(async () => {
         return getCurrentUser();
@@ -55,17 +54,14 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
     useEffect(() => {
         const getDatabaseUser = async () => {
             if(user?.$id) {
-                console.log("Fetching database user for:", user.$id);
                 try {
                     const dbUser = await getUserDatabaseData(user.$id);
-                    console.log("Database user result:", dbUser);
                     setDatabaseUser(dbUser);
                 } catch (error) {
                     console.error("Error fetching database user:", error);
                     setDatabaseUser(null);
                 }
             } else {
-                console.log("No user ID, clearing database user");
                 setDatabaseUser(null);
                 // Clear plant store when user logs out
                 clearStore();
@@ -76,10 +72,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         getDatabaseUser();
     }, [user?.$id])
     
-    console.log(`[${providerId}] GlobalProvider state - user:`, user?.$id, "loading:", loading, "isLoggedIn:", isLoggedIn, "databaseUser:", databaseUser?.displayName);
     useEffect(() => {
         if(user) {
-            console.log("Push notification effect running for user:", user.$id);
             const setupPushNotifications = async () => {
                 try {
                     // Check if we already have a token
@@ -141,7 +135,6 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
     }, [refetch]);
 
     const contextValue = React.useMemo(() => {
-        console.log(`[${providerId}] Creating new context value with databaseUser:`, databaseUser?.displayName, "user:", user?.$id);
         return {
             isLoggedIn,
             user,
@@ -151,11 +144,10 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
             setDeletingAccount: setDeletingAccountCallback,
             refetch: handleRefetch,
         };
-    }, [isLoggedIn, user, databaseUser, loading, isDeletingAccount, setDeletingAccountCallback, handleRefetch, providerId]);
+    }, [isLoggedIn, user, databaseUser, loading, isDeletingAccount, setDeletingAccountCallback, handleRefetch]);
 
     return (
         <GlobalContext.Provider
-            key={`${providerId}-${databaseUser?.userId || 'no-user'}`}
             value={contextValue}
         >
             {children}
@@ -169,7 +161,6 @@ export const useGlobalContext = (): GlobalContextType => {
     if(!context) 
         throw new Error("useGlobalContext must be used within GlobalProvider")
 
-    console.log("useGlobalContext received - user:", context.user?.$id, "databaseUser:", context.databaseUser?.displayName);
     return context
 };
 

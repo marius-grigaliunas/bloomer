@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
-const colors = require('@/constants/colors');
+import colors from '@/constants/colors';
 import { router } from 'expo-router';
 import { DatabasePlantType } from '@/interfaces/interfaces';
 import { Ionicons } from '@expo/vector-icons';

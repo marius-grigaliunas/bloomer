@@ -42,12 +42,14 @@ export default function RenamePlantModal({visible, onClose, onSave, plantName}: 
       animationType='fade'
       onRequestClose={handleClose}
     >
-      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <TouchableWithoutFeedback onPress={handleClose}>
         <View className="flex-1 bg-black/50 justify-center items-center px-4">
-          <TouchableWithoutFeedback onPress={() => {}}>
-            <View className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-lg">
-              {/* Header */}
-              <View className="flex-row items-center justify-between mb-6">
+          <View 
+            className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-lg"
+            onStartShouldSetResponder={() => true}
+          >
+            {/* Header */}
+            <View className="flex-row items-center justify-between mb-6">
                 <View className="flex-row items-center">
                   <View className="w-10 h-10 rounded-2xl bg-primary-medium/10 items-center justify-center mr-3">
                     <Ionicons name="create-outline" size={20} color="#4F772D" />
@@ -123,8 +125,7 @@ export default function RenamePlantModal({visible, onClose, onSave, plantName}: 
                 </TouchableOpacity>
               </View>
             </View>
-          </TouchableWithoutFeedback>
-        </View>
+          </View>
       </TouchableWithoutFeedback>
     </Modal>
   )

@@ -13,8 +13,6 @@ const SignIn = () => {
     const router = useRouter()
     const [isSigningIn, setIsSigningIn] = useState(false)
 
-    console.log("SignIn component render - loading:", loading, "isLoggedIn:", isLoggedIn, "isSigningIn:", isSigningIn)
-
     // Check for persistent loading state on component mount
     useEffect(() => {
         const checkPersistentLoadingState = async () => {

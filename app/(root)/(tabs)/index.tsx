@@ -3,7 +3,7 @@ import MyPlants from "@/components/MyPlants";
 import WeatherComponent, { WeatherComponentRef } from "@/components/WeatherComponent";
 import DailyTask from "@/components/DailyTask";
 import WeekCalendar from "@/components/WeekCalendar";
-const colors = require("@/constants/colors");
+import colors from "@/constants/colors";
 import { DatabasePlantType } from "@/interfaces/interfaces";
 import { usePlantStore } from "@/interfaces/plantStore";
 import { getCurrentUser, getUserPlants } from "@/lib/appwrite";
@@ -21,8 +21,6 @@ export default function Index() {
 
   const { isLoggedIn, user: contextUser, refetch, databaseUser} = useGlobalContext();
   
-  // Debug logging
-  console.log("Main screen render - isLoggedIn:", isLoggedIn, "user:", contextUser?.$id, "databaseUser:", databaseUser?.displayName);
   const [ currentUser, setCurrentUser ] = useState(contextUser);
 
   // Update currentUser when contextUser changes
@@ -30,18 +28,10 @@ export default function Index() {
     setCurrentUser(contextUser);
   }, [contextUser]);
 
-  // Debug: Log when databaseUser changes
-  useEffect(() => {
-    console.log("Index component - databaseUser changed:", databaseUser?.displayName);
-  }, [databaseUser]);
-
   const [ loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const { plants, allPlantIds, isLoading, error, fetchAllUserPlants } = usePlantStore();
-  
-  // Debug plant store state
-  console.log("Plant store - isLoading:", isLoading, "error:", error, "plants count:", Object.keys(plants).length);
 
   const [lastUserId, setLastUserId] = useState<string | null>(null);
 
@@ -96,13 +86,11 @@ export default function Index() {
 
   // Show loading screen if still loading
   if(isLoading) {
-    console.log("Showing loading screen");
     return <LoadingScreen message="Loading your garden..." />;
   }
 
-  // Debug: Show a simple fallback if databaseUser is undefined
+  // Show a simple fallback if databaseUser is undefined
   if(!databaseUser) {
-    console.log("Database user is undefined, showing fallback");
     return (
       <SafeAreaView className="bg-[#F8F8F8] flex-1 justify-center items-center">
         <Text className="text-lg font-semibold text-[#2F2F2F] mb-4">

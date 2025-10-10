@@ -6,7 +6,7 @@ import { DatabasePlantType } from '@/interfaces/interfaces'
 import { WateringDay, generateWateringDays, pregenerateWateringDays, clearWateringDaysCache } from '@/lib/services/dateService'
 import { useGlobalContext } from '@/lib/globalProvider'
 import { getUserPlants } from '@/lib/appwrite'
-const colors = require('@/constants/colors')
+import colors from '@/constants/colors'
 import TaskCard from '@/components/TaskCard'
 import { useNavigationState } from '@/lib/navigationState'
 
