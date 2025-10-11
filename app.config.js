@@ -44,14 +44,16 @@ export default {
         favicon: "./assets/images/icon.png"
     },
     plugins: [
-        "expo-build-properties",
-        {
-            "android": {
-                "compileSdkVersion": 35,
-                "targetSdkVersion": 35,
-                "buildToolsVersion": "35.0.0"
-            }
-        },
+        [
+            "expo-build-properties",
+            {
+                "android": {
+                    "compileSdkVersion": 35,
+                    "targetSdkVersion": 35,
+                    "buildToolsVersion": "35.0.0"
+                }
+            },
+        ],
         "expo-router",
         [
             "expo-splash-screen",
