@@ -1,7 +1,7 @@
 export default {
     name: "Bloomer",
     slug: "bloomer",
-    version: "0.9.9",
+    version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "appwrite-callback-67d145de00084a32d0d6",
