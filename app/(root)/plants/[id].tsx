@@ -11,6 +11,7 @@ import PlantCareInfoComponent from '@/components/PlantCareInfoComponent';
 import { usePlantStore } from '@/interfaces/plantStore';
 import PlantHeader from '@/components/PlantHeader';
 import RenamePlantModal from '@/components/RenamePlantModal';
+import DeletePlantModal from '@/components/DeletePlantModal';
 import { calculateDaysLate, calculateDaysUntilNextWatering } from '@/lib/services/dateService';
 import { useNavigationState } from '@/lib/navigationState';
 
@@ -29,6 +30,7 @@ const PlantDetails = () => {
   const { isLoggedIn, user: contextUser } = useGlobalContext();
   const [ loading, setLoading] = useState(false);
   const [ modalVisible, setModalVisible ] = useState(false);
+  const [ deleteModalVisible, setDeleteModalVisible ] = useState(false);
   const { setCareState } = useNavigationState();
 
   const navigateBack = () => {
@@ -78,29 +80,21 @@ const PlantDetails = () => {
     }
   }, [plant, loading, isLoading]);
 
-  const deletePlantButton = async () => {
-    Alert.alert(
-      "Delete Plant",
-      "Are you sure you want to delete this plant? This action cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLoading(true);
-              await deletePlant(id);
-              setLoading(false);
-              navigateBack();
-            } catch (error) {
-              setLoading(false);
-              Alert.alert('Error', 'Failed to delete plant');
-            }
-          }
-        }
-      ]
-    );
+  const deletePlantButton = () => {
+    setDeleteModalVisible(true);
+  };
+
+  const handleDeletePlant = async () => {
+    try {
+      setLoading(true);
+      setDeleteModalVisible(false);
+      await deletePlant(id);
+      setLoading(false);
+      navigateBack();
+    } catch (error) {
+      setLoading(false);
+      Alert.alert('Error', 'Failed to delete plant');
+    }
   };
 
   const handleShowModal = () => setModalVisible(true);
@@ -373,6 +367,13 @@ const PlantDetails = () => {
         onClose={handleCloseModal}
         onSave={handleRenamePlant}
         plantName={plant.nickname}
+      />
+
+      <DeletePlantModal
+        visible={deleteModalVisible}
+        onClose={() => setDeleteModalVisible(false)}
+        onDelete={handleDeletePlant}
+        plantName={plant.nickname || plant.scientificName}
       />
     </SafeAreaView>
   )
