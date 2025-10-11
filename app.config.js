@@ -36,7 +36,10 @@ export default {
             "android.permission.WRITE_EXTERNAL_STORAGE",
             "android.permission.POST_NOTIFICATIONS"
         ],
-        "package": "com.grimar.bloomer"
+        "package": "com.grimar.bloomer",
+        "compileSdkVersion": 35,
+        "targetSdkVersion": 35,
+        "buildToolsVersion": "35.0.0"
     },
     web: {
         bundler: "metro",

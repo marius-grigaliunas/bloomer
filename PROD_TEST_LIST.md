@@ -1,4 +1,5 @@
 # Bloomer App - Production Test List
+
 ## User Journey Testing Scenarios
 
 ---
@@ -8,6 +9,7 @@
 ### Scenario: Sarah discovers Bloomer and wants to start caring for her plants
 
 **Steps:**
+
 1. Open app for the first time
 2. See welcome screen with logo and branding
 3. Choose to sign in with Google
@@ -17,6 +19,7 @@
 7. Notice "Add Plant" button and empty state messaging
 
 **Success Criteria:**
+
 - Smooth onboarding flow
 - Clear call-to-action to add first plant
 - Weather loads correctly
@@ -29,6 +32,7 @@
 ### Scenario: Sarah wants to add her first plant by taking photos
 
 **Steps:**
+
 1. Tap "Identify Plant" button from home screen
 2. Grant camera permissions if prompted
 3. Take 3-5 photos of the plant from different angles
@@ -45,6 +49,7 @@
 14. Return to home screen and see the plant card
 
 **Success Criteria:**
+
 - Camera works properly on device
 - Can take and review multiple photos
 - Identification returns accurate results
@@ -59,6 +64,7 @@
 ### Scenario: Mark checks his plants each morning before work
 
 **Steps:**
+
 1. Open app in the morning
 2. See "Good morning, Mark" greeting
 3. Check today's weather conditions
@@ -77,6 +83,7 @@
 16. See "All caught up!" message
 
 **Success Criteria:**
+
 - Tasks accurately reflect watering schedule
 - Overdue plants clearly highlighted
 - "Mark Watered" updates the schedule immediately
@@ -90,6 +97,7 @@
 ### Scenario: Emma checks her schedule for the upcoming week
 
 **Steps:**
+
 1. From home screen, tap "View Schedule" button
 2. See monthly calendar view
 3. Notice dots on dates indicating watering tasks
@@ -104,6 +112,7 @@
 12. Verify tasks update correctly
 
 **Success Criteria:**
+
 - Calendar loads all months
 - Can navigate between months smoothly
 - Task indicators (dots) show correctly
@@ -118,6 +127,7 @@
 ### Scenario: David has 10 plants and needs to manage them all
 
 **Steps:**
+
 1. Open home screen
 2. Scroll horizontally through "My Garden" section
 3. View all 10 plant cards
@@ -134,6 +144,7 @@
 14. Confirm name updated in garden list
 
 **Success Criteria:**
+
 - Can scroll through all plants smoothly
 - Plant details load quickly
 - Watering history shows correct dates
@@ -147,6 +158,7 @@
 ### Scenario: Lisa wants to adjust her preferences
 
 **Steps:**
+
 1. Navigate to Profile tab
 2. Update display name to preferred name
 3. Enable notifications
@@ -163,6 +175,7 @@
 14. Verify plant watering amounts show in ml (metric)
 
 **Success Criteria:**
+
 - All settings save successfully
 - Calendar preference applies immediately
 - Temperature units update everywhere
@@ -176,6 +189,7 @@
 ### Scenario: Tom encounters an issue and wants to report it
 
 **Steps:**
+
 1. Navigate to Profile tab
 2. Scroll to "Contact & Support" section
 3. Tap "Report a Bug"
@@ -194,6 +208,7 @@
 12. Receive confirmation
 
 **Success Criteria:**
+
 - Modal forms open correctly
 - Can type in all fields
 - Form validation works
@@ -208,6 +223,7 @@
 ### Scenario: Nina accidentally marks the wrong plant as watered
 
 **Steps:**
+
 1. View today's tasks on home screen
 2. Accidentally tap wrong plant
 3. Accidentally tap "Mark Watered"
@@ -219,12 +235,14 @@
 9. Note that user would need to wait or contact support for correction
 
 **Alternative - Preventing Mistakes:**
+
 1. View plant details before marking watered
 2. Confirm plant identity from image
 3. Check watering schedule makes sense
 4. Then tap "Mark Watered"
 
 **Success Criteria:**
+
 - Mark watered action is quick but intentional
 - Watering history updates immediately
 - User can verify changes in history
@@ -237,6 +255,7 @@
 ### Scenario: Michael checks in on weekend to plan his week
 
 **Steps:**
+
 1. Open app on Sunday morning
 2. Pull down to refresh on home screen
 3. Review weather for the day
@@ -253,6 +272,7 @@
 14. Notice border colors indicating urgency
 
 **Success Criteria:**
+
 - Refresh updates all data
 - Week calendar gives clear overview
 - Tap on day navigates with context preserved
@@ -266,6 +286,7 @@
 ### Scenario: Anna's plant died and she wants to remove it
 
 **Steps:**
+
 1. Navigate to home screen
 2. Find plant in "My Garden" section
 3. Tap on the plant to open details
@@ -280,6 +301,7 @@
 12. Confirm deletion was successful
 
 **Success Criteria:**
+
 - Delete requires confirmation
 - Warning message is clear
 - Plant removes from all screens
@@ -293,6 +315,7 @@
 ### Scenario: Carlos is in an area with no internet connection
 
 **Steps:**
+
 1. Turn off WiFi and mobile data on device
 2. Open Bloomer app
 3. View previously loaded plants on home screen
@@ -307,6 +330,7 @@
 12. Verify all data updates
 
 **Success Criteria:**
+
 - App opens and works offline for basic functions
 - Can view cached plant data
 - Mark watered works offline
@@ -320,6 +344,7 @@
 ### Scenario: Rachel receives and responds to notification
 
 **Steps:**
+
 1. Have app set up with notifications enabled
 2. Wait until notification time (e.g., 8:00 AM)
 3. Receive push notification: "You have 3 plants to water today"
@@ -331,6 +356,7 @@
 9. Check that tomorrow won't have unnecessary notifications
 
 **Success Criteria:**
+
 - Notification arrives at correct time
 - Notification content is accurate
 - Tapping notification opens app correctly
@@ -344,6 +370,7 @@
 ### Scenario: James uses Bloomer on phone and later on tablet
 
 **Steps:**
+
 1. Set up account on phone with Google sign-in
 2. Add 3 plants on phone
 3. Mark one plant as watered
@@ -358,6 +385,7 @@
 12. Verify new plant appears on phone
 
 **Success Criteria:**
+
 - Account syncs across devices
 - All plant data syncs
 - Watering history syncs
@@ -372,6 +400,7 @@
 ### Scenario: Patricia quickly scans which plants need immediate attention
 
 **Steps:**
+
 1. Open home screen
 2. Quickly scan "Today's Tasks" section
 3. Identify overdue plants by red border/indicator
@@ -386,6 +415,7 @@
 9. Handle most urgent plants first
 
 **Success Criteria:**
+
 - Color coding is consistent across app
 - Urgency levels are clearly distinguishable
 - Visual hierarchy helps with prioritization
@@ -399,6 +429,7 @@
 ### Scenario: Kevin hasn't opened app in 2 weeks
 
 **Steps:**
+
 1. Open app after 2 week absence
 2. See greeting and weather update
 3. Notice multiple plants in "Today's Tasks"
@@ -415,6 +446,7 @@
 14. See schedule gradually normalize
 
 **Success Criteria:**
+
 - App accurately calculates days overdue
 - Urgent plants clearly highlighted
 - Can recover from long absence
@@ -428,6 +460,7 @@
 ### Scenario: Sophie wants to delete account and start over
 
 **Steps:**
+
 1. Navigate to Profile tab
 2. Scroll to "Delete Account" section
 3. Read warning about data deletion
@@ -444,6 +477,7 @@
 14. All previous settings reset to defaults
 
 **Success Criteria:**
+
 - Deletion requires multiple confirmations
 - Warning messages are very clear
 - Deletion is truly permanent
@@ -469,6 +503,7 @@
 ## 📋 Testing Checklist
 
 ### Pre-Release Testing
+
 - [ ] All 16 user journeys complete successfully
 - [ ] Quick smoke tests pass on iOS
 - [ ] Quick smoke tests pass on Android
@@ -483,6 +518,7 @@
 - [ ] Error messages are helpful and clear
 
 ### Platform-Specific
+
 - [ ] iOS: Flash works properly
 - [ ] Android: Torch works properly
 - [ ] iOS: Date picker displays correctly
@@ -491,6 +527,7 @@
 - [ ] Both: Pull-to-refresh feels responsive
 
 ### Data Integrity
+
 - [ ] Mark watered updates immediately
 - [ ] Rename plant persists
 - [ ] Delete plant removes everywhere
@@ -504,6 +541,7 @@
 ## 🎯 Success Metrics
 
 A successful production release means:
+
 - Users can complete all 16 journeys without confusion
 - No critical bugs block core functionality
 - App feels fast and responsive
@@ -514,6 +552,3 @@ A successful production release means:
 - Support/bug reporting is easy to access
 
 ---
-
-*Last Updated: Production Test List v1.0*
-
