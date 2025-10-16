@@ -5,7 +5,7 @@ import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
 import colors from '@/constants/colors'
 import { AntDesign, Entypo, FontAwesome5, Ionicons } from '@expo/vector-icons';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 interface TabIconProps {
     focused: boolean;
@@ -39,6 +39,8 @@ const TabIcon = ({focused, icon, title} : TabIconProps) => {
 }
 
 const _layout = () => {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tabs
         screenOptions={{
@@ -52,8 +54,8 @@ const _layout = () => {
                 backgroundColor: colors.background.surface,
                 borderTopWidth: 1,
                 borderTopColor: '#E5E5E5',
-                height: 64,
-                paddingBottom: 8,
+                height: 64 + insets.bottom,
+                paddingBottom: 8 + insets.bottom,
                 paddingTop: 8
             }
         }}
