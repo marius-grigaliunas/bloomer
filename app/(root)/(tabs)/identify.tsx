@@ -351,6 +351,14 @@ const identify = () => {
         return;
       }
       
+      // Check confidence level - treat 0 confidence as failed identification
+      if (results.confidence === 0 || results.confidence < 0.01) {
+        console.warn('Plant identification failed - confidence too low:', results.confidence);
+        setIdentificationError('Plant could not be identified with sufficient confidence. Please try taking clearer photos or different angles.');
+        setShowErrorModal(true);
+        return;
+      }
+
       setLoadingMessage("Getting care information...");
       
       const scientificName = results.bestMatch;

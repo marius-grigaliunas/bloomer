@@ -52,7 +52,10 @@ const IdentifiedPlant = () => {
   }
 
   const handleShowModal = () => {
-    setModalVisible(true);
+    // Only allow adding plant if identification was successful
+    if (isIdentificationSuccessful) {
+      setModalVisible(true);
+    }
   }
 
   const handleCloseModal = () => {
@@ -139,6 +142,10 @@ const IdentifiedPlant = () => {
 
   const { scientificName, commonNames, confidence, imageUri } = identifiedPlant.plant;
 
+  // Check if identification was successful based on confidence
+  const isIdentificationSuccessful = confidence && confidence > 0.01;
+  const confidencePercentage = Math.round((confidence || 0) * 100);
+
   if(loading) return <LoadingScreen/>
 
   return (
@@ -171,19 +178,33 @@ const IdentifiedPlant = () => {
           confidence={confidence}
         />
 
-        {/* Identification Success Card */}
+        {/* Identification Status Card */}
         <View className="mx-4 mb-6">
-          <View className="bg-success/10 rounded-3xl p-4 shadow-sm shadow-black/5">
-            <View className="flex-row items-center">
-              <Ionicons name="checkmark-circle" size={24} color="#2E7D32" />
-              <Text className="text-success text-lg font-semibold ml-2">
-                Plant Successfully Identified!
+          {isIdentificationSuccessful ? (
+            <View className="bg-success/10 rounded-3xl p-4 shadow-sm shadow-black/5">
+              <View className="flex-row items-center">
+                <Ionicons name="checkmark-circle" size={24} color="#2E7D32" />
+                <Text className="text-success text-lg font-semibold ml-2">
+                  Plant Successfully Identified!
+                </Text>
+              </View>
+              <Text className="text-text-secondary text-sm mt-2">
+                We found your plant with {confidencePercentage}% confidence
               </Text>
             </View>
-            <Text className="text-text-secondary text-sm mt-2">
-              We found your plant with {Math.round((confidence || 0) * 100)}% confidence
-            </Text>
-          </View>
+          ) : (
+            <View className="bg-warning/10 rounded-3xl p-4 shadow-sm shadow-black/5">
+              <View className="flex-row items-center">
+                <Ionicons name="warning" size={24} color="#FF9800" />
+                <Text className="text-warning text-lg font-semibold ml-2">
+                  Identification Uncertain
+                </Text>
+              </View>
+              <Text className="text-text-secondary text-sm mt-2">
+                We couldn't identify your plant with sufficient confidence ({confidencePercentage}%). The result may not be accurate.
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Plant Care Information */}
@@ -212,13 +233,38 @@ const IdentifiedPlant = () => {
           <View className="space-y-4">
             <TouchableOpacity 
               onPress={handleShowModal}
-              className="bg-primary-medium rounded-3xl p-4 items-center shadow-sm shadow-black/5"
+              disabled={!isIdentificationSuccessful}
+              className={`rounded-3xl p-4 items-center shadow-sm shadow-black/5 ${
+                isIdentificationSuccessful 
+                  ? 'bg-primary-medium' 
+                  : 'bg-gray-400'
+              }`}
             >
-              <Ionicons name="add-circle" size={24} color="white" />
-              <Text className="text-white font-medium mt-2 text-center text-lg">
-                Add to My Garden
+              <Ionicons 
+                name="add-circle" 
+                size={24} 
+                color={isIdentificationSuccessful ? "white" : "#9CA3AF"} 
+              />
+              <Text className={`font-medium mt-2 text-center text-lg ${
+                isIdentificationSuccessful ? 'text-white' : 'text-gray-500'
+              }`}>
+                {isIdentificationSuccessful ? 'Add to My Garden' : 'Add to My Garden (Unavailable)'}
               </Text>
             </TouchableOpacity>
+            
+            {!isIdentificationSuccessful && (
+              <View className="bg-warning/10 rounded-3xl p-4 border border-warning/20">
+                <View className="flex-row items-center mb-2">
+                  <Ionicons name="information-circle" size={20} color="#FF9800" />
+                  <Text className="text-warning font-medium ml-2">
+                    Why can't I add this plant?
+                  </Text>
+                </View>
+                <Text className="text-text-secondary text-sm">
+                  The identification confidence is too low to ensure accuracy. Please try taking clearer photos or different angles for better identification.
+                </Text>
+              </View>
+            )}
             
             <TouchableOpacity 
               onPress={handleResetIdentification}
