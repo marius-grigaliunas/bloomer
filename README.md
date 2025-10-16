@@ -40,5 +40,5 @@
 - [x] option to delete account
 - [x] Need a served function to delete the auth record of the user
 - [x] loading state while signing in
-- [ ] Test everything
-- [ ] Deploy
+- [x] Test everything
+- [x] Deploy
