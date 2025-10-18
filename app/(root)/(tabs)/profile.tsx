@@ -143,60 +143,69 @@ const Profile: React.FC = () => {
     </View>
   );
 
-  const renderNotificationSection = () => (
-    <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
-      <View className="flex-row items-center mb-4">
-        <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
-          <AntDesign name="bells" size={20} color="white" />
-        </View>
-        <Text className="text-xl font-semibold text-text-primary">Notifications</Text>
-      </View>
-      
-      <View>
-        <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl mb-4">
-          <View className="flex-1">
-            <Text className="text-text-primary font-medium">Enable Notifications</Text>
-            <Text className="text-text-secondary text-sm">Get reminded about watering tasks</Text>
+  const renderNotificationSection = () => {
+    // Get default notification time (today at 16:00) if no time is set
+    const getDefaultTimeForPicker = () => {
+      if (userSettings.notificationTime) {
+        return createLocalDateFromUTC(userSettings.notificationTime);
+      }
+      // Default to today at 16:00
+      const today = new Date();
+      today.setHours(16, 0, 0, 0);
+      return today;
+    };
+
+    return (
+      <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
+        <View className="flex-row items-center mb-4">
+          <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
+            <AntDesign name="bells" size={20} color="white" />
           </View>
-          <Switch
-            value={userSettings.notificationsEnabled}
-            onValueChange={(value) => handleSettingChange('notificationsEnabled', value)}
-            trackColor={{ false: '#E5E7EB', true: colors.primary.medium }}
-            thumbColor={userSettings.notificationsEnabled ? 'white' : '#F3F4F6'}
-          />
+          <Text className="text-xl font-semibold text-text-primary">Notifications</Text>
         </View>
         
-        <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl">
-          <View className="flex-1">
-            <Text className="text-text-primary font-medium">Notification Time</Text>
-            <Text className="text-text-secondary text-sm">Daily reminder time</Text>
+        <View>
+          <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl mb-4">
+            <View className="flex-1">
+              <Text className="text-text-primary font-medium">Enable Notifications</Text>
+              <Text className="text-text-secondary text-sm">Get reminded about watering tasks</Text>
+            </View>
+            <Switch
+              value={userSettings.notificationsEnabled}
+              onValueChange={(value) => handleSettingChange('notificationsEnabled', value)}
+              trackColor={{ false: '#E5E7EB', true: colors.primary.medium }}
+              thumbColor={userSettings.notificationsEnabled ? 'white' : '#F3F4F6'}
+            />
           </View>
-          <TouchableOpacity
-            onPress={() => setShowTimePicker(true)}
-            className="bg-primary-medium px-4 py-2 rounded-lg"
-          >
-            <Text className="text-white font-medium">
-              {userSettings.notificationTime ? getLocalTimeFromUTC(userSettings.notificationTime) : "Set Time"}
-            </Text>
-          </TouchableOpacity>
+          
+          <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl">
+            <View className="flex-1">
+              <Text className="text-text-primary font-medium">Notification Time</Text>
+              <Text className="text-text-secondary text-sm">Daily reminder time</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setShowTimePicker(true)}
+              className="bg-primary-medium px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-medium">
+                {userSettings.notificationTime ? getLocalTimeFromUTC(userSettings.notificationTime) : "16:00"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
+        
+        {showTimePicker && (
+          <DateTimePicker
+            value={getDefaultTimeForPicker()}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={handleTimeChange}
+          />
+        )}
       </View>
-      
-      {showTimePicker && (
-        <DateTimePicker
-          value={
-            userSettings.notificationTime 
-              ? createLocalDateFromUTC(userSettings.notificationTime)
-              : new Date()
-          }
-          mode="time"
-          is24Hour={true}
-          display="default"
-          onChange={handleTimeChange}
-        />
-      )}
-    </View>
-  );
+    );
+  };
 
   const renderPreferencesSection = () => (
     <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">

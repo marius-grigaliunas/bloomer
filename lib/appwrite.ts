@@ -222,6 +222,16 @@ export const getUserDatabaseData = async (userId: string): Promise<DatabaseUserT
 
         console.log("Database document retrieved:", doc);
         if(!doc) throw new Error("Failed to get the user's data from the database");
+        // Create default notification time for today at 16:00 if not set
+        const getDefaultNotificationTime = () => {
+            if (doc.notificationTime) {
+                return doc.notificationTime;
+            }
+            const today = new Date();
+            today.setHours(16, 0, 0, 0); // Set to 16:00 today
+            return today.toISOString();
+        };
+
         return {
             userId: doc.userId,
             email: doc.email,
@@ -230,7 +240,7 @@ export const getUserDatabaseData = async (userId: string): Promise<DatabaseUserT
             lastLogin: doc.lastLogin || new Date(),
             notificationsEnabled: doc.notificationsEnabled !== undefined ? !!doc.notificationsEnabled : true,
             pushToken: doc.pushToken,
-            notificationTime: doc.notificationTime || '09:00',
+            notificationTime: getDefaultNotificationTime(),
             timezone: doc.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
             reminderAdvanceTime: doc.reminderAdvanceTime || 24,
             profilePicture: doc.profilePicture || 'U',
@@ -253,6 +263,12 @@ export const getUserDatabaseData = async (userId: string): Promise<DatabaseUserT
 export const createNewDatabaseUser = async (user: User, profilePic: string, pushToken?: string | null) => {
     try {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+        // Create default notification time for today at 16:00
+        const today = new Date();
+        today.setHours(16, 0, 0, 0); // Set to 16:00 today
+        const defaultNotificationTime = today.toISOString();
+        
         const newUser = await databases.createDocument(
             databaseId,
             usersCollectionId,
@@ -268,7 +284,8 @@ export const createNewDatabaseUser = async (user: User, profilePic: string, push
                 profilePicture: profilePic,
                 unitSystem: 'metric',
                 mondayFirstDayOfWeek: true,
-                temperatureUnit: 'celsius'
+                temperatureUnit: 'celsius',
+                notificationTime: defaultNotificationTime
             }
         );
         return newUser;
