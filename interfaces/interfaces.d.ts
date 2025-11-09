@@ -50,6 +50,7 @@ export interface DatabaseUserType {
   unitSystem: 'metric' | 'imperial';
   mondayFirstDayOfWeek: boolean;
   temperatureUnit: 'celsius' | 'fahrenheit';
+  language?: 'en' | 'lt' | 'ro';
 }
 
 export interface DatabasePlantType {

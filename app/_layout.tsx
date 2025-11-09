@@ -1,6 +1,7 @@
 import { SplashScreen, Stack } from "expo-router";
 import * as Font from "expo-font"
 import './global.css'
+import "@/lib/i18n/config";
 import GlobalProvider from "@/lib/globalProvider";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";

@@ -1,0 +1,13 @@
+{
+  "common": {
+    "appName": "Bloomer"
+  },
+  "profile": {
+    "languageLabel": "Language",
+    "languageDescription": "Choose your preferred app language",
+    "languageEnglish": "English",
+    "languageLithuanian": "Lithuanian",
+    "languageRomanian": "Romanian"
+  }
+}
+

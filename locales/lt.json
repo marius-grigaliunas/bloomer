@@ -1,0 +1,13 @@
+{
+  "common": {
+    "appName": "Bloomer"
+  },
+  "profile": {
+    "languageLabel": "Kalba",
+    "languageDescription": "Pasirinkite pageidaujamą programėlės kalbą",
+    "languageEnglish": "Anglų",
+    "languageLithuanian": "Lietuvių",
+    "languageRomanian": "Rumunų"
+  }
+}
+

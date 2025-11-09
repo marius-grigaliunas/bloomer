@@ -1,0 +1,13 @@
+{
+  "common": {
+    "appName": "Bloomer"
+  },
+  "profile": {
+    "languageLabel": "Limbă",
+    "languageDescription": "Alege limba preferată pentru aplicație",
+    "languageEnglish": "Engleză",
+    "languageLithuanian": "Lituaniană",
+    "languageRomanian": "Română"
+  }
+}
+

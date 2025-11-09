@@ -247,6 +247,7 @@ export const getUserDatabaseData = async (userId: string): Promise<DatabaseUserT
             unitSystem: doc.unitSystem || 'metric',
             mondayFirstDayOfWeek: doc.mondayFirstDayOfWeek !== undefined ? !!doc.mondayFirstDayOfWeek : true,
             temperatureUnit: doc.temperatureUnit || 'celsius',
+            language: (doc.language as 'en' | 'lt' | 'ro') || 'en',
         };
     } catch (error) {
         console.error("Error getting database user:", error);
@@ -285,7 +286,8 @@ export const createNewDatabaseUser = async (user: User, profilePic: string, push
                 unitSystem: 'metric',
                 mondayFirstDayOfWeek: true,
                 temperatureUnit: 'celsius',
-                notificationTime: defaultNotificationTime
+                notificationTime: defaultNotificationTime,
+                language: 'en', // TODO need to set the new users language as the detected systme language
             }
         );
         return newUser;

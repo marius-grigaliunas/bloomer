@@ -15,6 +15,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import { User } from '../../../interfaces/interfaces';
 import { usePlantStore } from '@/interfaces/plantStore';
 import { useRouter } from 'expo-router';
+import { translate, setLocale, SupportedLanguage } from '@/lib/i18n/config';
 
 const Profile: React.FC = () => {
   const { refetch, isLoggedIn, user: contextUser, databaseUser, isDeletingAccount, setDeletingAccount } = useGlobalContext();
@@ -73,7 +74,8 @@ const Profile: React.FC = () => {
     reminderAdvanceTime: databaseUser?.reminderAdvanceTime,
     unitSystem: databaseUser?.unitSystem,
     mondayFirstDayOfWeek: databaseUser?.mondayFirstDayOfWeek,
-    temperatureUnit: databaseUser?.temperatureUnit
+    temperatureUnit: databaseUser?.temperatureUnit,
+    language: (databaseUser?.language as SupportedLanguage) || 'en',
   });
 
   const [showTimePicker, setShowTimePicker] = react.useState(false);
@@ -93,8 +95,12 @@ const Profile: React.FC = () => {
         reminderAdvanceTime: databaseUser.reminderAdvanceTime,
         unitSystem: databaseUser.unitSystem,
         mondayFirstDayOfWeek: databaseUser.mondayFirstDayOfWeek,
-        temperatureUnit: databaseUser.temperatureUnit
+        temperatureUnit: databaseUser.temperatureUnit,
+        language: (databaseUser.language as SupportedLanguage) || 'en',
       }));
+      if (databaseUser.language) {
+        setLocale((databaseUser.language as SupportedLanguage) || 'en');
+      }
     }
   }, [databaseUser, contextUser?.name]);
 
@@ -232,6 +238,31 @@ const Profile: React.FC = () => {
             </Picker>
           </View>
         </View>
+
+        <View className="mb-4">
+          <Text className="text-text-primary font-medium mb-1">
+            {translate('profile.languageLabel')}
+          </Text>
+          <Text className="text-text-secondary text-sm mb-2">
+            {translate('profile.languageDescription')}
+          </Text>
+          <View className="bg-background-primary rounded-xl border border-gray-200">
+            <Picker
+              selectedValue={userSettings.language || 'en'}
+              onValueChange={(value: string) => {
+                handleSettingChange('language', value as SupportedLanguage);
+                setLocale((value as SupportedLanguage) || 'en');
+              }}
+              style={pickerStyle}
+              dropdownIconColor={colors.text.primary}
+              mode="dropdown"
+            >
+              <Picker.Item label={translate('profile.languageEnglish')} value="en" />
+              <Picker.Item label={translate('profile.languageLithuanian')} value="lt" />
+              <Picker.Item label={translate('profile.languageRomanian')} value="ro" />
+            </Picker>
+          </View>
+        </View>
         
         <View className="mb-4">
           <Text className="text-text-primary font-medium mb-2">Temperature Unit</Text>
@@ -358,6 +389,9 @@ const Profile: React.FC = () => {
         Alert.alert('Success', 'Settings saved successfully');
         // Refresh the global context to update the display name across the app
         refetch?.();
+        if (userSettings.language) {
+          setLocale(userSettings.language as SupportedLanguage);
+        }
       } else {
         Alert.alert('Error', 'Failed to save settings, failed to update the database');
       }

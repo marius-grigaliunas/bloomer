@@ -12,6 +12,7 @@
 - Notification Management
 - Plant Identification
 - Care Calendar
+- Localization
 
 ### TODO
 
@@ -42,3 +43,4 @@
 - [x] loading state while signing in
 - [x] Test everything
 - [x] Deploy
+- [ ] Translate the app to Romanian and Lithuanian.

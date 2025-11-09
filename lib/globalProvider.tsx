@@ -7,6 +7,7 @@ import { registerForPushNotificationsAsync } from "./services/notificationsServi
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePlantStore } from '@/interfaces/plantStore';
+import { setLocale, supportedLanguages, SupportedLanguage } from "./i18n/config";
 
 interface GlobalContextType {
     isLoggedIn: boolean;
@@ -71,6 +72,13 @@ export const GlobalProvider = ({ children }: GlobalProviderProps ) => {
         };
         getDatabaseUser();
     }, [user?.$id])
+
+    useEffect(() => {
+        const preferredLanguage = databaseUser?.language;
+        if (preferredLanguage && supportedLanguages.includes(preferredLanguage as SupportedLanguage)) {
+            setLocale(preferredLanguage as SupportedLanguage);
+        }
+    }, [databaseUser?.language]);
     
     useEffect(() => {
         if(user) {

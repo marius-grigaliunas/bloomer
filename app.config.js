@@ -1,7 +1,7 @@
 export default {
     name: "Bloomer",
     slug: "bloomer",
-    version: "1.0.1",
+    version: "1.0.2",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "appwrite-callback-67d145de00084a32d0d6",
@@ -42,6 +42,11 @@ export default {
         bundler: "metro",
         output: "static",
         favicon: "./assets/images/icon.png"
+    },
+    locales: {
+        "en": "./locales/en.json",
+        "lt": "./locales/lt.json",
+        "ro": "./locales/ro.json"
     },
     plugins: [
         [
@@ -86,6 +91,15 @@ export default {
             {
                 icon: "./assets/images/icon.png",
                 backgroundColor: "#ffffff"
+            }
+        ],
+        [
+            "expo-localization", 
+            {
+              "supportedLocales": {
+                "android": ["en", "ro", "lt"],
+                "ios": ["en", "ro", "lt"]
+              }
             }
         ]
     ],
