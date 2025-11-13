@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '@/constants/colors';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { UserMessageType } from '@/interfaces/interfaces';
+import { translate } from '@/lib/i18n/config';
 
 interface ContactModalProps {
   visible: boolean;
@@ -45,14 +46,14 @@ const ContactModal: React.FC<ContactModalProps> = ({
   const handleSubmit = async () => {
     // Validate required fields
     if (!formData.email.trim() || !formData.message.trim()) {
-      Alert.alert('Required Fields', 'Please fill in both email and message fields.');
+      Alert.alert(translate('contactModal.requiredFields'), translate('contactModal.fillAllFields'));
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email.trim())) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      Alert.alert(translate('contactModal.invalidEmail'), translate('contactModal.enterValidEmail'));
       return;
     }
 
@@ -70,7 +71,7 @@ const ContactModal: React.FC<ContactModalProps> = ({
       });
       onClose();
     } catch (error) {
-      Alert.alert('Error', 'Failed to send message. Please try again.');
+      Alert.alert(translate('contactModal.error'), translate('contactModal.failedToSend'));
     } finally {
       setIsSubmitting(false);
     }
@@ -102,7 +103,7 @@ const ContactModal: React.FC<ContactModalProps> = ({
               <View className="w-10 h-10 bg-info rounded-full items-center justify-center mr-3">
                 <AntDesign name="mail" size={20} color="white" />
               </View>
-              <Text className="text-xl font-semibold text-text-primary">Contact Us</Text>
+              <Text className="text-xl font-semibold text-text-primary">{translate('contactModal.title')}</Text>
             </View>
             <TouchableOpacity
               onPress={handleClose}
@@ -119,20 +120,19 @@ const ContactModal: React.FC<ContactModalProps> = ({
           >
             <View className="p-4">
               <Text className="text-text-secondary text-base mb-6">
-                Have a question, suggestion, or feedback? We'd love to hear from you! 
-                Send us a message and we'll get back to you as soon as possible.
+                {translate('contactModal.description')}
               </Text>
 
               {/* Email Field */}
               <View className="mb-4">
                 <Text className="text-text-primary font-medium mb-2">
-                  Email Address <Text className="text-danger">*</Text>
+                  {translate('contactModal.emailLabel')} <Text className="text-danger">*</Text>
                 </Text>
                 <TextInput
                   className="bg-background-surface p-4 rounded-xl text-text-primary border border-gray-200"
                   value={formData.email}
                   onChangeText={(text) => handleInputChange('email', text)}
-                  placeholder="your.email@example.com"
+                  placeholder={translate('contactModal.emailPlaceholder')}
                   placeholderTextColor={colors.text.secondary}
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -143,13 +143,13 @@ const ContactModal: React.FC<ContactModalProps> = ({
               {/* Message Field */}
               <View className="mb-6">
                 <Text className="text-text-primary font-medium mb-2">
-                  Message <Text className="text-danger">*</Text>
+                  {translate('contactModal.messageLabel')} <Text className="text-danger">*</Text>
                 </Text>
                 <TextInput
                   className="bg-background-surface p-4 rounded-xl text-text-primary border border-gray-200"
                   value={formData.message}
                   onChangeText={(text) => handleInputChange('message', text)}
-                  placeholder="Tell us what's on your mind..."
+                  placeholder={translate('contactModal.messagePlaceholder')}
                   placeholderTextColor={colors.text.secondary}
                   multiline
                   numberOfLines={8}
@@ -157,7 +157,7 @@ const ContactModal: React.FC<ContactModalProps> = ({
                   maxLength={1000}
                 />
                 <Text className="text-text-secondary text-sm mt-2 text-right">
-                  {formData.message.length}/1000 characters
+                  {translate('contactModal.charactersCount').replace('{count}', String(formData.message.length))}
                 </Text>
               </View>
             </View>
@@ -172,7 +172,7 @@ const ContactModal: React.FC<ContactModalProps> = ({
                 disabled={isSubmitting}
               >
                 <Text className="text-text-primary text-center text-lg font-medium">
-                  Cancel
+                  {translate('contactModal.cancel')}
                 </Text>
               </TouchableOpacity>
               
@@ -195,7 +195,7 @@ const ContactModal: React.FC<ContactModalProps> = ({
                     <AntDesign name="arrowright" size={20} color="white" className="mr-2" />
                   )}
                   <Text className="text-white text-center text-lg font-semibold ml-2">
-                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                    {isSubmitting ? translate('contactModal.sending') : translate('contactModal.sendMessage')}
                   </Text>
                 </View>
               </TouchableOpacity>

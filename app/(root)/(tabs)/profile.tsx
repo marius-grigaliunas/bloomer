@@ -137,13 +137,13 @@ const Profile: React.FC = () => {
         <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
           <AntDesign name="user" size={20} color="white" />
         </View>
-        <Text className="text-xl font-semibold text-text-primary">Personal Information</Text>
+        <Text className="text-xl font-semibold text-text-primary">{translate('profile.personalInformation')}</Text>
       </View>
       <TextInput
         className="bg-background-primary p-4 rounded-xl text-text-primary border border-gray-200"
         value={userSettings.displayName}
         onChangeText={(text) => handleSettingChange('displayName', text)}
-        placeholder={databaseUser?.displayName || "Enter your display name"}
+        placeholder={databaseUser?.displayName || translate('profile.enterDisplayName')}
         placeholderTextColor={colors.text.secondary}
       />
     </View>
@@ -167,14 +167,14 @@ const Profile: React.FC = () => {
           <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
             <AntDesign name="bells" size={20} color="white" />
           </View>
-          <Text className="text-xl font-semibold text-text-primary">Notifications</Text>
+          <Text className="text-xl font-semibold text-text-primary">{translate('profile.notifications')}</Text>
         </View>
         
         <View>
           <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl mb-4">
             <View className="flex-1">
-              <Text className="text-text-primary font-medium">Enable Notifications</Text>
-              <Text className="text-text-secondary text-sm">Get reminded about watering tasks</Text>
+              <Text className="text-text-primary font-medium">{translate('profile.enableNotifications')}</Text>
+              <Text className="text-text-secondary text-sm">{translate('profile.getRemindedAboutWatering')}</Text>
             </View>
             <Switch
               value={userSettings.notificationsEnabled}
@@ -186,8 +186,8 @@ const Profile: React.FC = () => {
           
           <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl">
             <View className="flex-1">
-              <Text className="text-text-primary font-medium">Notification Time</Text>
-              <Text className="text-text-secondary text-sm">Daily reminder time</Text>
+              <Text className="text-text-primary font-medium">{translate('profile.notificationTime')}</Text>
+              <Text className="text-text-secondary text-sm">{translate('profile.dailyReminderTime')}</Text>
             </View>
             <TouchableOpacity
               onPress={() => setShowTimePicker(true)}
@@ -219,12 +219,12 @@ const Profile: React.FC = () => {
         <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
           <AntDesign name="setting" size={20} color="white" />
         </View>
-        <Text className="text-xl font-semibold text-text-primary">Preferences</Text>
+        <Text className="text-xl font-semibold text-text-primary">{translate('profile.preferences')}</Text>
       </View>
       
       <View>
         <View className="mb-4">
-          <Text className="text-text-primary font-medium mb-2">Unit System</Text>
+          <Text className="text-text-primary font-medium mb-2">{translate('profile.unitSystem')}</Text>
           <View className="bg-background-primary rounded-xl border border-gray-200">
             <Picker
               selectedValue={userSettings.unitSystem}
@@ -233,8 +233,8 @@ const Profile: React.FC = () => {
               dropdownIconColor={colors.text.primary}
               mode="dropdown"
             >
-              <Picker.Item label="Metric (cm, kg)" value="metric" />
-              <Picker.Item label="Imperial (in, lb)" value="imperial" />
+              <Picker.Item label={translate('profile.metric')} value="metric" />
+              <Picker.Item label={translate('profile.imperial')} value="imperial" />
             </Picker>
           </View>
         </View>
@@ -265,7 +265,7 @@ const Profile: React.FC = () => {
         </View>
         
         <View className="mb-4">
-          <Text className="text-text-primary font-medium mb-2">Temperature Unit</Text>
+          <Text className="text-text-primary font-medium mb-2">{translate('profile.temperatureUnit')}</Text>
           <View className="bg-background-primary rounded-xl border border-gray-200">
             <Picker
               selectedValue={userSettings.temperatureUnit}
@@ -274,16 +274,16 @@ const Profile: React.FC = () => {
               dropdownIconColor={colors.text.primary}
               mode="dropdown"
             >
-              <Picker.Item label="Celsius (°C)" value="celsius" />
-              <Picker.Item label="Fahrenheit (°F)" value="fahrenheit" />
+              <Picker.Item label={translate('profile.celsius')} value="celsius" />
+              <Picker.Item label={translate('profile.fahrenheit')} value="fahrenheit" />
             </Picker>
           </View>
         </View>
         
         <View className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl mb-4">
           <View className="flex-1">
-            <Text className="text-text-primary font-medium">Monday as First Day</Text>
-            <Text className="text-text-secondary text-sm">Start week on Monday</Text>
+            <Text className="text-text-primary font-medium">{translate('profile.mondayAsFirstDay')}</Text>
+            <Text className="text-text-secondary text-sm">{translate('profile.startWeekOnMonday')}</Text>
           </View>
           <Switch
             value={userSettings.mondayFirstDayOfWeek}
@@ -303,7 +303,7 @@ const Profile: React.FC = () => {
         <View className="w-10 h-10 bg-info rounded-full items-center justify-center mr-3">
           <AntDesign name="mail" size={20} color="white" />
         </View>
-        <Text className="text-xl font-semibold text-text-primary">Contact & Support</Text>
+        <Text className="text-xl font-semibold text-text-primary">{translate('profile.contactSupport')}</Text>
       </View>
       
       <View className="space">
@@ -312,8 +312,8 @@ const Profile: React.FC = () => {
           className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl"
         >
           <View className="flex-1">
-            <Text className="text-text-primary font-medium">Contact Us</Text>
-            <Text className="text-text-secondary text-sm">Send us a message or feedback</Text>
+            <Text className="text-text-primary font-medium">{translate('profile.contactUs')}</Text>
+            <Text className="text-text-secondary text-sm">{translate('profile.sendMessageOrFeedback')}</Text>
           </View>
           <AntDesign name="right" size={16} color={colors.text.secondary} />
         </TouchableOpacity>
@@ -323,8 +323,8 @@ const Profile: React.FC = () => {
           className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl mt-2"
         >
           <View className="flex-1">
-            <Text className="text-text-primary font-medium">Report a Bug</Text>
-            <Text className="text-text-secondary text-sm">Help us improve the app</Text>
+            <Text className="text-text-primary font-medium">{translate('profile.reportBug')}</Text>
+            <Text className="text-text-secondary text-sm">{translate('profile.helpUsImprove')}</Text>
           </View>
           <AntDesign name="right" size={16} color={colors.text.secondary} />
         </TouchableOpacity>
@@ -338,7 +338,7 @@ const Profile: React.FC = () => {
         <View className="w-10 h-10 bg-gray-400 rounded-full items-center justify-center mr-3">
           <AntDesign name="filetext1" size={20} color="white" />
         </View>
-        <Text className="text-xl font-semibold text-text-primary">Legal</Text>
+        <Text className="text-xl font-semibold text-text-primary">{translate('profile.legal')}</Text>
       </View>
       
       <View className="space-y-2">
@@ -347,8 +347,8 @@ const Profile: React.FC = () => {
           className="flex-row justify-between items-center p-4 bg-background-primary rounded-xl"
         >
           <View className="flex-1">
-            <Text className="text-text-primary font-medium">Privacy Policy</Text>
-            <Text className="text-text-secondary text-sm">How we handle your data</Text>
+            <Text className="text-text-primary font-medium">{translate('profile.privacyPolicy')}</Text>
+            <Text className="text-text-secondary text-sm">{translate('profile.howWeHandleData')}</Text>
           </View>
           <AntDesign name="right" size={16} color={colors.text.secondary} />
         </TouchableOpacity>
@@ -362,14 +362,14 @@ const Profile: React.FC = () => {
         <View className="w-10 h-10 bg-danger rounded-full items-center justify-center mr-3">
           <AntDesign name="delete" size={20} color="white" />
         </View>
-        <Text className="text-text-primary font-medium">Delete Account</Text>
+        <Text className="text-text-primary font-medium">{translate('profile.deleteAccount')}</Text>
       </View>
-      <Text className="text-text-primary font-bold my-4 text-center">Delete your account and all your data</Text>
+      <Text className="text-text-primary font-bold my-4 text-center">{translate('profile.deleteAccountAndData')}</Text>
       <TouchableOpacity
         onPress={() => setShowDeleteUserModal(true)}
         className="bg-danger p-4 rounded-xl shadow-sm"
       >
-        <Text className="text-white text-center text-lg font-semibold ml-2">Delete Account</Text>
+        <Text className="text-white text-center text-lg font-semibold ml-2">{translate('profile.deleteAccount')}</Text>
       </TouchableOpacity>
     </View>
   )
@@ -386,17 +386,17 @@ const Profile: React.FC = () => {
       
       const result = await updatePreferences(contextUser.$id, settingsToSave);
       if (result) {
-        Alert.alert('Success', 'Settings saved successfully');
+        Alert.alert(translate('profile.success'), translate('profile.settingsSavedSuccessfully'));
         // Refresh the global context to update the display name across the app
         refetch?.();
         if (userSettings.language) {
           setLocale(userSettings.language as SupportedLanguage);
         }
       } else {
-        Alert.alert('Error', 'Failed to save settings, failed to update the database');
+        Alert.alert(translate('profile.error'), translate('profile.failedToSaveSettings'));
       }
     } catch (error) {
-      Alert.alert('Error', `Failed to save settings, ${error}`);
+      Alert.alert(translate('profile.error'), translate('profile.failedToSaveSettingsError').replace('{error}', String(error)));
       console.log('Error', `Failed to save settings, ${error}`);
     }
   };
@@ -432,12 +432,12 @@ const Profile: React.FC = () => {
     try {
       const result = await reportBug(bugReport);
       if (result) {
-        Alert.alert('Success', 'Bug report submitted successfully! Thank you for helping us improve Bloomer.');
+        Alert.alert(translate('profile.success'), translate('profile.bugReportSubmittedSuccessfully'));
       } else {
-        Alert.alert('Error', 'Failed to submit bug report, try again later');
+        Alert.alert(translate('profile.error'), translate('profile.failedToSubmitBugReport'));
       }
     } catch (error) {
-      Alert.alert('Error', `Failed to submit bug report, ${error}`);
+      Alert.alert(translate('profile.error'), translate('profile.failedToSubmitBugReportError').replace('{error}', String(error)));
     }
   };
 
@@ -445,12 +445,12 @@ const Profile: React.FC = () => {
     try {
       const result = await uploadUserMessage(userMessage);
       if (result) {
-        Alert.alert('Success', 'Message sent successfully! Thank you for contacting us. We\'ll get back to you soon.');
+        Alert.alert(translate('profile.success'), translate('profile.messageSentSuccessfully'));
       } else {
-        Alert.alert('Error', 'Failed to send message, try again later');
+        Alert.alert(translate('profile.error'), translate('profile.failedToSendMessage'));
       }
     } catch (error) {
-      Alert.alert('Error', `Failed to send message, ${error}`);
+      Alert.alert(translate('profile.error'), translate('profile.failedToSendMessageError').replace('{error}', String(error)));
     }
   };
 
@@ -465,15 +465,15 @@ const Profile: React.FC = () => {
       if (result) {
         // Clear the plant store since the user account is deleted
         clearStore();
-        Alert.alert('Success', "User deleted successfully! Thank you for using Bloomer. Please let us know your frustrations. We hope to see you again!");
+        Alert.alert(translate('profile.success'), translate('profile.userDeletedSuccessfully'));
       } else {
-        Alert.alert('Error', "Failed to delete your account. Try again later, if the issue appears again, please contact us.");
+        Alert.alert(translate('profile.error'), translate('profile.failedToDeleteAccount'));
         // Reset deleting state on failure
         setDeletingAccount(false);
       }
       await refetch();
     } catch (error) {
-      Alert.alert("Error", `Failed to delete user, ${error}`);
+      Alert.alert(translate('profile.error'), translate('profile.failedToDeleteUserError').replace('{error}', String(error)));
       // Reset deleting state on error
       setDeletingAccount(false);
     }
@@ -487,10 +487,10 @@ const Profile: React.FC = () => {
             <AntDesign name="user" size={40} color="white" />
           </View>
           <Text className="text-2xl font-bold text-text-primary text-center mb-2">
-            Welcome to Bloomer
+            {translate('profile.welcomeToBloomer')}
           </Text>
           <Text className="text-text-secondary text-center text-lg">
-            Please sign in to access your profile and manage your plant care settings
+            {translate('profile.pleaseSignIn')}
           </Text>
         </View>
       </SafeAreaView>
@@ -499,7 +499,7 @@ const Profile: React.FC = () => {
 
   // Show loading screen during account deletion
   if (isDeletingAccount) {
-    return <LoadingScreen message="Deleting your account and all data..." />;
+    return <LoadingScreen message={translate('profile.deletingAccountAndData')} />;
   }
 
   return (
@@ -513,7 +513,7 @@ const Profile: React.FC = () => {
         <View className="w-full px-4 pt-4 pb-6">
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-text-primary text-3xl font-bold">
-              Profile
+              {translate('profile.title')}
             </Text>
             <View className="w-12 h-12 bg-primary-medium rounded-full items-center justify-center">
               <AntDesign name="user" size={24} color="white" />
@@ -521,10 +521,10 @@ const Profile: React.FC = () => {
           </View>
           <View className="flex-row justify-between items-center">
             <Text className="text-text-secondary text-lg">
-              Manage your account settings
+              {translate('profile.manageAccountSettings')}
             </Text>
             <Text className="text-text-secondary text-lg">
-              {databaseUser?.displayName || userSettings.displayName || 'User'}
+              {databaseUser?.displayName || userSettings.displayName || translate('profile.user')}
             </Text>
           </View>
         </View>
@@ -551,7 +551,7 @@ const Profile: React.FC = () => {
               <View className="flex-row items-center justify-center">
                 <AntDesign name="save" size={20} color="white" className="mr-2" />
                 <Text className="text-white text-center text-lg font-semibold ml-2">
-                  Save Settings
+                  {translate('profile.saveSettings')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -570,7 +570,7 @@ const Profile: React.FC = () => {
               <View className="flex-row items-center justify-center">
                 <AntDesign name="logout" size={20} color="white" className="mr-2" />
                 <Text className="text-white text-center text-lg font-semibold ml-2">
-                  Sign Out
+                  {translate('profile.signOut')}
                 </Text>
               </View>
             </TouchableOpacity>

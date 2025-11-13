@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '@/constants/colors';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { BugReportType } from '@/interfaces/interfaces';
+import { translate } from '@/lib/i18n/config';
 
 interface BugReportModalProps {
   visible: boolean;
@@ -47,7 +48,7 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
   const handleSubmit = async () => {
     // Validate required fields
     if (!formData.title.trim() || !formData.description.trim()) {
-      Alert.alert('Required Fields', 'Please fill in the title and description fields.');
+      Alert.alert(translate('bugReportModal.requiredFields'), translate('bugReportModal.fillTitleAndDescription'));
       return;
     }
 
@@ -66,7 +67,7 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
       });
       onClose();
     } catch (error) {
-      Alert.alert('Error', 'Failed to submit bug report. Please try again.');
+      Alert.alert(translate('bugReportModal.error'), translate('bugReportModal.failedToSubmit'));
     } finally {
       setIsSubmitting(false);
     }
@@ -102,7 +103,7 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
               <View className="w-10 h-10 bg-warning rounded-full items-center justify-center mr-3">
                 <AntDesign name="exclamationcircle" size={20} color="white" />
               </View>
-              <Text className="text-xl font-semibold text-text-primary">Report a Bug</Text>
+              <Text className="text-xl font-semibold text-text-primary">{translate('bugReportModal.title')}</Text>
             </View>
             <TouchableOpacity
               onPress={handleClose}
@@ -119,20 +120,19 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
           >
             <View className="p-4">
               <Text className="text-text-secondary text-base mb-6">
-                Help us improve Bloomer by reporting any issues you encounter. 
-                Please provide as much detail as possible.
+                {translate('bugReportModal.description')}
               </Text>
 
               {/* Title Field */}
               <View className="mb-4">
                 <Text className="text-text-primary font-medium mb-2">
-                  Bug Title <Text className="text-danger">*</Text>
+                  {translate('bugReportModal.bugTitleLabel')} <Text className="text-danger">*</Text>
                 </Text>
                 <TextInput
                   className="bg-background-surface p-4 rounded-xl text-text-primary border border-gray-200"
                   value={formData.title}
                   onChangeText={(text) => handleInputChange('title', text)}
-                  placeholder="Brief description of the issue"
+                  placeholder={translate('bugReportModal.bugTitlePlaceholder')}
                   placeholderTextColor={colors.text.secondary}
                   maxLength={100}
                 />
@@ -141,13 +141,13 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
               {/* Description Field */}
               <View className="mb-4">
                 <Text className="text-text-primary font-medium mb-2">
-                  Description <Text className="text-danger">*</Text>
+                  {translate('bugReportModal.descriptionLabel')} <Text className="text-danger">*</Text>
                 </Text>
                 <TextInput
                   className="bg-background-surface p-4 rounded-xl text-text-primary border border-gray-200"
                   value={formData.description}
                   onChangeText={(text) => handleInputChange('description', text)}
-                  placeholder="Detailed description of the bug"
+                  placeholder={translate('bugReportModal.descriptionPlaceholder')}
                   placeholderTextColor={colors.text.secondary}
                   multiline
                   numberOfLines={4}
@@ -158,13 +158,13 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
               {/* Steps to Reproduce */}
               <View className="mb-4">
                 <Text className="text-text-primary font-medium mb-2">
-                  Steps to Reproduce
+                  {translate('bugReportModal.stepsToReproduceLabel')}
                 </Text>
                 <TextInput
                   className="bg-background-surface p-4 rounded-xl text-text-primary border border-gray-200"
                   value={formData.stepsToReproduce}
                   onChangeText={(text) => handleInputChange('stepsToReproduce', text)}
-                  placeholder="1. Go to...&#10;2. Click on...&#10;3. See error..."
+                  placeholder={translate('bugReportModal.stepsToReproducePlaceholder')}
                   placeholderTextColor={colors.text.secondary}
                   multiline
                   numberOfLines={4}
@@ -175,13 +175,13 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
               {/* Expected Behavior */}
               <View className="mb-4">
                 <Text className="text-text-primary font-medium mb-2">
-                  Expected Behavior
+                  {translate('bugReportModal.expectedBehaviorLabel')}
                 </Text>
                 <TextInput
                   className="bg-background-surface p-4 rounded-xl text-text-primary border border-gray-200"
                   value={formData.expectedBehavior}
                   onChangeText={(text) => handleInputChange('expectedBehavior', text)}
-                  placeholder="What should have happened?"
+                  placeholder={translate('bugReportModal.expectedBehaviorPlaceholder')}
                   placeholderTextColor={colors.text.secondary}
                   multiline
                   numberOfLines={3}
@@ -192,13 +192,13 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
               {/* Actual Behavior */}
               <View className="mb-4">
                 <Text className="text-text-primary font-medium mb-2">
-                  Actual Behavior
+                  {translate('bugReportModal.actualBehaviorLabel')}
                 </Text>
                 <TextInput
                   className="bg-background-surface p-4 rounded-xl text-text-primary border border-gray-200"
                   value={formData.actualBehavior}
                   onChangeText={(text) => handleInputChange('actualBehavior', text)}
-                  placeholder="What actually happened?"
+                  placeholder={translate('bugReportModal.actualBehaviorPlaceholder')}
                   placeholderTextColor={colors.text.secondary}
                   multiline
                   numberOfLines={3}
@@ -209,13 +209,13 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
               {/* Device Info */}
               <View className="mb-6">
                 <Text className="text-text-primary font-medium mb-2">
-                  Device Information
+                  {translate('bugReportModal.deviceInfoLabel')}
                 </Text>
                 <TextInput
                   className="bg-background-surface p-4 rounded-xl text-text-primary border border-gray-200"
                   value={formData.deviceInfo}
                   onChangeText={(text) => handleInputChange('deviceInfo', text)}
-                  placeholder="Device model, OS version, app version, etc."
+                  placeholder={translate('bugReportModal.deviceInfoPlaceholder')}
                   placeholderTextColor={colors.text.secondary}
                   multiline
                   numberOfLines={2}
@@ -234,7 +234,7 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
                 disabled={isSubmitting}
               >
                 <Text className="text-text-primary text-center text-lg font-medium">
-                  Cancel
+                  {translate('bugReportModal.cancel')}
                 </Text>
               </TouchableOpacity>
               
@@ -257,7 +257,7 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
                     <AntDesign name="arrowright" size={24} color="white" className="mr-2" />
                   )}
                   <Text className="text-white text-center text-lg font-semibold ml-2">
-                    {isSubmitting ? 'Submitting...' : 'Submit Report'}
+                    {isSubmitting ? translate('bugReportModal.submitting') : translate('bugReportModal.submitReport')}
                   </Text>
                 </View>
               </TouchableOpacity>

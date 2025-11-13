@@ -11,6 +11,7 @@ import { getPlantCareInfo } from '@/lib/services/chutesService/deepseekService';
 import { usePlantInformation } from '@/interfaces/plantInformation';
 import { router } from 'expo-router';
 import * as Manipulator from 'expo-image-manipulator';
+import { translate } from '@/lib/i18n/config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -162,7 +163,7 @@ const identify = () => {
 
       animateButtonPress();
       setIsProcessingImage(true);
-      setLoadingMessage("Taking photo...");
+      setLoadingMessage(translate('identify.takingPhoto'));
 
       // Take photo with optimized settings
       const photo = await ref.current.takePictureAsync({
@@ -172,7 +173,7 @@ const identify = () => {
       });
 
       if (photo?.uri) {
-        setLoadingMessage("Processing image...");
+        setLoadingMessage(translate('identify.processingImage'));
         
         // Process the image immediately after capture
         const processedUri = await processImage(photo.uri);
@@ -207,7 +208,7 @@ const identify = () => {
       }
     } catch (error) {
       console.error("Error taking picture:", error);
-      Alert.alert("Error", "Failed to take picture. Please try again.");
+      Alert.alert(translate('identify.error'), translate('identify.failedToTakePicture'));
     } finally {
       setIsProcessingImage(false);
       setLoadingMessage("");
@@ -231,7 +232,7 @@ const identify = () => {
       }
 
       setIsProcessingImage(true);
-      setLoadingMessage("Taking photo...");
+      setLoadingMessage(translate('identify.takingPhoto'));
 
       // Take photo with optimized settings and retry mechanism
       let photo;
@@ -254,7 +255,7 @@ const identify = () => {
           retryCount++;
           
           if (retryCount >= maxRetries) {
-            throw new Error("Failed to capture image after multiple attempts");
+            throw new Error(translate('identify.failedToCaptureImage'));
           }
           
           // Wait a bit before retrying
@@ -263,7 +264,7 @@ const identify = () => {
       }
 
       if (photo?.uri) {
-        setLoadingMessage("Processing image...");
+        setLoadingMessage(translate('identify.processingImage'));
         
         // Delete existing file
         const oldUri = imageUris[currentImageIndex];
@@ -306,19 +307,21 @@ const identify = () => {
       }
     } catch (error) {
       console.error("Error replacing picture:", error);
-      let errorMessage = "Failed to replace picture. Please try again.";
+      let errorMessage = translate('identify.failedToReplacePicture');
       
       if (error instanceof Error) {
         if (error.message.includes("Camera reference is not properly initialized")) {
-          errorMessage = "Camera is not ready. Please close and reopen the camera.";
+          errorMessage = translate('identify.cameraNotReady');
         } else if (error.message.includes("Photo URI is not available")) {
-          errorMessage = "Failed to capture image. Please try again.";
+          errorMessage = translate('identify.failedToCaptureImageRetry');
+        } else if (error.message === translate('identify.failedToCaptureImage')) {
+          errorMessage = translate('identify.failedToCaptureImage');
         } else {
           errorMessage = error.message;
         }
       }
       
-      Alert.alert("Error", errorMessage);
+      Alert.alert(translate('identify.error'), errorMessage);
     } finally {
       setIsProcessingImage(false);
       setLoadingMessage("");
@@ -335,10 +338,10 @@ const identify = () => {
       const validImageUris = imageUris.filter((uri): uri is string => uri !== null);
       
       if (validImageUris.length === 0) {
-        throw new Error('No images to identify');
+        throw new Error(translate('identify.noImagesToIdentify'));
       }
 
-      setLoadingMessage("Analyzing images...");
+      setLoadingMessage(translate('identify.analyzingImages'));
       
       // Start plant identification
       const results = await identifyPlants(validImageUris);
@@ -354,12 +357,12 @@ const identify = () => {
       // Check confidence level - treat 0 confidence as failed identification
       if (results.confidence === 0 || results.confidence < 0.01) {
         console.warn('Plant identification failed - confidence too low:', results.confidence);
-        setIdentificationError('Plant could not be identified with sufficient confidence. Please try taking clearer photos or different angles.');
+        setIdentificationError(translate('identify.plantNotIdentified'));
         setShowErrorModal(true);
         return;
       }
 
-      setLoadingMessage("Getting care information...");
+      setLoadingMessage(translate('identify.gettingCareInfo'));
       
       const scientificName = results.bestMatch;
       const plantCommonNames = results.commonNames ?? [''];
@@ -388,15 +391,15 @@ const identify = () => {
 
     } catch (error) {
       console.error('Identification failed:', error);
-      let errorMessage = 'Failed to identify plants';
+      let errorMessage = translate('identify.failedToIdentifyPlants');
       
       if (error instanceof Error) {
         if (error.message.includes('404')) {
-          errorMessage = 'Plant identification service is currently unavailable. Please check your internet connection and try again.';
+          errorMessage = translate('identify.serviceUnavailable');
         } else if (error.message.includes('401') || error.message.includes('403')) {
-          errorMessage = 'Authentication error. Please contact support.';
+          errorMessage = translate('identify.authenticationError');
         } else if (error.message.includes('500')) {
-          errorMessage = 'Server error. Please try again later.';
+          errorMessage = translate('identify.serverError');
         } else {
           errorMessage = error.message;
         }
@@ -672,7 +675,7 @@ const identify = () => {
   if (!cameraPermission) {
     return (
       <View className="flex-1 items-center justify-center bg-background-primary">
-        <Text className="text-3xl text-text-primary">Loading permissions...</Text>
+        <Text className="text-3xl text-text-primary">{translate('identify.loadingPermissions')}</Text>
       </View>
     );
   }
@@ -680,12 +683,12 @@ const identify = () => {
   if (!cameraPermission.granted) {
     return (
       <View className="flex-1 items-center justify-center bg-background-primary">
-        <Text className="text-3xl text-text-primary mb-4">We need camera permissions</Text>
+        <Text className="text-3xl text-text-primary mb-4">{translate('identify.needCameraPermissions')}</Text>
         <Button 
           onPress={async () => {
             await requestCameraPermission();
           }} 
-          title="Grant permissions" 
+          title={translate('identify.grantPermissions')} 
         />
       </View>
     );
@@ -699,7 +702,7 @@ const identify = () => {
             {/* Header Section */}
             <View className="px-5 pt-16 pb-6">
               <Text className="text-3xl font-bold text-primary-medium text-center">
-                Identify Plant
+                {translate('identify.title')}
               </Text>
             </View>
 
@@ -723,7 +726,7 @@ const identify = () => {
                      disabled={isIdentifying || isProcessingImage}
                    >
                      <Text className="text-text-primary text-center text-base font-medium">
-                       Retake All Photos
+                       {translate('identify.retakeAllPhotos')}
                      </Text>
                    </Pressable>
                  </View>
@@ -737,7 +740,7 @@ const identify = () => {
                    disabled={!imageUris.some(uri => uri !== null) || isIdentifying || isProcessingImage}
                  >
                    <Text className="text-white text-center text-lg font-semibold">
-                     {isIdentifying ? 'Identifying...' : `Identify ${imageUris.filter(uri => uri !== null).length}/5 photos`}
+                     {isIdentifying ? translate('identify.identifying') : translate('identify.identifyPhotos').replace('{count}', String(imageUris.filter(uri => uri !== null).length))}
                    </Text>
                  </Pressable>
                  {identificationError && (
@@ -755,11 +758,11 @@ const identify = () => {
               onPress={switchToCamera}
             >
               <Text className="text-white text-center text-lg font-semibold">
-                Identify with camera
+                {translate('identify.identifyWithCamera')}
               </Text>
             </Pressable>
             <SearchBar
-              placeholder='Search for your plant'
+              placeholder={translate('identify.searchPlaceholder')}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
@@ -782,7 +785,7 @@ const identify = () => {
                 >
                   <AntDesign name="close" size={20} color="white" />
                 </Pressable>
-                <Text className="text-lg font-semibold text-text-primary">Retake Photo</Text>
+                <Text className="text-lg font-semibold text-text-primary">{translate('identify.retakePhoto')}</Text>
                 <View className="w-11" />
               </View>
 
@@ -845,7 +848,7 @@ const identify = () => {
                         style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
                         className="text-white text-sm mt-2 text-center px-3 py-1 rounded-full"
                       >
-                        Tap to capture
+                        {translate('identify.tapToCapture')}
                       </Text>
                     )}
                    </View>
@@ -887,10 +890,10 @@ const identify = () => {
           >
             <View className="bg-background-surface rounded-xl p-6 mx-4 items-center">
               <Text className="text-text-primary text-lg font-semibold mb-2">
-                Identifying Plant...
+                {translate('identify.identifyingPlant')}
               </Text>
               <Text className="text-text-secondary text-sm text-center">
-                {loadingMessage || "Analyzing your photos"}
+                {loadingMessage || translate('identify.analyzingPhotos')}
               </Text>
             </View>
           </View>
@@ -916,7 +919,7 @@ const identify = () => {
               </View>
               
               <Text className="text-text-primary text-lg font-semibold mb-2 text-center">
-                Identification Failed
+                {translate('identify.identificationFailed')}
               </Text>
               
               <Text className="text-text-secondary text-sm text-center mb-6">
@@ -929,7 +932,7 @@ const identify = () => {
                   onPress={() => setShowErrorModal(false)}
                 >
                   <Text className="text-text-primary text-center font-medium">
-                    Cancel
+                    {translate('identify.cancel')}
                   </Text>
                 </Pressable>
                 
@@ -938,7 +941,7 @@ const identify = () => {
                   onPress={retryWithNewPhotos}
                 >
                   <Text className="text-white text-center font-medium">
-                    Take New Photos
+                    {translate('identify.takeNewPhotos')}
                   </Text>
                 </Pressable>
               </View>

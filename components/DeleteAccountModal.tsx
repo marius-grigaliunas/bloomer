@@ -1,6 +1,7 @@
 import { View, Text, Modal, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
+import { translate } from '@/lib/i18n/config';
 
 interface DeleteAccountModalProps {
     visible: boolean;
@@ -39,7 +40,7 @@ export default function DeleteAccountModal({ visible, onClose, onDelete }: Delet
                     <Ionicons name="warning-outline" size={20} color="#DC2626" />
                   </View>
                   <Text className="text-text-primary text-xl font-semibold">
-                    Delete Account
+                    {translate('deleteAccountModal.title')}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -54,10 +55,10 @@ export default function DeleteAccountModal({ visible, onClose, onDelete }: Delet
               {/* Warning Message */}
               <View className="mb-6">
                 <Text className="text-text-primary text-lg font-semibold mb-3 text-center">
-                  Are you sure you want to delete your account?
+                  {translate('deleteAccountModal.confirmMessage')}
                 </Text>
                 <Text className="text-text-secondary text-sm text-center leading-5">
-                  All your plant data, photos, user info and any other data stored about you will be deleted. This decision is irreversible.
+                  {translate('deleteAccountModal.warningMessage')}
                 </Text>
               </View>
 
@@ -69,7 +70,7 @@ export default function DeleteAccountModal({ visible, onClose, onDelete }: Delet
                   className="p-4 rounded-xl items-center bg-danger"
                 >
                   <Text className="text-white text-lg font-semibold">
-                    {isDeleting ? 'Deleting...' : 'Delete Account'}
+                    {isDeleting ? translate('deleteAccountModal.deleting') : translate('deleteAccountModal.deleteButton')}
                   </Text>
                 </TouchableOpacity>
                 
@@ -79,7 +80,7 @@ export default function DeleteAccountModal({ visible, onClose, onDelete }: Delet
                   disabled={isDeleting}
                 >
                   <Text className="text-text-secondary text-lg font-medium">
-                    Cancel
+                    {translate('deleteAccountModal.cancel')}
                   </Text>
                 </TouchableOpacity>
               </View>
