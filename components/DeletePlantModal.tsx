@@ -1,6 +1,7 @@
 import { View, Text, Modal, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons';
+import { translate } from '@/lib/i18n/config';
 
 interface DeletePlantModalProps {
     visible: boolean;
@@ -41,7 +42,7 @@ export default function DeletePlantModal({ visible, onClose, onDelete, plantName
                     <Ionicons name="trash-outline" size={20} color="#E53935" />
                   </View>
                   <Text className="text-text-primary text-xl font-semibold">
-                    Delete Plant
+                    {translate('deletePlantModal.title')}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -56,10 +57,10 @@ export default function DeletePlantModal({ visible, onClose, onDelete, plantName
               {/* Warning Message */}
               <View className="mb-6">
                 <Text className="text-text-primary text-lg font-semibold mb-3 text-center">
-                  {plantName ? `Delete "${plantName}"?` : 'Delete this plant?'}
+                  {plantName ? translate('deletePlantModal.deletePlantName').replace('{name}', plantName) : translate('deletePlantModal.deleteThisPlant')}
                 </Text>
                 <Text className="text-text-secondary text-sm text-center leading-5">
-                  Are you sure you want to delete this plant? All watering history and care data will be permanently removed. This action cannot be undone.
+                  {translate('deletePlantModal.confirmationMessage')}
                 </Text>
               </View>
 
@@ -71,7 +72,7 @@ export default function DeletePlantModal({ visible, onClose, onDelete, plantName
                   className="p-4 rounded-xl items-center bg-danger"
                 >
                   <Text className="text-white text-lg font-semibold">
-                    {isDeleting ? 'Deleting...' : 'Delete Plant'}
+                    {isDeleting ? translate('deletePlantModal.deleting') : translate('deletePlantModal.deleteButton')}
                   </Text>
                 </TouchableOpacity>
                 
@@ -81,7 +82,7 @@ export default function DeletePlantModal({ visible, onClose, onDelete, plantName
                   disabled={isDeleting}
                 >
                   <Text className="text-text-secondary text-lg font-medium">
-                    Cancel
+                    {translate('deletePlantModal.cancel')}
                   </Text>
                 </TouchableOpacity>
               </View>

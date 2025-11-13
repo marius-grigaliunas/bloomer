@@ -247,6 +247,67 @@
         "low": "silpna šviesa"
       }
     }
+  },
+  "plantDetails": {
+    "noWateringSchedule": "Nėra nustatyto laistymo tvarkaraščio",
+    "day": "diena",
+    "days": "dienos",
+    "overdue": "vėluoja",
+    "daysUntilNextWatering": "dienos iki kito laistymo",
+    "waterToday": "Laistykite šiandien!",
+    "wateringStatus": "Laistymo būsena",
+    "markWatered": "Pažymėti kaip palaistytą",
+    "plantNeedsWater": "Jūsų augalui reikia vandens!",
+    "wateringSchedule": "Laistymo tvarkaraštis",
+    "lastWatered": "Paskutinis laistymas:",
+    "neverWatered": "Niekada nebuvo laistytas",
+    "nextWatering": "Kitas laistymas:",
+    "noScheduleSet": "Nėra nustatyto tvarkaraščio",
+    "frequency": "Dažnumas:",
+    "everyDays": "Kas {count} dienas",
+    "notSet": "Nenustatyta",
+    "careInformation": "Priežiūros informacija",
+    "wateringHistory": "Laistymo istorija",
+    "quickActions": "Greitieji veiksmai",
+    "renamePlant": "Pervadinti augalą",
+    "identifyPlant": "Identifikuoti augalą",
+    "viewSchedule": "Peržiūrėti tvarkaraštį",
+    "success": "Pavyko",
+    "plantMarkedAsWatered": "Augalas pažymėtas kaip palaistytas!",
+    "error": "Klaida",
+    "failedToMarkWatered": "Nepavyko pažymėti augalo kaip palaistytą",
+    "failedToDeletePlant": "Nepavyko ištrinti augalo"
+  },
+  "plantHeader": {
+    "also": "Taip pat:"
+  },
+  "plantCareInfo": {
+    "watering": "Laistymas",
+    "wateringDescription": "Kas {frequency} dienas, laistykite {amount} vandens.",
+    "lightRequirements": "Šviesos reikalavimai",
+    "soilPreferences": "Dirvožemio pageidavimai",
+    "humidity": "Drėgmė",
+    "temperatureRange": "Temperatūros diapazonas",
+    "commonIssues": "Dažnos problemos",
+    "specialNotes": "Specialūs pastabos",
+    "careInstructions": "Priežiūros instrukcijos"
+  },
+  "renamePlantModal": {
+    "title": "Pervadinti augalą",
+    "currentName": "Dabartinis vardas",
+    "newName": "Naujas vardas",
+    "enterNewName": "Įveskite naują vardą",
+    "saveChanges": "Išsaugoti pakeitimus",
+    "cancel": "Atšaukti"
+  },
+  "deletePlantModal": {
+    "title": "Ištrinti augalą",
+    "deletePlantName": "Ištrinti \"{name}\"?",
+    "deleteThisPlant": "Ištrinti šį augalą?",
+    "confirmationMessage": "Ar tikrai norite ištrinti šį augalą? Visas laistymo istorija ir priežiūros duomenys bus visam laikui pašalinti. Šis veiksmas negrįžtamas.",
+    "deleting": "Ištrinama...",
+    "deleteButton": "Ištrinti augalą",
+    "cancel": "Atšaukti"
   }
 }
 

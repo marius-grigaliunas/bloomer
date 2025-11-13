@@ -3,6 +3,7 @@ import React from 'react'
 import { useGlobalContext } from '@/lib/globalProvider';
 import { Plant, DatabasePlantType } from '@/interfaces/interfaces';
 import { Ionicons } from '@expo/vector-icons';
+import { translate } from '@/lib/i18n/config';
 
 interface PlantComponentProps {
   plant: Plant | DatabasePlantType | null;
@@ -37,41 +38,44 @@ const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
   if (!careInfo) return null;
 
   // Care info sections with icons and colors
+  const wateringAmount = userUnitSystem == "metric" ? `${careInfo.wateringAmountMetric} ml` : `${careInfo.wateringAmountImperial} oz`;
+  const temperatureRange = `${userTemperatureUnit == "celsius" ? `${careInfo.minTemperatureCelsius}°C` : `${careInfo.minTemperatureFahrenheit}°F`} - ${userTemperatureUnit == "celsius" ? `${careInfo.maxTemperatureCelsius}°C` : `${careInfo.maxTemperatureFahrenheit}°F`}`;
+  
   const careSections = [
     {
-      title: 'Watering',
+      title: translate('plantCareInfo.watering'),
       icon: 'water-outline',
       color: '#4F772D',
       bgColor: 'bg-primary-medium/10',
-      content: `Every ${careInfo.wateringFrequency} days, water with ${userUnitSystem == "metric" ? `${careInfo.wateringAmountMetric} ml` : `${careInfo.wateringAmountImperial} oz`} of water.`
+      content: translate('plantCareInfo.wateringDescription', { frequency: careInfo.wateringFrequency, amount: wateringAmount })
     },
     {
-      title: 'Light Requirements',
+      title: translate('plantCareInfo.lightRequirements'),
       icon: 'sunny-outline',
       color: '#E6B566',
       bgColor: 'bg-accent/10',
       content: careInfo.lightRequirements
     },
     {
-      title: 'Soil Preferences',
+      title: translate('plantCareInfo.soilPreferences'),
       icon: 'leaf-outline',
       color: '#90A955',
       bgColor: 'bg-secondary-medium/10',
       content: careInfo.soilPreferences
     },
     {
-      title: 'Humidity',
+      title: translate('plantCareInfo.humidity'),
       icon: 'cloudy-outline',
       color: '#4F772D',
       bgColor: 'bg-primary-medium/10',
       content: careInfo.humidity
     },
     {
-      title: 'Temperature Range',
+      title: translate('plantCareInfo.temperatureRange'),
       icon: 'thermometer-outline',
       color: '#E53935',
       bgColor: 'bg-danger/10',
-      content: `${userTemperatureUnit == "celsius" ? `${careInfo.minTemperatureCelsius}°C` : `${careInfo.minTemperatureFahrenheit}°F`} - ${userTemperatureUnit == "celsius" ? `${careInfo.maxTemperatureCelsius}°C` : `${careInfo.maxTemperatureFahrenheit}°F`}`
+      content: temperatureRange
     }
   ];
 
@@ -102,7 +106,7 @@ const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
               <Ionicons name="warning-outline" size={20} color="#E6B566" />
             </View>
             <Text className="text-text-primary text-lg font-semibold">
-              Common Issues
+              {translate('plantCareInfo.commonIssues')}
             </Text>
           </View>
           <View className="space-y-2">
@@ -126,7 +130,7 @@ const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
               <Ionicons name="information-circle-outline" size={20} color="#90A955" />
             </View>
             <Text className="text-text-primary text-lg font-semibold">
-              Special Notes
+              {translate('plantCareInfo.specialNotes')}
             </Text>
           </View>
           <View className="space-y-2">
@@ -150,7 +154,7 @@ const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
               <Ionicons name="checkmark-circle-outline" size={20} color="#2E7D32" />
             </View>
             <Text className="text-text-primary text-lg font-semibold">
-              Care Instructions
+              {translate('plantCareInfo.careInstructions')}
             </Text>
           </View>
           <View className="space-y-3">

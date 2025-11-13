@@ -247,6 +247,67 @@
         "low": "low light"
       }
     }
+  },
+  "plantDetails": {
+    "noWateringSchedule": "No watering schedule set",
+    "day": "day",
+    "days": "days",
+    "overdue": "overdue",
+    "daysUntilNextWatering": "days until next watering",
+    "waterToday": "Water today!",
+    "wateringStatus": "Watering Status",
+    "markWatered": "Mark Watered",
+    "plantNeedsWater": "Your plant needs water!",
+    "wateringSchedule": "Watering Schedule",
+    "lastWatered": "Last watered:",
+    "neverWatered": "Never watered",
+    "nextWatering": "Next watering:",
+    "noScheduleSet": "No schedule set",
+    "frequency": "Frequency:",
+    "everyDays": "Every {count} days",
+    "notSet": "Not set",
+    "careInformation": "Care Information",
+    "wateringHistory": "Watering History",
+    "quickActions": "Quick Actions",
+    "renamePlant": "Rename Plant",
+    "identifyPlant": "Identify Plant",
+    "viewSchedule": "View Schedule",
+    "success": "Success",
+    "plantMarkedAsWatered": "Plant marked as watered!",
+    "error": "Error",
+    "failedToMarkWatered": "Failed to mark plant as watered",
+    "failedToDeletePlant": "Failed to delete plant"
+  },
+  "plantHeader": {
+    "also": "Also:"
+  },
+  "plantCareInfo": {
+    "watering": "Watering",
+    "wateringDescription": "Every {frequency} days, water with {amount} of water.",
+    "lightRequirements": "Light Requirements",
+    "soilPreferences": "Soil Preferences",
+    "humidity": "Humidity",
+    "temperatureRange": "Temperature Range",
+    "commonIssues": "Common Issues",
+    "specialNotes": "Special Notes",
+    "careInstructions": "Care Instructions"
+  },
+  "renamePlantModal": {
+    "title": "Rename Plant",
+    "currentName": "Current name",
+    "newName": "New name",
+    "enterNewName": "Enter new name",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel"
+  },
+  "deletePlantModal": {
+    "title": "Delete Plant",
+    "deletePlantName": "Delete \"{name}\"?",
+    "deleteThisPlant": "Delete this plant?",
+    "confirmationMessage": "Are you sure you want to delete this plant? All watering history and care data will be permanently removed. This action cannot be undone.",
+    "deleting": "Deleting...",
+    "deleteButton": "Delete Plant",
+    "cancel": "Cancel"
   }
 }
 

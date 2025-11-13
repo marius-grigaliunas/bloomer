@@ -14,6 +14,7 @@ import RenamePlantModal from '@/components/RenamePlantModal';
 import DeletePlantModal from '@/components/DeletePlantModal';
 import { calculateDaysLate, calculateDaysUntilNextWatering } from '@/lib/services/dateService';
 import { useNavigationState } from '@/lib/navigationState';
+import { translate } from '@/lib/i18n/config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -93,7 +94,7 @@ const PlantDetails = () => {
       navigateBack();
     } catch (error) {
       setLoading(false);
-      Alert.alert('Error', 'Failed to delete plant');
+      Alert.alert(translate('plantDetails.error'), translate('plantDetails.failedToDeletePlant'));
     }
   };
 
@@ -121,9 +122,9 @@ const PlantDetails = () => {
       if (updatedPlant) {
         setPlant(updatedPlant);
       }
-      Alert.alert("Success", "Plant marked as watered!");
+      Alert.alert(translate('plantDetails.success'), translate('plantDetails.plantMarkedAsWatered'));
     } catch (error) {
-      Alert.alert("Error", "Failed to mark plant as watered");
+      Alert.alert(translate('plantDetails.error'), translate('plantDetails.failedToMarkWatered'));
     }
   };
 
@@ -138,7 +139,7 @@ const PlantDetails = () => {
   // Calculate watering status
   const getWateringStatus = () => {
     if (!plant?.lastWatered || !plant?.wateringFrequency) {
-      return { status: 'no-schedule', message: 'No watering schedule set', color: 'text-text-secondary' };
+      return { status: 'no-schedule', message: translate('plantDetails.noWateringSchedule'), color: 'text-text-secondary' };
     }
 
     const daysLate = calculateDaysLate(new Date(plant.lastWatered), plant.wateringFrequency);
@@ -147,21 +148,21 @@ const PlantDetails = () => {
     if (daysLate > 0) {
       return { 
         status: 'overdue', 
-        message: `${daysLate} ${daysLate === 1 ? 'day' : 'days'} overdue`, 
+        message: `${daysLate} ${daysLate === 1 ? translate('plantDetails.day') : translate('plantDetails.days')} ${translate('plantDetails.overdue')}`, 
         color: 'text-danger',
         bgColor: 'bg-danger/10'
       };
     } else if (daysUntilNext > 0) {
       return { 
         status: 'upcoming', 
-        message: `${daysUntilNext} ${daysUntilNext === 1 ? 'day' : 'days'} until next watering`, 
+        message: `${daysUntilNext} ${daysUntilNext === 1 ? translate('plantDetails.day') : translate('plantDetails.days')} ${translate('plantDetails.daysUntilNextWatering')}`, 
         color: 'text-primary-medium',
         bgColor: 'bg-primary-medium/10'
       };
     } else {
       return { 
         status: 'today', 
-        message: 'Water today!', 
+        message: translate('plantDetails.waterToday'), 
         color: 'text-accent',
         bgColor: 'bg-accent/10'
       };
@@ -222,14 +223,14 @@ const PlantDetails = () => {
                   color={wateringStatus.status === 'overdue' ? '#E53935' : '#4F772D'} 
                 />
                 <Text className="text-text-primary text-lg font-semibold ml-2">
-                  Watering Status
+                  {translate('plantDetails.wateringStatus')}
                 </Text>
               </View>
               <TouchableOpacity
                 onPress={markPlantAsWatered}
                 className="bg-blue-500 px-4 py-2 rounded-xl"
               >
-                <Text className="text-white font-medium">Mark Watered</Text>
+                <Text className="text-white font-medium">{translate('plantDetails.markWatered')}</Text>
               </TouchableOpacity>
             </View>
             <Text className={`text-lg font-semibold ${wateringStatus.color}`}>
@@ -237,7 +238,7 @@ const PlantDetails = () => {
             </Text>
             {wateringStatus.status === 'overdue' && (
               <Text className="text-text-secondary text-sm mt-1">
-                Your plant needs water!
+                {translate('plantDetails.plantNeedsWater')}
               </Text>
             )}
           </View>
@@ -245,44 +246,44 @@ const PlantDetails = () => {
 
         {/* Watering Schedule Info */}
         <View className="mx-4 mb-6">
-          <Text className="text-lg font-semibold text-text-primary mb-3">Watering Schedule</Text>
+          <Text className="text-lg font-semibold text-text-primary mb-3">{translate('plantDetails.wateringSchedule')}</Text>
           <View className="bg-white rounded-3xl p-4 shadow-sm shadow-black/5">
             <View className="space-y-4">
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center">
                   <Ionicons name="calendar-outline" size={20} color="#4F772D" />
-                  <Text className="text-text-secondary ml-2">Last watered:</Text>
+                  <Text className="text-text-secondary ml-2">{translate('plantDetails.lastWatered')}</Text>
                 </View>
                 <Text className="text-text-primary font-medium">
                   {plant?.lastWatered ? new Date(plant.lastWatered).toLocaleDateString('en-GB', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
-                  }) : 'Never watered'}
+                  }) : translate('plantDetails.neverWatered')}
                 </Text>
               </View>
               
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center">
                   <Ionicons name="time-outline" size={20} color="#4F772D" />
-                  <Text className="text-text-secondary ml-2">Next watering:</Text>
+                  <Text className="text-text-secondary ml-2">{translate('plantDetails.nextWatering')}</Text>
                 </View>
                 <Text className="text-text-primary font-medium">
                   {plant?.nextWateringDate ? new Date(plant.nextWateringDate).toLocaleDateString('en-GB', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
-                  }) : 'No schedule set'}
+                  }) : translate('plantDetails.noScheduleSet')}
                 </Text>
               </View>
 
               <View className="flex-row justify-between items-center">
                 <View className="flex-row items-center">
                   <Ionicons name="repeat-outline" size={20} color="#4F772D" />
-                  <Text className="text-text-secondary ml-2">Frequency:</Text>
+                  <Text className="text-text-secondary ml-2">{translate('plantDetails.frequency')}</Text>
                 </View>
                 <Text className="text-text-primary font-medium">
-                  {plant?.wateringFrequency ? `Every ${plant.wateringFrequency} days` : 'Not set'}
+                  {plant?.wateringFrequency ? translate('plantDetails.everyDays').replace('{count}', plant.wateringFrequency.toString()) : translate('plantDetails.notSet')}
                 </Text>
               </View>
             </View>
@@ -291,14 +292,14 @@ const PlantDetails = () => {
 
         {/* Plant Care Information */}
         <View className="mx-4 mb-6">
-          <Text className="text-lg font-semibold text-text-primary mb-3">Care Information</Text>
+          <Text className="text-lg font-semibold text-text-primary mb-3">{translate('plantDetails.careInformation')}</Text>
           <PlantCareInfoComponent plant={plant as DatabasePlantType} />
         </View>
 
         {/* Watering History */}
         {plant.wateringHistory && plant.wateringHistory.length > 0 && (
           <View className="mx-4 mb-6">
-            <Text className="text-lg font-semibold text-text-primary mb-3">Watering History</Text>
+            <Text className="text-lg font-semibold text-text-primary mb-3">{translate('plantDetails.wateringHistory')}</Text>
             <View className="bg-white rounded-3xl p-4 shadow-sm shadow-black/5">
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View className="flex-row space-x-3">
@@ -320,7 +321,7 @@ const PlantDetails = () => {
 
         {/* Quick Actions */}
         <View className="mx-4 mb-6">
-          <Text className="text-lg font-semibold text-text-primary mb-3">Quick Actions</Text>
+          <Text className="text-lg font-semibold text-text-primary mb-3">{translate('plantDetails.quickActions')}</Text>
           
           {/* First row - Plant specific actions */}
           <View className="flex-row mb-4">
@@ -329,14 +330,14 @@ const PlantDetails = () => {
               className="flex-1 bg-white rounded-3xl p-4 items-center shadow-sm shadow-black/5 border border-primary-medium/20 mr-2"
             >
               <Ionicons name="create-outline" size={24} color="#4F772D" />
-              <Text className="text-primary-medium font-medium mt-2 text-center">Rename Plant</Text>
+              <Text className="text-primary-medium font-medium mt-2 text-center">{translate('plantDetails.renamePlant')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={markPlantAsWatered}
               className="flex-1 bg-blue-500 rounded-3xl p-4 items-center shadow-sm shadow-black/5 ml-2"
             >
               <Ionicons name="water" size={24} color="white" />
-              <Text className="text-white font-medium mt-2 text-center">Mark Watered</Text>
+              <Text className="text-white font-medium mt-2 text-center">{translate('plantDetails.markWatered')}</Text>
             </TouchableOpacity>
           </View>
           
@@ -347,14 +348,14 @@ const PlantDetails = () => {
               className="flex-1 bg-primary-medium rounded-3xl p-4 items-center shadow-sm shadow-black/5 mr-2"
             >
               <Ionicons name="camera" size={24} color="white" />
-              <Text className="text-white font-medium mt-2 text-center">Identify Plant</Text>
+              <Text className="text-white font-medium mt-2 text-center">{translate('plantDetails.identifyPlant')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push("/(root)/(tabs)/care")}
               className="flex-1 bg-white rounded-3xl p-4 items-center shadow-sm shadow-black/5 border border-primary-medium/20 ml-2"
             >
               <Ionicons name="calendar" size={24} color="#4F772D" />
-              <Text className="text-primary-medium font-medium mt-2 text-center">View Schedule</Text>
+              <Text className="text-primary-medium font-medium mt-2 text-center">{translate('plantDetails.viewSchedule')}</Text>
             </TouchableOpacity>
           </View>
         </View>

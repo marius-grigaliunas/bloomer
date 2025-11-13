@@ -1,6 +1,7 @@
 import { View, Text, Image, Dimensions } from 'react-native'
 import React from 'react'
 import colors from '@/constants/colors'
+import { translate } from '@/lib/i18n/config'
 const { width, height } = Dimensions.get('window');
 
 interface PlantHeaderInterface {
@@ -53,12 +54,12 @@ const PlantHeader = ({scientificName, commonNames, imageUri, confidence, nicknam
                <Text className="text-text-secondary text-sm">
                  {commonNames[0]}
                  {commonNames.length > 1 && `, ${commonNames[1]}`}
-                 {commonNames.length > 2 && (
-                   <Text className="text-text-secondary text-xs">
-                     {' • Also: '}{commonNames.slice(2, 4).join(', ')}
-                     {commonNames.length > 4 && '...'}
-                   </Text>
-                 )}
+                {commonNames.length > 2 && (
+                  <Text className="text-text-secondary text-xs">
+                    {' • '}{translate('plantHeader.also')}{' '}{commonNames.slice(2, 4).join(', ')}
+                    {commonNames.length > 4 && '...'}
+                  </Text>
+                )}
                </Text>
              )}
            </View>

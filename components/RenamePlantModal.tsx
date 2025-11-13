@@ -1,6 +1,7 @@
 import { View, Text, Modal, TouchableWithoutFeedback, Keyboard, TextInput, TouchableOpacity } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
+import { translate } from '@/lib/i18n/config';
 
 interface RenamePlantModalProps {
     visible: boolean;
@@ -55,7 +56,7 @@ export default function RenamePlantModal({visible, onClose, onSave, plantName}: 
                     <Ionicons name="create-outline" size={20} color="#4F772D" />
                   </View>
                   <Text className="text-text-primary text-xl font-semibold">
-                    Rename Plant
+                    {translate('renamePlantModal.title')}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -69,7 +70,7 @@ export default function RenamePlantModal({visible, onClose, onSave, plantName}: 
               {/* Current Name Display */}
               <View className="mb-4">
                 <Text className="text-text-secondary text-sm font-medium mb-2">
-                  Current name
+                  {translate('renamePlantModal.currentName')}
                 </Text>
                 <View className="bg-gray-50 rounded-xl p-3">
                   <Text className="text-text-primary text-base font-medium">
@@ -81,10 +82,10 @@ export default function RenamePlantModal({visible, onClose, onSave, plantName}: 
               {/* New Name Input */}
               <View className="mb-6">
                 <Text className="text-text-secondary text-sm font-medium mb-2">
-                  New name
+                  {translate('renamePlantModal.newName')}
                 </Text>
                 <TextInput
-                  placeholder="Enter new name"
+                  placeholder={translate('renamePlantModal.enterNewName')}
                   placeholderTextColor="#999999"
                   value={nickname}
                   onChangeText={setNickname}
@@ -111,7 +112,7 @@ export default function RenamePlantModal({visible, onClose, onSave, plantName}: 
                       ? 'text-white' 
                       : 'text-gray-500'
                   }`}>
-                    Save Changes
+                    {translate('renamePlantModal.saveChanges')}
                   </Text>
                 </TouchableOpacity>
                 
@@ -120,7 +121,7 @@ export default function RenamePlantModal({visible, onClose, onSave, plantName}: 
                   className="p-4 rounded-xl items-center border border-gray-200"
                 >
                   <Text className="text-text-secondary text-lg font-medium">
-                    Cancel
+                    {translate('renamePlantModal.cancel')}
                   </Text>
                 </TouchableOpacity>
               </View>
