@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { WeatherProps } from "@/interfaces/interfaces";
+import { translate } from "@/lib/i18n/config";
 
 export default function Index() {
 
@@ -69,9 +70,9 @@ export default function Index() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return translate('index.goodMorning');
+    if (hour < 17) return translate('index.goodAfternoon');
+    return translate('index.goodEvening');
   };
 
   const handleWeatherUpdate = (weather: WeatherProps | null, error: string | null) => {
@@ -81,12 +82,12 @@ export default function Index() {
 
   if(error) {
     console.error("Error in main screen:", error);
-    return Alert.alert("Oops, there's an error...", error);
+    return Alert.alert(translate('index.errorTitle'), error);
   }
 
   // Show loading screen if still loading
   if(isLoading) {
-    return <LoadingScreen message="Loading your garden..." />;
+    return <LoadingScreen message={translate('index.loadingGarden')} />;
   }
 
   // Show a simple fallback if databaseUser is undefined
@@ -94,13 +95,13 @@ export default function Index() {
     return (
       <SafeAreaView className="bg-[#F8F8F8] flex-1 justify-center items-center">
         <Text className="text-lg font-semibold text-[#2F2F2F] mb-4">
-          Loading user data...
+          {translate('index.loadingUserData')}
         </Text>
         <Text className="text-sm text-[#666666] text-center px-4">
-          User ID: {contextUser?.$id || "None"}
+          {translate('index.userId')}: {contextUser?.$id || translate('index.none')}
         </Text>
         <Text className="text-sm text-[#666666] text-center px-4 mt-2">
-          Database User: {databaseUser ? "Loaded" : "Not loaded"}
+          {translate('index.databaseUser')}: {databaseUser ? translate('index.loaded') : translate('index.notLoaded')}
         </Text>
       </SafeAreaView>
     );
@@ -125,7 +126,7 @@ export default function Index() {
           <View className="flex-row items-center justify-between mb-2">
             <View>
               <Text className="text-2xl font-semibold text-[#2F2F2F] mb-1">
-                {getGreeting()}, {databaseUser?.displayName ? databaseUser.displayName.split(' ')[0] : currentUser?.name ? currentUser.name.split(' ')[0] : "Guest"}
+                {getGreeting()}
               </Text>
               {weatherData?.location && (
                 <Text className="text-2xl text-[#4F772D] font-medium">
@@ -147,20 +148,20 @@ export default function Index() {
               className="flex-1 bg-[#4F772D] rounded-3xl p-4 items-center shadow-sm shadow-black/5"
             >
               <Ionicons name="camera" size={24} color="white" />
-              <Text className="text-white font-medium mt-2 text-center">Identify Plant</Text>
+              <Text className="text-white font-medium mt-2 text-center">{translate('index.identifyPlant')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push("/(root)/(tabs)/care")}
               className="flex-1 bg-white rounded-3xl p-4 items-center shadow-sm shadow-black/5 border border-[#90A955]/20 ml-3"
             >
               <Ionicons name="calendar" size={24} color="#4F772D" />
-              <Text className="text-[#4F772D] font-medium mt-2 text-center">View Schedule</Text>
+              <Text className="text-[#4F772D] font-medium mt-2 text-center">{translate('index.viewSchedule')}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View className="mx-4 ">
-          <Text className="text-lg font-semibold text-[#2F2F2F] mb-3">Today's Tasks</Text>
+          <Text className="text-lg font-semibold text-[#2F2F2F] mb-3">{translate('index.todaysTasks')}</Text>
         </View>
 
         {/* Urgent Care Banner */}
@@ -170,7 +171,7 @@ export default function Index() {
               <View className="flex-row items-center flex-1">
                 <Ionicons name="warning" size={20} color="white" />
                 <Text className="text-white font-medium ml-2 flex-1">
-                  {plantsNeedCare.length} plant{plantsNeedCare.length > 1 ? 's' : ''} need{plantsNeedCare.length > 1 ? '' : 's'} immediate attention
+                  {plantsNeedCare.length} {plantsNeedCare.length > 1 ? translate('index.plants') : translate('index.plant')} {plantsNeedCare.length > 1 ? translate('index.need') : translate('index.needs')} {translate('index.immediateAttention')}
                 </Text>
               </View>
             </View>
@@ -185,7 +186,7 @@ export default function Index() {
 
         {/* This Week's Calendar */}
         <View className="mx-4 mb-6">
-          <Text className="text-lg font-semibold text-[#2F2F2F] mb-3">This Week</Text>
+          <Text className="text-lg font-semibold text-[#2F2F2F] mb-3">{translate('index.thisWeek')}</Text>
                      <WeekCalendar 
              mondayFirstDayOfWeek={!!databaseUser?.mondayFirstDayOfWeek}
              wateringDays={wateringDays}

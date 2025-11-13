@@ -1,12 +1,14 @@
 import { View, Text, Image, Animated } from 'react-native'
 import React, { useEffect, useRef } from 'react'
+import { translate } from '@/lib/i18n/config'
 
 interface LoadingScreenProps {
     message?: string;
     showCalendarSkeleton?: boolean;
 }
 
-const LoadingScreen = ({ message = "Loading...", showCalendarSkeleton = false }: LoadingScreenProps) => {
+const LoadingScreen = ({ message, showCalendarSkeleton = false }: LoadingScreenProps) => {
+    const displayMessage = message || translate('loadingScreen.loading');
     const pulseAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
@@ -79,7 +81,7 @@ const LoadingScreen = ({ message = "Loading...", showCalendarSkeleton = false }:
                     resizeMode="contain"
                 />
             </Animated.View>
-            <Text className="text-text-primary text-lg font-medium">{message}</Text>
+            <Text className="text-text-primary text-lg font-medium">{displayMessage}</Text>
         </View>
     )
 }

@@ -140,6 +140,61 @@
     "serverError": "Server error. Please try again later.",
     "failedToIdentifyPlants": "Failed to identify plants"
   },
+  "index": {
+    "goodMorning": "Good morning",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening",
+    "identifyPlant": "Identify Plant",
+    "viewSchedule": "View Schedule",
+    "todaysTasks": "Today's Tasks",
+    "thisWeek": "This Week",
+    "loadingGarden": "Loading your garden...",
+    "loadingUserData": "Loading user data...",
+    "userId": "User ID",
+    "none": "None",
+    "databaseUser": "Database User",
+    "loaded": "Loaded",
+    "notLoaded": "Not loaded",
+    "errorTitle": "Oops, there's an error...",
+    "plant": "plant",
+    "plants": "plants",
+    "needs": "needs",
+    "need": "need",
+    "immediateAttention": "immediate attention"
+  },
+  "loadingScreen": {
+    "loading": "Loading..."
+  },
+  "myPlants": {
+    "myGarden": "My Garden",
+    "next": "Next",
+    "unknown": "Unknown",
+    "addPlant": "Add Plant"
+  },
+  "dailyTask": {
+    "today": "Today",
+    "dayOverdue": "{count} day{plural} overdue",
+    "oneDayOverdue": "1 day overdue",
+    "water": "Water",
+    "allCaughtUp": "All caught up!",
+    "noPlantsNeedWatering": "No plants need watering today"
+  },
+  "weekCalendar": {
+    "showingSampleSchedule": "Showing sample watering schedule"
+  },
+  "weather": {
+    "loadingWeather": "Loading weather...",
+    "weatherUnavailable": "Weather unavailable",
+    "locationAccessRequired": "Location Access Required",
+    "enableLocationAccess": "Please enable location access in your device settings to get weather information.",
+    "ok": "OK",
+    "weatherUnavailableTitle": "Weather Unavailable",
+    "unableToFetchWeather": "Unable to fetch weather information at this time. Please try again later.",
+    "error": "Error",
+    "unexpectedError": "An unexpected error occurred while fetching weather data.",
+    "locationAccessDenied": "Location access denied",
+    "unexpectedErrorOccurred": "Unexpected error occurred"
+  },
   "care": {
     "title": "Schedule",
     "monthlyWateringPlan": "Your monthly watering plan",

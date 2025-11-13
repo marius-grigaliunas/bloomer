@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { DatabasePlantType } from '@/interfaces/interfaces';
 import colors from '@/constants/colors';
 import { router } from 'expo-router';
+import { translate } from '@/lib/i18n/config';
 
 interface DailyTaskProps {
   plants: Record<string, DatabasePlantType>;
@@ -55,9 +56,9 @@ export default function DailyTask({ plants }: DailyTaskProps) {
   };
 
   const getUrgencyText = (daysOverdue: number) => {
-    if (daysOverdue === 0) return "Today";
-    if (daysOverdue === 1) return "1 day overdue";
-    return `${daysOverdue} days overdue`;
+    if (daysOverdue === 0) return translate('dailyTask.today');
+    if (daysOverdue === 1) return translate('dailyTask.oneDayOverdue');
+    return `${daysOverdue} ` + translate('dailyTask.dayOverdue');
   };
 
   const getUrgencyBorderClass = (daysOverdue: number) => {
@@ -113,7 +114,7 @@ export default function DailyTask({ plants }: DailyTaskProps) {
                   />
                   <View className="flex-1">
                     <Text className="font-medium text-[#2F2F2F]">{plant.nickname}</Text>
-                    <Text className="text-sm text-[#666666]">Water {plant.wateringAmountMetric || 250}ml</Text>
+                    <Text className="text-sm text-[#666666]">{translate('dailyTask.water')} {plant.wateringAmountMetric || 250}ml</Text>
                   </View>
                   <Ionicons name="water" size={20} color={urgencyColor} />
                 </View>
@@ -125,8 +126,8 @@ export default function DailyTask({ plants }: DailyTaskProps) {
         <View className="bg-white rounded-3xl p-4 shadow-sm shadow-black/5">
           <View className="py-8 items-center">
             <Ionicons name="checkmark-circle" size={48} color={colors.success} />
-            <Text className="text-[#2E7D32] font-medium mt-2">All caught up!</Text>
-            <Text className="text-sm text-[#666666] text-center mt-1">No plants need watering today</Text>
+            <Text className="text-[#2E7D32] font-medium mt-2">{translate('dailyTask.allCaughtUp')}</Text>
+            <Text className="text-sm text-[#666666] text-center mt-1">{translate('dailyTask.noPlantsNeedWatering')}</Text>
           </View>
         </View>
       )}

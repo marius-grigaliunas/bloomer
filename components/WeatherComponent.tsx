@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef, forwardRef, useImperativeHandle } f
 import * as ExpoLocation from 'expo-location'
 import { getWeather } from '@/lib/services/weatherApiService'
 import { WeatherProps } from '@/interfaces/interfaces'
+import { translate } from '@/lib/i18n/config'
 
 // Global cache for weather data
 let weatherCache: { data: WeatherProps | null; timestamp: number; error: string | null } = {
@@ -37,12 +38,12 @@ const WeatherComponent = forwardRef<WeatherComponentRef, WeatherComponentProps>(
                 console.error('Location permission denied');
                 setHasError(true);
                 setIsLoading(false);
-                weatherCache.error = 'Location access denied';
-                onWeatherUpdate?.(null, 'Location access denied');
+                weatherCache.error = translate('weather.locationAccessDenied');
+                onWeatherUpdate?.(null, translate('weather.locationAccessDenied'));
                 Alert.alert(
-                    'Location Access Required',
-                    'Please enable location access in your device settings to get weather information.',
-                    [{ text: 'OK' }]
+                    translate('weather.locationAccessRequired'),
+                    translate('weather.enableLocationAccess'),
+                    [{ text: translate('weather.ok') }]
                 );
                 return;
             } 
@@ -58,9 +59,9 @@ const WeatherComponent = forwardRef<WeatherComponentRef, WeatherComponentProps>(
                 weatherCache.timestamp = now;
                 onWeatherUpdate?.(null, result);
                 Alert.alert(
-                    'Weather Unavailable',
-                    'Unable to fetch weather information at this time. Please try again later.',
-                    [{ text: 'OK' }]
+                    translate('weather.weatherUnavailableTitle'),
+                    translate('weather.unableToFetchWeather'),
+                    [{ text: translate('weather.ok') }]
                 );
             } else {
                 setWeather(result);
@@ -76,13 +77,13 @@ const WeatherComponent = forwardRef<WeatherComponentRef, WeatherComponentProps>(
             setHasError(true);
             setIsLoading(false);
             const now = Date.now();
-            weatherCache.error = 'Unexpected error occurred';
+            weatherCache.error = translate('weather.unexpectedErrorOccurred');
             weatherCache.timestamp = now;
-            onWeatherUpdate?.(null, 'Unexpected error occurred');
+            onWeatherUpdate?.(null, translate('weather.unexpectedErrorOccurred'));
             Alert.alert(
-                'Error',
-                'An unexpected error occurred while fetching weather data.',
-                [{ text: 'OK' }]
+                translate('weather.error'),
+                translate('weather.unexpectedError'),
+                [{ text: translate('weather.ok') }]
             );
         }
     };
@@ -117,9 +118,9 @@ const WeatherComponent = forwardRef<WeatherComponentRef, WeatherComponentProps>(
     return (
         <View className='text-text-primary'>
             {isLoading ? (
-                <Text className='text-l text-text-primary'>Loading weather...</Text>
+                <Text className='text-l text-text-primary'>{translate('weather.loadingWeather')}</Text>
             ) : hasError ? (
-                <Text className='text-l text-text-primary'>Weather unavailable</Text>
+                <Text className='text-l text-text-primary'>{translate('weather.weatherUnavailable')}</Text>
             ) : weather ? (
                 <View className='flex flex-row justify-between items-center'>
                     <Image 
@@ -130,7 +131,7 @@ const WeatherComponent = forwardRef<WeatherComponentRef, WeatherComponentProps>(
                     <Text className='text-2xl text-text-primary'>{weather.temperature.toFixed(0)}°C</Text>
                 </View>
             ) : (
-                <Text className='text-l text-text-primary'>Weather unavailable</Text>
+                <Text className='text-l text-text-primary'>{translate('weather.weatherUnavailable')}</Text>
             )}
         </View>
     )

@@ -140,6 +140,61 @@
     "serverError": "Eroare de server. Te rugăm să încerci mai târziu.",
     "failedToIdentifyPlants": "Nu s-au putut identifica plantele"
   },
+  "index": {
+    "goodMorning": "Bună dimineața",
+    "goodAfternoon": "Bună ziua",
+    "goodEvening": "Bună seara",
+    "identifyPlant": "Identifică plantă",
+    "viewSchedule": "Vezi programul",
+    "todaysTasks": "Sarcinile de astăzi",
+    "thisWeek": "Săptămâna aceasta",
+    "loadingGarden": "Se încarcă grădina ta...",
+    "loadingUserData": "Se încarcă datele utilizatorului...",
+    "userId": "ID utilizator",
+    "none": "Niciunul",
+    "databaseUser": "Utilizator bază de date",
+    "loaded": "Încărcat",
+    "notLoaded": "Neîncărcat",
+    "errorTitle": "Oops, a apărut o eroare...",
+    "plant": "plantă",
+    "plants": "plante",
+    "needs": "are nevoie de",
+    "need": "au nevoie de",
+    "immediateAttention": "atenție"
+  },
+  "loadingScreen": {
+    "loading": "Se încarcă..."
+  },
+  "myPlants": {
+    "myGarden": "Grădina mea",
+    "next": "Următorul",
+    "unknown": "Necunoscut",
+    "addPlant": "Adaugă plantă"
+  },
+  "dailyTask": {
+    "today": "Astăzi",
+    "dayOverdue": "zile întârziere",
+    "oneDayOverdue": "1 zi întârziere",
+    "water": "Udă",
+    "allCaughtUp": "Totul este la zi!",
+    "noPlantsNeedWatering": "Astăzi nu există plante care necesită udare"
+  },
+  "weekCalendar": {
+    "showingSampleSchedule": "Se afișează programul de udare exemplu"
+  },
+  "weather": {
+    "loadingWeather": "Se încarcă vremea...",
+    "weatherUnavailable": "Vremea nu este disponibilă",
+    "locationAccessRequired": "Acces la locație necesar",
+    "enableLocationAccess": "Te rugăm să activezi accesul la locație în setările dispozitivului pentru a obține informații despre vreme.",
+    "ok": "OK",
+    "weatherUnavailableTitle": "Vremea nu este disponibilă",
+    "unableToFetchWeather": "Nu s-au putut obține informații despre vreme în acest moment. Te rugăm să încerci mai târziu.",
+    "error": "Eroare",
+    "unexpectedError": "A apărut o eroare neașteptată la obținerea datelor despre vreme.",
+    "locationAccessDenied": "Accesul la locație a fost refuzat",
+    "unexpectedErrorOccurred": "A apărut o eroare neașteptată"
+  },
   "care": {
     "title": "Program",
     "monthlyWateringPlan": "Planul tău lunar de udare",

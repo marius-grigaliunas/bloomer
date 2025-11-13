@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import colors from '@/constants/colors';
 import { WateringDay } from '@/lib/services/dateService';
+import { translate } from '@/lib/i18n/config';
 
 interface WeekCalendarProps {
   mondayFirstDayOfWeek?: boolean;
@@ -53,9 +54,25 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({
   // Day labels based on Monday as first day setting
   const dayLabels = useMemo(() => {
     if (mondayFirstDayOfWeek) {
-      return ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+      return [
+        translate('care.dayAbbreviations.monday'),
+        translate('care.dayAbbreviations.tuesday'),
+        translate('care.dayAbbreviations.wednesday'),
+        translate('care.dayAbbreviations.thursday'),
+        translate('care.dayAbbreviations.friday'),
+        translate('care.dayAbbreviations.saturday'),
+        translate('care.dayAbbreviations.sunday')
+      ];
     } else {
-      return ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+      return [
+        translate('care.dayAbbreviations.sunday'),
+        translate('care.dayAbbreviations.monday'),
+        translate('care.dayAbbreviations.tuesday'),
+        translate('care.dayAbbreviations.wednesday'),
+        translate('care.dayAbbreviations.thursday'),
+        translate('care.dayAbbreviations.friday'),
+        translate('care.dayAbbreviations.saturday')
+      ];
     }
   }, [mondayFirstDayOfWeek]);
 
@@ -117,7 +134,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({
       {isTestData && (
         <View className="mb-2">
           <Text className="text-xs text-[#666666] text-center italic">
-            Showing sample watering schedule
+            {translate('weekCalendar.showingSampleSchedule')}
           </Text>
         </View>
       )}

@@ -4,6 +4,7 @@ import colors from '@/constants/colors';
 import { router } from 'expo-router';
 import { DatabasePlantType } from '@/interfaces/interfaces';
 import { Ionicons } from '@expo/vector-icons';
+import { translate } from '@/lib/i18n/config';
 
 interface MyPlantsProps {
     myPlants: Record<string, DatabasePlantType>;
@@ -12,7 +13,8 @@ interface MyPlantsProps {
     fromPage?: string;
 }
 
-const MyPlants = ({myPlants, showAddButton = true, title = "My Garden", fromPage = "index"}: MyPlantsProps) => {
+const MyPlants = ({myPlants, showAddButton = true, title, fromPage = "index"}: MyPlantsProps) => {
+    const displayTitle = title || translate('myPlants.myGarden');
     
     const handleRoutingToIdentify = () => {
         router.push('/(root)/(tabs)/identify');
@@ -39,7 +41,7 @@ const MyPlants = ({myPlants, showAddButton = true, title = "My Garden", fromPage
     
     return (
         <View className="mx-4 mb-6">
-            <Text className="text-lg font-semibold text-[#2F2F2F] mb-3">{title}</Text>
+            <Text className="text-lg font-semibold text-[#2F2F2F] mb-3">{displayTitle}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
                 {Object.values(myPlants).map((plant) => {
                     const daysOverdue = getDaysOverdue(plant);
@@ -57,7 +59,7 @@ const MyPlants = ({myPlants, showAddButton = true, title = "My Garden", fromPage
                             />
                             <Text className="font-medium text-[#2F2F2F] text-sm mb-1">{plant.nickname}</Text>
                             <Text className="text-xs text-[#666666]">
-                                Next: {plant.nextWateringDate ? new Date(plant.nextWateringDate).toLocaleDateString() : 'Unknown'}
+                                {translate('myPlants.next')}: {plant.nextWateringDate ? new Date(plant.nextWateringDate).toLocaleDateString() : translate('myPlants.unknown')}
                             </Text>
                         </TouchableOpacity>
                     );
@@ -68,7 +70,7 @@ const MyPlants = ({myPlants, showAddButton = true, title = "My Garden", fromPage
                         onPress={handleRoutingToIdentify}
                     >
                         <Ionicons name="add" size={32} color="#90A955" />
-                        <Text className="text-[#90A955] font-medium mt-2 text-sm">Add Plant</Text>
+                        <Text className="text-[#90A955] font-medium mt-2 text-sm">{translate('myPlants.addPlant')}</Text>
                     </TouchableOpacity>
                 )}
             </ScrollView>

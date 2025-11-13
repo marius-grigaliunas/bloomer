@@ -140,6 +140,61 @@
     "serverError": "Serverio klaida. Bandykite vėliau.",
     "failedToIdentifyPlants": "Nepavyko identifikuoti augalų"
   },
+  "index": {
+    "goodMorning": "Labas rytas",
+    "goodAfternoon": "Laba diena",
+    "goodEvening": "Labas vakaras",
+    "identifyPlant": "Identifikuoti augalą",
+    "viewSchedule": "Peržiūrėti tvarkaraštį",
+    "todaysTasks": "Šiandienos užduotys",
+    "thisWeek": "Šią savaitę",
+    "loadingGarden": "Įkeliami jūsų augalai...",
+    "loadingUserData": "Įkeliami naudotojo duomenys...",
+    "userId": "Naudotojo ID",
+    "none": "Nėra",
+    "databaseUser": "Duomenų bazės naudotojas",
+    "loaded": "Įkelta",
+    "notLoaded": "Neįkelta",
+    "errorTitle": "Oi, įvyko klaida...",
+    "plant": "augalui",
+    "plants": "augalams",
+    "needs": "reikia",
+    "need": "reikia",
+    "immediateAttention": "dėmesio"
+  },
+  "loadingScreen": {
+    "loading": "Įkeliama..."
+  },
+  "myPlants": {
+    "myGarden": "Mano sodas",
+    "next": "Kitas",
+    "unknown": "Nežinoma",
+    "addPlant": "Pridėti augalą"
+  },
+  "dailyTask": {
+    "today": "Šiandien",
+    "dayOverdue": "dienas vėluoja",
+    "oneDayOverdue": "1 diena vėluoja",
+    "water": "Laistyti",
+    "allCaughtUp": "Viskas atlikta!",
+    "noPlantsNeedWatering": "Šiandien nėra augalų, kuriems reikia laistymo"
+  },
+  "weekCalendar": {
+    "showingSampleSchedule": "Rodomas pavyzdinis laistymo tvarkaraštis"
+  },
+  "weather": {
+    "loadingWeather": "Įkeliama orų informacija...",
+    "weatherUnavailable": "Orų informacija nepasiekiama",
+    "locationAccessRequired": "Reikalingas vietos prieiga",
+    "enableLocationAccess": "Prašome įjungti vietos prieigą įrenginio nustatymuose, kad gautumėte informaciją apie orų informaciją.",
+    "ok": "Gerai",
+    "weatherUnavailableTitle": "Orų informacija nepasiekiama",
+    "unableToFetchWeather": "Šiuo metu nepavyko gauti informacijos apie oro sąlygą. Prašome bandyti vėliau.",
+    "error": "Klaida",
+    "unexpectedError": "Įvyko netikėta klaida gaunant oro sąlygos duomenis.",
+    "locationAccessDenied": "Vietos prieiga atmesta",
+    "unexpectedErrorOccurred": "Įvyko netikėta klaida"
+  },
   "care": {
     "title": "Tvarkaraštis",
     "monthlyWateringPlan": "Jūsų mėnesinis laistymo planas",
