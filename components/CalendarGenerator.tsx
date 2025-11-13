@@ -10,6 +10,8 @@ import {
 } from './CalendarDay'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import CalendarSkeleton from './CalendarSkeleton'
+import { translate } from '@/lib/i18n/config'
+import { useGlobalContext } from '@/lib/globalProvider'
 
 
 interface CalendarGeneratorProps {
@@ -47,6 +49,9 @@ const createDateObject = (year: number, month: number, day: number): Date => {
 const { width: screenWidth } = Dimensions.get('window');
 
 const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = false, selectedDate, initialMonth, initialYear }: CalendarGeneratorProps) => {
+    // Get databaseUser to track language changes
+    const { databaseUser } = useGlobalContext();
+    
     // Memoize today's date calculation to avoid recalculation on every render
     const todayInfo = useMemo(() => {
         const date = new Date();
@@ -83,14 +88,37 @@ const CalendarGenerator = ({ wateringDays, onDayPress, mondayFirstDayOfWeek = fa
     const [targetMonth, setTargetMonth] = useState<number | null>(null);
     const [targetYear, setTargetYear] = useState<number | null>(null);
     
-    // Memoize static arrays to prevent recreation on every render
-    const days = useMemo(() => mondayFirstDayOfWeek
-        ? ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
-        : ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
-    , [mondayFirstDayOfWeek]);
+    // Memoize localized day abbreviations - updates when language changes
+    const days = useMemo(() => {
+        const dayAbbrs = [
+            translate('care.dayAbbreviations.sunday'),
+            translate('care.dayAbbreviations.monday'),
+            translate('care.dayAbbreviations.tuesday'),
+            translate('care.dayAbbreviations.wednesday'),
+            translate('care.dayAbbreviations.thursday'),
+            translate('care.dayAbbreviations.friday'),
+            translate('care.dayAbbreviations.saturday')
+        ];
+        return mondayFirstDayOfWeek
+            ? [dayAbbrs[1], dayAbbrs[2], dayAbbrs[3], dayAbbrs[4], dayAbbrs[5], dayAbbrs[6], dayAbbrs[0]]
+            : [dayAbbrs[0], dayAbbrs[1], dayAbbrs[2], dayAbbrs[3], dayAbbrs[4], dayAbbrs[5], dayAbbrs[6]];
+    }, [mondayFirstDayOfWeek, databaseUser?.language]);
     
-    const months = useMemo(() => ["January", "February", "March", "April", "May", "June", "July", "August",
-        "September", "October", "November", "December"], []);
+    // Memoize localized month names - updates when language changes
+    const months = useMemo(() => [
+        translate('care.months.january'),
+        translate('care.months.february'),
+        translate('care.months.march'),
+        translate('care.months.april'),
+        translate('care.months.may'),
+        translate('care.months.june'),
+        translate('care.months.july'),
+        translate('care.months.august'),
+        translate('care.months.september'),
+        translate('care.months.october'),
+        translate('care.months.november'),
+        translate('care.months.december')
+    ], [databaseUser?.language]);
 
     // Optimized getWateringDay function with memoized date key generation
     const getWateringDay = useCallback((year: number, month: number, day: number): WateringDay | undefined => {

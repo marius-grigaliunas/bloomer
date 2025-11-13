@@ -4,6 +4,8 @@ import { DatabasePlantType } from '@/interfaces/interfaces'
 import { Link, usePathname } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import colors from '@/constants/colors'
+import { translate } from '@/lib/i18n/config'
+import { useGlobalContext } from '@/lib/globalProvider'
 
 interface TaskCardProps {
   plant: DatabasePlantType;
@@ -16,6 +18,7 @@ interface TaskCardProps {
 
 const TaskCard = memo(({ plant, from, selectedDate, selectedMonth, selectedYear, status }: TaskCardProps) => {
     const pathname = usePathname();
+    const { databaseUser } = useGlobalContext();
     
     // Memoize the current tab calculation
     const currentTab = useMemo(() => {
@@ -57,20 +60,18 @@ const TaskCard = memo(({ plant, from, selectedDate, selectedMonth, selectedYear,
         return url;
     }, [plant.plantId, currentTab, selectedDate, selectedMonth, selectedYear]);
 
-    // Generate care instructions
+    // Generate care instructions with localized strings
     const careInstructions = useMemo(() => {
         const instructions = [];
         if (plant.wateringAmountMetric > 0) {
-            instructions.push(`Water ${plant.wateringAmountMetric}ml`);
+            instructions.push(`${translate('care.taskCard.water')} ${plant.wateringAmountMetric}ml`);
         }
         if (plant.lightRequirements) {
-            const lightText = plant.lightRequirements === 'direct' ? 'direct light' : 
-                             plant.lightRequirements === 'high' ? 'bright light' :
-                             plant.lightRequirements === 'medium' ? 'indirect light' : 'low light';
-            instructions.push(lightText);
+            const lightKey = `care.taskCard.lightRequirements.${plant.lightRequirements}`;
+            instructions.push(translate(lightKey));
         }
         return instructions.join(', ');
-    }, [plant.wateringAmountMetric, plant.lightRequirements]);
+    }, [plant.wateringAmountMetric, plant.lightRequirements, databaseUser?.language]);
 
     // Get water icon color based on status (same logic as DailyTask.tsx)
     const getWaterIconColor = useMemo(() => {

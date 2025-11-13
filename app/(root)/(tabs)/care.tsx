@@ -9,6 +9,7 @@ import { getUserPlants } from '@/lib/appwrite'
 import colors from '@/constants/colors'
 import TaskCard from '@/components/TaskCard'
 import { useNavigationState } from '@/lib/navigationState'
+import { translate } from '@/lib/i18n/config'
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -34,9 +35,32 @@ const Care = () => {
     
     const { careState, setCareState } = useNavigationState();
 
-    // Memoize static arrays to avoid recreation on every call
-    const monthNames = useMemo(() => ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], []);
-    const dayNames = useMemo(() => ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], []);
+    // Memoize localized month names array - updates when language changes
+    const monthNames = useMemo(() => [
+        translate('care.months.january'),
+        translate('care.months.february'),
+        translate('care.months.march'),
+        translate('care.months.april'),
+        translate('care.months.may'),
+        translate('care.months.june'),
+        translate('care.months.july'),
+        translate('care.months.august'),
+        translate('care.months.september'),
+        translate('care.months.october'),
+        translate('care.months.november'),
+        translate('care.months.december')
+    ], [databaseUser?.language]);
+
+    // Memoize localized day names array - updates when language changes
+    const dayNames = useMemo(() => [
+        translate('care.days.sunday'),
+        translate('care.days.monday'),
+        translate('care.days.tuesday'),
+        translate('care.days.wednesday'),
+        translate('care.days.thursday'),
+        translate('care.days.friday'),
+        translate('care.days.saturday')
+    ], [databaseUser?.language]);
 
     // Memoize current date calculation to avoid creating new Date objects on every render
     const currentDate = useMemo(() => new Date(), []);
@@ -303,7 +327,7 @@ const Care = () => {
                 }}
             >
                 <Text className="text-green-600 text-xl font-semibold mb-4">
-                    Tasks for {getFormattedFullDate(selectedDate)}
+                    {getFormattedFullDate(selectedDate)}
                 </Text>
                 {selectedPlants.length > 0 ? (
                     <View className="w-full">
@@ -323,7 +347,7 @@ const Care = () => {
                     <View className="w-full">
                         <View className="bg-gray-50 rounded-xl p-6 mb-3 border border-gray-200">
                             <Text className="text-gray-500 text-center text-lg">
-                                No tasks scheduled for this day
+                                {translate('care.noTasksScheduled')}
                             </Text>
                         </View>
                     </View>
@@ -338,13 +362,13 @@ const Care = () => {
         return (
             <SafeAreaView className='bg-background-primary flex-1 justify-center items-center'>
                 <Text className="text-lg font-semibold text-[#2F2F2F] mb-4">
-                    Loading user data...
+                    {translate('care.loadingUserData')}
                 </Text>
                 <Text className="text-sm text-[#666666] text-center px-4">
-                    User ID: {user?.$id || "None"}
+                    {translate('care.userId')}: {user?.$id || translate('care.none')}
                 </Text>
                 <Text className="text-sm text-[#666666] text-center px-4 mt-2">
-                    Database User: {databaseUser ? "Loaded" : "Not loaded"}
+                    {translate('care.databaseUser')}: {databaseUser ? translate('care.loaded') : translate('care.notLoaded')}
                 </Text>
             </SafeAreaView>
         );
@@ -372,7 +396,7 @@ const Care = () => {
                     <View className="w-full px-4 pt-4 pb-6">
                         <View className="flex-row justify-between items-center mb-2">
                             <Text className="text-text-primary text-3xl font-bold">
-                                Schedule
+                                {translate('care.title')}
                             </Text>
                             <Text className="text-text-primary text-3xl font-bold">
                                 {currentDayOfWeek}
@@ -380,7 +404,7 @@ const Care = () => {
                         </View>
                         <View className="flex-row justify-between items-center">
                             <Text className="text-text-secondary text-lg">
-                                Your monthly watering plan
+                                {translate('care.monthlyWateringPlan')}
                             </Text>
                             <Text className="text-text-secondary text-lg">
                                 {formattedCurrentDateShort}

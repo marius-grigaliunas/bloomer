@@ -139,6 +139,59 @@
     "authenticationError": "Eroare de autentificare. Te rugăm să contactezi suportul.",
     "serverError": "Eroare de server. Te rugăm să încerci mai târziu.",
     "failedToIdentifyPlants": "Nu s-au putut identifica plantele"
+  },
+  "care": {
+    "title": "Program",
+    "monthlyWateringPlan": "Planul tău lunar de udare",
+    "tasksFor": "Sarcini pentru",
+    "noTasksScheduled": "Nu există sarcini programate pentru această zi",
+    "loadingUserData": "Se încarcă datele utilizatorului...",
+    "userId": "ID utilizator",
+    "none": "Niciunul",
+    "databaseUser": "Utilizator bază de date",
+    "loaded": "Încărcat",
+    "notLoaded": "Neîncărcat",
+    "months": {
+      "january": "Ianuarie",
+      "february": "Februarie",
+      "march": "Martie",
+      "april": "Aprilie",
+      "may": "Mai",
+      "june": "Iunie",
+      "july": "Iulie",
+      "august": "August",
+      "september": "Septembrie",
+      "october": "Octombrie",
+      "november": "Noiembrie",
+      "december": "Decembrie"
+    },
+    "days": {
+      "sunday": "Duminică",
+      "monday": "Luni",
+      "tuesday": "Marți",
+      "wednesday": "Miercuri",
+      "thursday": "Joi",
+      "friday": "Vineri",
+      "saturday": "Sâmbătă"
+    },
+    "dayAbbreviations": {
+      "sunday": "DU",
+      "monday": "LU",
+      "tuesday": "MA",
+      "wednesday": "MI",
+      "thursday": "JO",
+      "friday": "VI",
+      "saturday": "SÂ"
+    },
+    "taskCard": {
+      "water": "Udă",
+      "lightRequirements": {
+        "direct": "lumină directă",
+        "high": "lumină puternică",
+        "medium": "lumină indirectă",
+        "low": "lumină slabă"
+      }
+    }
   }
 }
 
