@@ -171,6 +171,16 @@ const PlantDetails = () => {
 
   const wateringStatus = getWateringStatus();
 
+  const formatHistoryDate = (dateInput: string | Date) => {
+    const parsedDate = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+    if (isNaN(parsedDate.getTime())) {
+      return '--';
+    }
+    const day = String(parsedDate.getDate()).padStart(2, '0');
+    const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+    return `${day}-${month}`;
+  };
+
   return (
     <SafeAreaView className="bg-background-primary flex-1">
       <ScrollView 
@@ -306,10 +316,7 @@ const PlantDetails = () => {
                   {plant.wateringHistory.slice(-10).reverse().map((date, index) => (
                     <View key={index} className="bg-primary-medium/10 px-3 py-2 rounded-xl min-w-[80px]">
                       <Text className="text-primary-medium text-sm font-medium text-center">
-                        {new Date(date).toLocaleDateString('en-GB', {
-                          day: '2-digit',
-                          month: 'short'
-                        })}
+                        {formatHistoryDate(date)}
                       </Text>
                     </View>
                   ))}

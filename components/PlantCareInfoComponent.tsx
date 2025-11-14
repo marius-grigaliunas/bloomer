@@ -47,7 +47,7 @@ const PlantComponent: React.FC<PlantComponentProps> = ({ plant }) => {
       icon: 'water-outline',
       color: '#4F772D',
       bgColor: 'bg-primary-medium/10',
-      content: translate('plantCareInfo.wateringDescription', { frequency: careInfo.wateringFrequency, amount: wateringAmount })
+      content: translate('plantCareInfo.wateringDescription').replace('{frequency}', careInfo.wateringFrequency.toString()).replace('{amount}', wateringAmount)
     },
     {
       title: translate('plantCareInfo.lightRequirements'),

@@ -173,7 +173,7 @@
   },
   "dailyTask": {
     "today": "Today",
-    "dayOverdue": "{count} day{plural} overdue",
+    "dayOverdue": "days overdue",
     "oneDayOverdue": "1 day overdue",
     "water": "Water",
     "allCaughtUp": "All caught up!",
