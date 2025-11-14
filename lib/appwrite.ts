@@ -623,7 +623,7 @@ export async function identifyPlants(
     }
 }
 
-export async function getPlantCareFunction(plant: string, commonNames: string[]): Promise<PlantCareInfo | string> { 
+export async function getPlantCareFunction(plant: string, commonNames: string[], preferredLanguage: string): Promise<PlantCareInfo | string> { 
     try {
         const functionId = process.env.EXPO_PUBLIC_CHUTES_FUNCTION_ID;
         if (!functionId) {
@@ -632,7 +632,7 @@ export async function getPlantCareFunction(plant: string, commonNames: string[])
 
         const response = await functions.createExecution(
             functionId,
-            JSON.stringify({ plant, commonNames })
+            JSON.stringify({ plant, commonNames, preferredLanguage })
         );
 
         if (response.status !== 'completed') {

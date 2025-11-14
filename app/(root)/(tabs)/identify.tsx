@@ -12,6 +12,8 @@ import { usePlantInformation } from '@/interfaces/plantInformation';
 import { router } from 'expo-router';
 import * as Manipulator from 'expo-image-manipulator';
 import { translate } from '@/lib/i18n/config';
+import { User } from '../../../interfaces/interfaces';
+import { useGlobalContext } from '@/lib/globalProvider';
 
 const { width, height } = Dimensions.get('window');
 
@@ -48,6 +50,9 @@ const identify = () => {
   // Animation values
   const progressAnimation = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
+
+  const { isLoggedIn, user: contextUser, refetch, databaseUser} = useGlobalContext();
+
 
   // Flash toggle function
   const toggleFlash = () => {
@@ -368,7 +373,7 @@ const identify = () => {
       const plantCommonNames = results.commonNames ?? [''];
       
       // Get care info from the deepseek service
-      const careInfo = await getPlantCareInfo(scientificName, plantCommonNames);
+      const careInfo = await getPlantCareInfo(scientificName, plantCommonNames, databaseUser?.language ?? "en");
       
       // Check if care info request failed
       let finalCareInfo = null;
@@ -381,7 +386,7 @@ const identify = () => {
       
       usePlantInformation.getState().setIdentifiedPlant({
         scientificName,
-        commonNames: plantCommonNames,
+        commonNames: finalCareInfo?.commonNames ?? plantCommonNames,
         confidence: results.confidence,
         careInfo: finalCareInfo,
         imageUri: validImageUris[0]

@@ -19,11 +19,12 @@ export interface PlantCareInfo {
   commonIssues: string[];
   specialNotes: string[];
   careInstructions: string[];
+  commonNames: string[];
 }
 
 export interface Plant {
   scientificName: string;
-  commonNames: string[];
+  commonNames: string[] | null;
   confidence: number;
   careInfo: PlantCareInfo | null;
   imageUri: string;
