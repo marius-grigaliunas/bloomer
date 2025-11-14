@@ -1,6 +1,7 @@
 {
   "common": {
-    "appName": "Bloomer"
+    "appName": "Bloomer",
+    "cancel": "Anulează"
   },
   "profile": {
     "title": "Profil",
@@ -292,6 +293,13 @@
     "specialNotes": "Note speciale",
     "careInstructions": "Instrucțiuni de îngrijire"
   },
+  "addPlantModal": {
+    "title": "Adaugă în grădină",
+    "plantNameLabel": "Numele plantei",
+    "plantNamePlaceholder": "Introdu numele plantei",
+    "lastWateredLabel": "Ultima udare",
+    "addButton": "Adaugă planta"
+  },
   "renamePlantModal": {
     "title": "Redenumește planta",
     "currentName": "Numele actual",
@@ -308,6 +316,23 @@
     "deleting": "Se șterge...",
     "deleteButton": "Șterge planta",
     "cancel": "Anulează"
+  },
+  "identifiedPlant": {
+    "notFoundTitle": "Planta nu a fost găsită",
+    "notFoundDescription": "Ne pare rău! Informațiile despre plantă nu au putut fi încărcate.",
+    "statusSuccessTitle": "Planta a fost identificată cu succes!",
+    "statusSuccessDescription": "Ți-am găsit planta cu o încredere de {confidence}%",
+    "statusUncertainTitle": "Identificare incertă",
+    "statusUncertainDescription": "Nu ți-am putut identifica planta cu o încredere suficientă ({confidence}%). Rezultatul poate fi inexact.",
+    "careInformationTitle": "Informații de îngrijire",
+    "careUnavailableTitle": "Informațiile de îngrijire nu sunt disponibile",
+    "careUnavailableDescription": "Am identificat cu succes planta, dar informațiile de îngrijire nu pot fi obținute acum. O poți adăuga în grădina ta cu setările implicite.",
+    "actionsTitle": "Acțiuni",
+    "addButton": "Adaugă în grădina mea",
+    "addButtonUnavailable": "Adaugă în grădina mea (indisponibil)",
+    "cannotAddTitle": "De ce nu pot adăuga această plantă?",
+    "cannotAddDescription": "Nivelul de încredere al identificării este prea scăzut pentru a garanta acuratețea. Încearcă fotografii mai clare sau din alte unghiuri pentru o identificare mai bună.",
+    "identifyAnother": "Identifică o altă plantă"
   }
 }
 

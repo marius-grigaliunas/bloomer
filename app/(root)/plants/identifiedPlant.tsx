@@ -13,6 +13,7 @@ import AddPlantModal, { PlantFormData } from '@/components/AddPlantModal';
 import LoadingScreen from '@/components/LoadingScreen';
 import PlantHeader from '@/components/PlantHeader';
 import { usePlantStore } from '@/interfaces/plantStore';
+import { translate } from '@/lib/i18n/config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,10 +34,10 @@ const IdentifiedPlant = () => {
             <View className="items-center">
               <Ionicons name="warning" size={48} color="#E53935" />
               <Text className="text-text-primary text-xl font-semibold mt-4 text-center">
-                Plant not found
+                {translate('identifiedPlant.notFoundTitle')}
               </Text>
               <Text className="text-text-secondary text-base mt-2 text-center">
-                Sorry! The plant information could not be loaded.
+                {translate('identifiedPlant.notFoundDescription')}
               </Text>
             </View>
           </View>
@@ -185,11 +186,11 @@ const IdentifiedPlant = () => {
               <View className="flex-row items-center">
                 <Ionicons name="checkmark-circle" size={24} color="#2E7D32" />
                 <Text className="text-success text-lg font-semibold ml-2">
-                  Plant Successfully Identified!
+                  {translate('identifiedPlant.statusSuccessTitle')}
                 </Text>
               </View>
               <Text className="text-text-secondary text-sm mt-2">
-                We found your plant with {confidencePercentage}% confidence
+                {translate('identifiedPlant.statusSuccessDescription').replace('{confidence}', confidencePercentage.toString())}
               </Text>
             </View>
           ) : (
@@ -197,11 +198,11 @@ const IdentifiedPlant = () => {
               <View className="flex-row items-center">
                 <Ionicons name="warning" size={24} color="#FF9800" />
                 <Text className="text-warning text-lg font-semibold ml-2">
-                  Identification Uncertain
+                  {translate('identifiedPlant.statusUncertainTitle')}
                 </Text>
               </View>
               <Text className="text-text-secondary text-sm mt-2">
-                We couldn't identify your plant with sufficient confidence ({confidencePercentage}%). The result may not be accurate.
+                {translate('identifiedPlant.statusUncertainDescription').replace('{confidence}', confidencePercentage.toString())}
               </Text>
             </View>
           )}
@@ -209,7 +210,9 @@ const IdentifiedPlant = () => {
 
         {/* Plant Care Information */}
         <View className="mx-4 mb-6">
-          <Text className="text-lg font-semibold text-text-primary mb-3">Care Information</Text>
+          <Text className="text-lg font-semibold text-text-primary mb-3">
+            {translate('identifiedPlant.careInformationTitle')}
+          </Text>
           {identifiedPlant.plant.careInfo ? (
             <PlantCareInfoComponent plant={identifiedPlant.plant} />
           ) : (
@@ -217,10 +220,10 @@ const IdentifiedPlant = () => {
               <View className="items-center">
                 <Ionicons name="information-circle-outline" size={48} color="#90A955" />
                 <Text className="text-text-primary text-lg font-semibold mt-4 text-center">
-                  Care Information Unavailable
+                  {translate('identifiedPlant.careUnavailableTitle')}
                 </Text>
                 <Text className="text-text-secondary text-base mt-2 text-center">
-                  We successfully identified your plant, but care information couldn't be retrieved at this time. You can still add it to your garden with default care settings.
+                  {translate('identifiedPlant.careUnavailableDescription')}
                 </Text>
               </View>
             </View>
@@ -229,7 +232,9 @@ const IdentifiedPlant = () => {
 
         {/* Action Buttons */}
         <View className="mx-4 mb-6">
-          <Text className="text-lg font-semibold text-text-primary mb-3">Actions</Text>
+          <Text className="text-lg font-semibold text-text-primary mb-3">
+            {translate('identifiedPlant.actionsTitle')}
+          </Text>
           <View className="space-y-4">
             <TouchableOpacity 
               onPress={handleShowModal}
@@ -248,7 +253,9 @@ const IdentifiedPlant = () => {
               <Text className={`font-medium mt-2 text-center text-lg ${
                 isIdentificationSuccessful ? 'text-white' : 'text-gray-500'
               }`}>
-                {isIdentificationSuccessful ? 'Add to My Garden' : 'Add to My Garden (Unavailable)'}
+                {isIdentificationSuccessful 
+                  ? translate('identifiedPlant.addButton') 
+                  : translate('identifiedPlant.addButtonUnavailable')}
               </Text>
             </TouchableOpacity>
             
@@ -257,11 +264,11 @@ const IdentifiedPlant = () => {
                 <View className="flex-row items-center mb-2">
                   <Ionicons name="information-circle" size={20} color="#FF9800" />
                   <Text className="text-warning font-medium ml-2">
-                    Why can't I add this plant?
+                    {translate('identifiedPlant.cannotAddTitle')}
                   </Text>
                 </View>
                 <Text className="text-text-secondary text-sm">
-                  The identification confidence is too low to ensure accuracy. Please try taking clearer photos or different angles for better identification.
+                  {translate('identifiedPlant.cannotAddDescription')}
                 </Text>
               </View>
             )}
@@ -272,7 +279,7 @@ const IdentifiedPlant = () => {
             >
               <Ionicons name="camera" size={24} color="#4F772D" />
               <Text className="text-primary-medium font-medium mt-2 text-center text-lg">
-                Identify Another Plant
+                {translate('identifiedPlant.identifyAnother')}
               </Text>
             </TouchableOpacity>
           </View>

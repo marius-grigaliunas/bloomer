@@ -1,6 +1,7 @@
 {
   "common": {
-    "appName": "Bloomer"
+    "appName": "Bloomer",
+    "cancel": "Cancel"
   },
   "profile": {
     "title": "Profile",
@@ -292,6 +293,13 @@
     "specialNotes": "Special Notes",
     "careInstructions": "Care Instructions"
   },
+  "addPlantModal": {
+    "title": "Add to Garden",
+    "plantNameLabel": "Plant name",
+    "plantNamePlaceholder": "Enter plant name",
+    "lastWateredLabel": "Last watered",
+    "addButton": "Add Plant"
+  },
   "renamePlantModal": {
     "title": "Rename Plant",
     "currentName": "Current name",
@@ -308,6 +316,23 @@
     "deleting": "Deleting...",
     "deleteButton": "Delete Plant",
     "cancel": "Cancel"
+  },
+  "identifiedPlant": {
+    "notFoundTitle": "Plant not found",
+    "notFoundDescription": "Sorry! The plant information could not be loaded.",
+    "statusSuccessTitle": "Plant Successfully Identified!",
+    "statusSuccessDescription": "We found your plant with {confidence}% confidence",
+    "statusUncertainTitle": "Identification Uncertain",
+    "statusUncertainDescription": "We couldn't identify your plant with sufficient confidence ({confidence}%). The result may not be accurate.",
+    "careInformationTitle": "Care Information",
+    "careUnavailableTitle": "Care Information Unavailable",
+    "careUnavailableDescription": "We successfully identified your plant, but care information couldn't be retrieved at this time. You can still add it to your garden with default care settings.",
+    "actionsTitle": "Actions",
+    "addButton": "Add to My Garden",
+    "addButtonUnavailable": "Add to My Garden (Unavailable)",
+    "cannotAddTitle": "Why can't I add this plant?",
+    "cannotAddDescription": "The identification confidence is too low to ensure accuracy. Please try taking clearer photos or different angles for better identification.",
+    "identifyAnother": "Identify Another Plant"
   }
 }
 

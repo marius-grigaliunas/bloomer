@@ -2,6 +2,7 @@ import { View, Text, Modal, TouchableWithoutFeedback, Keyboard, TextInput, Platf
 import { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { translate } from '@/lib/i18n/config';
 
 export interface PlantFormData {
   nickname: string;
@@ -80,7 +81,7 @@ export default function AddPlantModal({visible, onClose, onSave, plantName}: Add
                     <Ionicons name="add-circle" size={20} color="#4F772D" />
                   </View>
                   <Text className="text-text-primary text-xl font-semibold">
-                    Add to Garden
+                    {translate('addPlantModal.title')}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -94,10 +95,10 @@ export default function AddPlantModal({visible, onClose, onSave, plantName}: Add
               {/* Plant Name Input */}
               <View className="mb-6">
                 <Text className="text-text-secondary text-sm font-medium mb-2">
-                  Plant name
+                  {translate('addPlantModal.plantNameLabel')}
                 </Text>
                 <TextInput
-                  placeholder="Enter plant name"
+                  placeholder={translate('addPlantModal.plantNamePlaceholder')}
                   placeholderTextColor="#999999"
                   value={nickname}
                   onChangeText={setNickname}
@@ -109,7 +110,7 @@ export default function AddPlantModal({visible, onClose, onSave, plantName}: Add
               {/* Last Watered Date Picker */}
               <View className="mb-6">
                 <Text className="text-text-secondary text-sm font-medium mb-2">
-                  Last watered
+                  {translate('addPlantModal.lastWateredLabel')}
                 </Text>
                 <TouchableOpacity
                   onPress={() => setDatePickerVisible(true)}
@@ -146,7 +147,7 @@ export default function AddPlantModal({visible, onClose, onSave, plantName}: Add
                   <Text className={`text-lg font-semibold ${
                     nickname.trim() ? 'text-white' : 'text-gray-500'
                   }`}>
-                    Add Plant
+                    {translate('addPlantModal.addButton')}
                   </Text>
                 </TouchableOpacity>
                 
@@ -155,7 +156,7 @@ export default function AddPlantModal({visible, onClose, onSave, plantName}: Add
                   className="p-4 rounded-xl items-center border border-gray-200"
                 >
                   <Text className="text-text-secondary text-lg font-medium">
-                    Cancel
+                    {translate('common.cancel')}
                   </Text>
                 </TouchableOpacity>
               </View>

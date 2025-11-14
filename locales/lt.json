@@ -1,6 +1,7 @@
 {
   "common": {
-    "appName": "Bloomer"
+    "appName": "Bloomer",
+    "cancel": "Atšaukti"
   },
   "profile": {
     "title": "Profilis",
@@ -292,6 +293,13 @@
     "specialNotes": "Specialūs pastabos",
     "careInstructions": "Priežiūros instrukcijos"
   },
+  "addPlantModal": {
+    "title": "Pridėti į sodą",
+    "plantNameLabel": "Augalo vardas",
+    "plantNamePlaceholder": "Įveskite augalo vardą",
+    "lastWateredLabel": "Paskutinį kartą laistytas",
+    "addButton": "Pridėti augalą"
+  },
   "renamePlantModal": {
     "title": "Pervadinti augalą",
     "currentName": "Dabartinis vardas",
@@ -308,6 +316,23 @@
     "deleting": "Ištrinama...",
     "deleteButton": "Ištrinti augalą",
     "cancel": "Atšaukti"
+  },
+  "identifiedPlant": {
+    "notFoundTitle": "Augalas nerastas",
+    "notFoundDescription": "Atsiprašome! Nepavyko įkelti augalo informacijos.",
+    "statusSuccessTitle": "Augalas sėkmingai identifikuotas!",
+    "statusSuccessDescription": "Radome jūsų augalą su {confidence}% patikimumu",
+    "statusUncertainTitle": "Identifikacija neaiški",
+    "statusUncertainDescription": "Nepavyko identifikuoti jūsų augalo su pakankamu patikimumu ({confidence}%). Rezultatas gali būti netikslus.",
+    "careInformationTitle": "Priežiūros informacija",
+    "careUnavailableTitle": "Priežiūros informacija nepasiekiama",
+    "careUnavailableDescription": "Sėkmingai identifikavome jūsų augalą, tačiau šiuo metu nepavyko gauti priežiūros informacijos. Vis tiek galite pridėti jį į sodą su numatytaisiais nustatymais.",
+    "actionsTitle": "Veiksmai",
+    "addButton": "Pridėti į mano sodą",
+    "addButtonUnavailable": "Pridėti į mano sodą (nepasiekiama)",
+    "cannotAddTitle": "Kodėl negaliu pridėti šio augalo?",
+    "cannotAddDescription": "Identifikavimo patikimumas per mažas, kad būtų užtikrintas tikslumas. Pabandykite fotografuoti aiškesnes nuotraukas arba iš kitų kampų.",
+    "identifyAnother": "Identifikuoti kitą augalą"
   }
 }
 
