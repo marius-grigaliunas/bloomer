@@ -1,7 +1,7 @@
 export default {
     name: "Bloomer",
     slug: "bloomer",
-    version: "1.0.2",
+    version: "1.1.0",
     // Allow both portrait and landscape so large-screen and resizable devices are supported
     orientation: "default",
     icon: "./assets/images/icon.png",
