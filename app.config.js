@@ -2,7 +2,8 @@ export default {
     name: "Bloomer",
     slug: "bloomer",
     version: "1.0.2",
-    orientation: "portrait",
+    // Allow both portrait and landscape so large-screen and resizable devices are supported
+    orientation: "default",
     icon: "./assets/images/icon.png",
     scheme: "appwrite-callback-67d145de00084a32d0d6",
     userInterfaceStyle: "automatic",
@@ -36,7 +37,12 @@ export default {
             "android.permission.WRITE_EXTERNAL_STORAGE",
             "android.permission.POST_NOTIFICATIONS"
         ],
-        "package": "com.grimar.bloomer"
+        "package": "com.grimar.bloomer",
+        "packagingOptions": {
+            "jniLibs": {
+                "useLegacyPackaging": false
+            }
+        }
     },
     web: {
         bundler: "metro",
