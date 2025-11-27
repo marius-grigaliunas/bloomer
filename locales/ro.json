@@ -166,6 +166,18 @@
   "loadingScreen": {
     "loading": "Se încarcă..."
   },
+  "signIn": {
+    "title": "Bloomer",
+    "subtitle": "Companionul tău personal pentru îngrijirea plantelor",
+    "continueWithGoogle": "Continuă cu Google",
+    "tryWithoutAccount": "Încearcă fără cont",
+    "termsAgreement": "Prin continuare, ești de acord cu",
+    "termsOfService": "Termenii și condițiile",
+    "signingIn": "Te conectăm...",
+    "error": "Eroare",
+    "failedToSignIn": "Nu s-a putut conecta",
+    "failedToSignInAnonymously": "Nu s-a putut conecta anonim"
+  },
   "myPlants": {
     "myGarden": "Grădina mea",
     "next": "Următoarea",

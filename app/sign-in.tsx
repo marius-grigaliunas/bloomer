@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import LoadingScreen from '@/components/LoadingScreen';
+import { translate } from '@/lib/i18n/config';
 
 const SignIn = () => {
     const { refetch, loading, isLoggedIn } = useGlobalContext()
@@ -68,7 +69,7 @@ const SignIn = () => {
                     console.error("Error removing loading state:", error);
                 }
             } else {
-                Alert.alert("Error", "Failed to sign-in")
+                Alert.alert(translate('signIn.error'), translate('signIn.failedToSignIn'))
                 setIsSigningIn(false);
                 // Clear persistent storage
                 try {
@@ -81,7 +82,7 @@ const SignIn = () => {
             // Clear the timeout since login failed
             clearTimeout(timeoutId);
             console.error("Sign-in error:", error);
-            Alert.alert("Error", "Failed to sign-in")
+            Alert.alert(translate('signIn.error'), translate('signIn.failedToSignIn'))
             setIsSigningIn(false);
             // Clear persistent storage
             try {
@@ -100,12 +101,12 @@ const SignIn = () => {
             if(result) {
                 await refetch()
             } else {
-                Alert.alert("Error", "Failed to sign-in annonymously")
+                Alert.alert(translate('signIn.error'), translate('signIn.failedToSignInAnonymously'))
                 setIsSigningIn(false);
             }
         } catch (error) {
             console.error("Anonymous sign-in error:", error);
-            Alert.alert("Error", "Failed to sign-in annonymously")
+            Alert.alert(translate('signIn.error'), translate('signIn.failedToSignInAnonymously'))
             setIsSigningIn(false);
         }
         // Note: Don't set isSigningIn to false in finally block for anonymous login
@@ -117,7 +118,7 @@ const SignIn = () => {
 
     // Show loading screen during sign-in process
     if (isSigningIn) {
-        return <LoadingScreen message="Signing you in..." />
+        return <LoadingScreen message={translate('signIn.signingIn')} />
     }
 
     // Test functions removed - they were causing import issues
@@ -141,10 +142,10 @@ const SignIn = () => {
                             />
                         </View>
                         <Text style={{ color: '#2F2F2F', fontSize: 30, fontWeight: 'bold', marginBottom: 8 }}>
-                            Bloomer
+                            {translate('signIn.title')}
                         </Text>
                         <Text style={{ color: '#6B7280', fontSize: 18, textAlign: 'center' }}>
-                            Your personal plant care companion
+                            {translate('signIn.subtitle')}
                         </Text>
                     </View>
 
@@ -167,7 +168,7 @@ const SignIn = () => {
                         >
                             <Ionicons name="logo-google" size={24} color="#4285F4" />
                             <Text style={{ color: '#2F2F2F', fontSize: 18, fontWeight: '500', marginLeft: 12 }}>
-                                Continue with Google
+                                {translate('signIn.continueWithGoogle')}
                             </Text>
                         </TouchableOpacity>
 
@@ -185,7 +186,7 @@ const SignIn = () => {
                         >
                             <Ionicons name="person-outline" size={24} color="white" />
                             <Text style={{ color: 'white', fontSize: 18, fontWeight: '500', marginLeft: 12 }}>
-                                Try without account
+                                {translate('signIn.tryWithoutAccount')}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -193,10 +194,10 @@ const SignIn = () => {
                     {/* Footer Text */}
                     <View style={{ marginTop: 48, alignItems: 'center' }}>
                         <Text style={{ color: '#6B7280', textAlign: 'center', fontSize: 14 }}>
-                            By continuing, you agree to our{' '}
+                            {translate('signIn.termsAgreement')}{' '}
                             <TouchableOpacity onPress={() => router.push('/privacy')}>
                                 <Text style={{ color: '#4F772D', textDecorationLine: 'underline', fontWeight: '500' }}>
-                                    Terms of Service
+                                    {translate('signIn.termsOfService')}
                                 </Text>
                             </TouchableOpacity>
                         </Text>

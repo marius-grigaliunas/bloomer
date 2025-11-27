@@ -166,6 +166,18 @@
   "loadingScreen": {
     "loading": "Loading..."
   },
+  "signIn": {
+    "title": "Bloomer",
+    "subtitle": "Your personal plant care companion",
+    "continueWithGoogle": "Continue with Google",
+    "tryWithoutAccount": "Try without account",
+    "termsAgreement": "By continuing, you agree to our",
+    "termsOfService": "Terms of Service",
+    "signingIn": "Signing you in...",
+    "error": "Error",
+    "failedToSignIn": "Failed to sign-in",
+    "failedToSignInAnonymously": "Failed to sign-in annonymously"
+  },
   "myPlants": {
     "myGarden": "My Garden",
     "next": "Next",

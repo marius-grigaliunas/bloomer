@@ -166,6 +166,18 @@
   "loadingScreen": {
     "loading": "Įkeliama..."
   },
+  "signIn": {
+    "title": "Bloomer",
+    "subtitle": "Jūsų asmeninis augalų priežiūros palydovas",
+    "continueWithGoogle": "Tęsti su Google",
+    "tryWithoutAccount": "Išbandyti be paskyros",
+    "termsAgreement": "Tęsdami sutinkate su mūsų",
+    "termsOfService": "Naudojimo sąlygomis",
+    "signingIn": "Jūsų prisijungimas...",
+    "error": "Klaida",
+    "failedToSignIn": "Nepavyko prisijungti",
+    "failedToSignInAnonymously": "Nepavyko prisijungti anonimiškai"
+  },
   "myPlants": {
     "myGarden": "Mano sodas",
     "next": "Kitas",
