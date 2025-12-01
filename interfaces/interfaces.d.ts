@@ -9,9 +9,9 @@ export interface PlantCareInfo {
   wateringFrequency: number;
   wateringAmountMetric: number;
   wateringAmountImperial: number;
-  lightRequirements: 'low' | 'medium' | 'high' | 'direct';
+  lightRequirements: string;
   soilPreferences: string;
-  humidity: 'low' | 'medium' | 'high';
+  humidity: string;
   minTemperatureCelsius: number;
   maxTemperatureCelsius: number;
   minTemperatureFahrenheit: number;
@@ -69,9 +69,9 @@ export interface DatabasePlantType {
   wateringAmountImperial: number;
   lastWatered?: Date;
   nextWateringDate?: Date;
-  lightRequirements: 'low' | 'medium' | 'high' | 'direct';
+  lightRequirements: string;
   soilPreferences?: string;
-  humidity: 'low' | 'medium' | 'high';
+  humidity: string;
   minTemperatureCelsius: number;
   maxTemperatureCelsius: number;
   minTemperatureFahrenheit: number;
