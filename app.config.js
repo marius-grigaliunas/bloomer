@@ -61,7 +61,8 @@ export default {
                 "android": {
                     "compileSdkVersion": 35,
                     "targetSdkVersion": 35,
-                    "buildToolsVersion": "35.0.0"
+                    "buildToolsVersion": "35.0.0",
+                    "enable16KbPageSize": true
                 }
             },
         ],
