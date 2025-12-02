@@ -97,7 +97,7 @@ const IdentifiedPlant = () => {
         ownerId: contextUser.$id,
         nickname: nickname,
         scientificName: identifiedPlant.plant.scientificName,
-        commonNames: identifiedPlant.plant.commonNames,
+        commonNames: identifiedPlant.plant.commonNames ?? [],
         imageUrl: plantImage?.toString(),
         //
         wateringFrequency: identifiedPlant.plant.careInfo?.wateringFrequency ?? 7,
@@ -174,7 +174,7 @@ const IdentifiedPlant = () => {
         {/* Plant Header */}
         <PlantHeader
           scientificName={scientificName}
-          commonNames={commonNames}
+          commonNames={commonNames ?? []}
           imageUri={imageUri}
           confidence={confidence}
         />
@@ -292,7 +292,7 @@ const IdentifiedPlant = () => {
         visible={modalVisible}
         onClose={handleCloseModal}
         onSave={handleSavePlant}
-        plantName={commonNames[0]}
+        plantName={commonNames?.[0] ?? scientificName}
       />
     </SafeAreaView>
   )

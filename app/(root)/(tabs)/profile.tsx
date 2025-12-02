@@ -165,7 +165,7 @@ const Profile: React.FC = () => {
       <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
         <View className="flex-row items-center mb-4">
           <View className="w-10 h-10 bg-primary-medium rounded-full items-center justify-center mr-3">
-            <AntDesign name="bells" size={20} color="white" />
+            <AntDesign name="bell" size={20} color="white" />
           </View>
           <Text className="text-xl font-semibold text-text-primary">{translate('profile.notifications')}</Text>
         </View>
@@ -336,7 +336,7 @@ const Profile: React.FC = () => {
     <View className="bg-background-surface p-6 rounded-xl mb-6 shadow-sm border border-gray-100">
       <View className="flex-row items-center mb-4">
         <View className="w-10 h-10 bg-gray-400 rounded-full items-center justify-center mr-3">
-          <AntDesign name="filetext1" size={20} color="white" />
+          <AntDesign name="file-text" size={20} color="white" />
         </View>
         <Text className="text-xl font-semibold text-text-primary">{translate('profile.legal')}</Text>
       </View>

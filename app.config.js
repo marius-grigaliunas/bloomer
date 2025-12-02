@@ -63,7 +63,6 @@ export default {
                     "targetSdkVersion": 35,
                     "buildToolsVersion": "35.0.0",
                     "enable16KbPageSize": true,
-                    "ndkVersion": "27.0.12077987"
                 }
             },
         ],

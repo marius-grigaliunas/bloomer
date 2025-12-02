@@ -101,7 +101,7 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
           <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-warning rounded-full items-center justify-center mr-3">
-                <AntDesign name="exclamationcircle" size={20} color="white" />
+                <AntDesign name="exclamation-circle" size={20} color="white" />
               </View>
               <Text className="text-xl font-semibold text-text-primary">{translate('bugReportModal.title')}</Text>
             </View>
@@ -252,9 +252,9 @@ const BugReportModal: React.FC<BugReportModalProps> = ({
               >
                 <View className="flex-row items-center justify-center">
                   {isSubmitting ? (
-                    <AntDesign name="loading1" size={20} color="white" className="mr-2" />
+                    <AntDesign name="loading" size={20} color="white" className="mr-2" />
                   ) : (
-                    <AntDesign name="arrowright" size={24} color="white" className="mr-2" />
+                    <AntDesign name="arrow-right" size={24} color="white" className="mr-2" />
                   )}
                   <Text className="text-white text-center text-lg font-semibold ml-2">
                     {isSubmitting ? translate('bugReportModal.submitting') : translate('bugReportModal.submitReport')}

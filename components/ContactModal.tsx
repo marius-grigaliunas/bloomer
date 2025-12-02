@@ -190,9 +190,9 @@ const ContactModal: React.FC<ContactModalProps> = ({
               >
                 <View className="flex-row items-center justify-center">
                   {isSubmitting ? (
-                    <AntDesign name="loading1" size={20} color="white" className="mr-2" />
+                    <AntDesign name="loading" size={20} color="white" className="mr-2" />
                   ) : (
-                    <AntDesign name="arrowright" size={20} color="white" className="mr-2" />
+                    <AntDesign name="arrow-right" size={20} color="white" className="mr-2" />
                   )}
                   <Text className="text-white text-center text-lg font-semibold ml-2">
                     {isSubmitting ? translate('contactModal.sending') : translate('contactModal.sendMessage')}

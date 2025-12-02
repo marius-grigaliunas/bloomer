@@ -1,4 +1,5 @@
-import { View, Text, Button, Pressable, Image, SafeAreaView, Alert, Modal, TouchableOpacity, Platform, Animated } from 'react-native'
+import { View, Text, Button, Pressable, Image, Alert, Modal, TouchableOpacity, Platform, Animated } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
@@ -183,15 +184,32 @@ const identify = () => {
         // Process the image immediately after capture
         const processedUri = await processImage(photo.uri);
         
-        // Create final filename
+        // Create final filename - extract directory from processedUri
+        // expo-image-manipulator returns URIs like file:///path/to/file.jpg
         const timestamp = new Date().getTime();
-        const finalUri = FileSystem.cacheDirectory + `processed_photo_${currentImageIndex}_${timestamp}.jpg`;
+        const lastSlashIndex = processedUri.lastIndexOf('/');
+        let finalUri: string;
         
-        // Move processed image to final location
-        await FileSystem.moveAsync({
-          from: processedUri,
-          to: finalUri
-        });
+        if (lastSlashIndex === -1) {
+          console.error('Invalid processed image URI format:', processedUri);
+          // Fallback: use processedUri directly if we can't extract directory
+          finalUri = processedUri;
+        } else {
+          const cacheDir = processedUri.substring(0, lastSlashIndex + 1);
+          finalUri = `${cacheDir}processed_photo_${currentImageIndex}_${timestamp}.jpg`;
+          
+          // Move processed image to final location
+          try {
+            await FileSystem.moveAsync({
+              from: processedUri,
+              to: finalUri
+            });
+          } catch (moveError) {
+            console.error('Error moving processed image:', moveError);
+            // If move fails, use the processedUri directly
+            finalUri = processedUri;
+          }
+        }
 
         // Clean up original photo if it's different from processed
         if (photo.uri !== processedUri) {
@@ -288,12 +306,29 @@ const identify = () => {
         const processedUri = await processImage(photo.uri);
         
         const timestamp = new Date().getTime();
-        const finalUri = FileSystem.cacheDirectory + `processed_photo_${currentImageIndex}_${timestamp}.jpg`;
+        const lastSlashIndex = processedUri.lastIndexOf('/');
+        let finalUri: string;
         
-        await FileSystem.moveAsync({
-          from: processedUri,
-          to: finalUri
-        });
+        if (lastSlashIndex === -1) {
+          console.error('Invalid processed image URI format:', processedUri);
+          // Fallback: use processedUri directly if we can't extract directory
+          finalUri = processedUri;
+        } else {
+          const cacheDir = processedUri.substring(0, lastSlashIndex + 1);
+          finalUri = `${cacheDir}processed_photo_${currentImageIndex}_${timestamp}.jpg`;
+          
+          // Move processed image to final location
+          try {
+            await FileSystem.moveAsync({
+              from: processedUri,
+              to: finalUri
+            });
+          } catch (moveError) {
+            console.error('Error moving processed image:', moveError);
+            // If move fails, use the processedUri directly
+            finalUri = processedUri;
+          }
+        }
 
         // Clean up original photo
         if (photo.uri !== processedUri) {
@@ -586,7 +621,7 @@ const identify = () => {
               className="p-3 rounded-full"
               disabled={isProcessingImage}
             >
-              <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
+              <AntDesign name="bulb" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
             </Pressable>
           </View>
           
@@ -647,7 +682,7 @@ const identify = () => {
           }}
           disabled={currentImageIndex === 0}
         >
-          <AntDesign name="arrowleft" size={24} color="white" />
+          <AntDesign name="arrow-left" size={24} color="white" />
         </Pressable>
         <Pressable 
           className="bg-primary-medium p-4 rounded-full"
@@ -663,7 +698,7 @@ const identify = () => {
           }}
           disabled={currentImageIndex === maxImages - 1}
         >
-          <AntDesign name="arrowright" size={24} color="white" />
+          <AntDesign name="arrow-right" size={24} color="white" />
         </Pressable>
       </View>
       <View className="absolute top-16 right-5">
@@ -818,7 +853,7 @@ const identify = () => {
                       className="p-3 rounded-full"
                       disabled={isProcessingImage}
                     >
-                      <AntDesign name="bulb1" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
+                      <AntDesign name="bulb" size={24} color={flashMode === 'off' ? 'white' : 'yellow'} />
                     </Pressable>
                   </View>
                   
@@ -920,7 +955,7 @@ const identify = () => {
               className="bg-background-surface rounded-xl p-6 mx-4 items-center"
             >
               <View className="w-16 h-16 bg-danger rounded-full items-center justify-center mb-4">
-                <AntDesign name="exclamationcircleo" size={32} color="white" />
+                <AntDesign name="exclamation-circle" size={32} color="white" />
               </View>
               
               <Text className="text-text-primary text-lg font-semibold mb-2 text-center">
