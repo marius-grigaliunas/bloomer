@@ -49,11 +49,6 @@ export default {
         output: "static",
         favicon: "./assets/images/icon.png"
     },
-    locales: {
-        "en": "./locales/en.json",
-        "lt": "./locales/lt.json",
-        "ro": "./locales/ro.json"
-    },
     plugins: [
         [
             "expo-build-properties",

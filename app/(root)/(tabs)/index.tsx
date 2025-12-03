@@ -93,7 +93,7 @@ export default function Index() {
   // Show a simple fallback if databaseUser is undefined
   if(!databaseUser) {
     return (
-      <SafeAreaView className="bg-[#F8F8F8] flex-1 justify-center items-center">
+      <SafeAreaView className="bg-[#F8F8F8] flex-1 justify-center items-center" edges={['top', 'left', 'right']}>
         <Text className="text-lg font-semibold text-[#2F2F2F] mb-4">
           {translate('index.loadingUserData')}
         </Text>
@@ -108,7 +108,7 @@ export default function Index() {
   }
   
   return (
-    <SafeAreaView key={`index-${databaseUser?.userId || 'no-user'}`} className="bg-[#F8F8F8] flex-1">
+    <SafeAreaView key={`index-${databaseUser?.userId || 'no-user'}`} className="bg-[#F8F8F8] flex-1" edges={['top', 'left', 'right']}>
       <ScrollView 
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 20 }}

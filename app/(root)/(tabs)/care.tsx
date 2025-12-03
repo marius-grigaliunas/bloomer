@@ -360,7 +360,7 @@ const Care = () => {
     if(!databaseUser) {
         console.log("Care screen - Database user is undefined");
         return (
-            <SafeAreaView className='bg-background-primary flex-1 justify-center items-center'>
+            <SafeAreaView className='bg-background-primary flex-1 justify-center items-center' edges={['top', 'left', 'right']}>
                 <Text className="text-lg font-semibold text-[#2F2F2F] mb-4">
                     {translate('care.loadingUserData')}
                 </Text>
@@ -375,7 +375,7 @@ const Care = () => {
     }
 
     return (
-        <SafeAreaView className='bg-background-primary flex-1'>
+        <SafeAreaView className='bg-background-primary flex-1' edges={['top', 'left', 'right']}>
             <ScrollView 
                 showsVerticalScrollIndicator={true}
                 scrollEnabled={true}

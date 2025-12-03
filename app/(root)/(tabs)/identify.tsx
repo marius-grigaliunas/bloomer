@@ -707,7 +707,7 @@ const identify = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-background-primary" edges={['top', 'left', 'right']}>
       <View className="flex-1">
         {showCamera ? (
           <View className="flex-1">
@@ -787,7 +787,7 @@ const identify = () => {
           animationType="slide"
           onRequestClose={() => setShowReplaceCamera(false)}
         >
-          <SafeAreaView className="flex-1 bg-background-primary">
+          <SafeAreaView className="flex-1 bg-background-primary" edges={['top', 'left', 'right']}>
             <View className="flex-1">
               {/* Header */}
               <View className="px-5 pt-4 pb-4 flex-row items-center justify-between">

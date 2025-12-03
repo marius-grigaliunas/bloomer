@@ -481,7 +481,7 @@ const Profile: React.FC = () => {
 
   if (!isLoggedIn) {
     return (
-      <SafeAreaView className="bg-background-primary h-full">
+      <SafeAreaView className="bg-background-primary h-full" edges={['top', 'left', 'right']}>
         <View className="flex justify-center items-center h-full px-6">
           <View className="w-20 h-20 bg-primary-medium rounded-full items-center justify-center mb-6">
             <AntDesign name="user" size={40} color="white" />
@@ -503,7 +503,7 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <SafeAreaView className="bg-background-primary h-full">
+    <SafeAreaView className="bg-background-primary h-full" edges={['top', 'left', 'right']}>
       <ScrollView 
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 80 }}
