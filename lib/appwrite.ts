@@ -1,7 +1,7 @@
 import { Account, Avatars, Client, Databases, Functions, ID, ImageGravity, Models, OAuthProvider, Query, Storage } from "react-native-appwrite"
 import { BugReportType, DatabasePlantType, DatabaseUserType, Plant, PlantCareInfo, User, UserMessageType } from "@/interfaces/interfaces"
 import { SplashScreen } from "expo-router"
-import * as FileSystem from 'expo-file-system';
+import { File } from 'expo-file-system';
 import { Alert, Image, ImageSourcePropType } from "react-native"
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
@@ -344,7 +344,8 @@ export const uploadPlantPicture = async (fileUri: string, id: string) => {
     if(!fileUri) return;
 
     try {
-        const fileInfo = await FileSystem.getInfoAsync(fileUri);
+        const file = new File(fileUri);
+        const fileInfo = await file.info();
         if(!fileInfo.exists) {
             throw new Error(`File does not exist: ${fileUri}`);
         }

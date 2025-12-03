@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import { File } from 'expo-file-system';
 import { PlantIdentificationResponse } from '@/interfaces/interfaces';
 import { identifyPlants as appwriteIdentifyPlants } from '@/lib/appwrite';
 
@@ -7,7 +7,8 @@ import { identifyPlants as appwriteIdentifyPlants } from '@/lib/appwrite';
  */
 async function logImageSize(uri: string, index: number): Promise<void> {
     try {
-        const fileInfo = await FileSystem.getInfoAsync(uri);
+        const file = new File(uri);
+        const fileInfo = await file.info();
         if (fileInfo.exists && fileInfo.size !== undefined) {
             const sizeInMB = (fileInfo.size / (1024 * 1024)).toFixed(2);
             const sizeInKB = (fileInfo.size / 1024).toFixed(2);
@@ -31,9 +32,8 @@ async function logImageSize(uri: string, index: number): Promise<void> {
  */
 async function convertImageToBase64(uri: string): Promise<string> {
     try {
-        const base64 = await FileSystem.readAsStringAsync(uri, {
-            encoding: FileSystem.EncodingType.Base64,
-        });
+        const file = new File(uri);
+        const base64 = await file.base64();
         return `data:image/jpeg;base64,${base64}`;
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -61,7 +61,8 @@ export async function identifyPlants(imageUris: string[]): Promise<PlantIdentifi
             // Log image size for analysis
             await logImageSize(uri, i);
             
-            const fileInfo = await FileSystem.getInfoAsync(uri);
+            const file = new File(uri);
+            const fileInfo = await file.info();
             if (!fileInfo.exists) {
                 throw new Error(`File does not exist: ${uri}`);
             }

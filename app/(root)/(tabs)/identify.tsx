@@ -5,7 +5,7 @@ import SearchBar from '@/components/SearchBar'
 import * as ExpoCamera from 'expo-camera'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import colors from '@/constants/colors';
-import * as FileSystem from 'expo-file-system';
+import { File } from 'expo-file-system';
 import { Dimensions } from 'react-native';
 import { identifyPlants } from '@/lib/services/plantNetService';
 import { getPlantCareInfo } from '@/lib/services/chutesService/deepseekService';
@@ -96,10 +96,14 @@ const identify = () => {
     const currentUris = [...imageUris];
     
     return () => {
-      currentUris.forEach(uri => {
+      currentUris.forEach(async (uri) => {
         if (uri) {
-          FileSystem.deleteAsync(uri, { idempotent: true })
-            .catch(error => console.log('Error cleaning up temp file:', error));
+          try {
+            const file = new File(uri);
+            await file.delete();
+          } catch (error) {
+            console.log('Error cleaning up temp file:', error);
+          }
         }
       });
     };
@@ -108,8 +112,9 @@ const identify = () => {
   const processImage = useCallback(async (imageUri: string): Promise<string> => {
     try {
       // Get image info first to check original size and dimensions
-      const imageInfo = await FileSystem.getInfoAsync(imageUri);
-      const originalSize = imageInfo.exists ? imageInfo.size : 0;
+      const imageFile = new File(imageUri);
+      const imageInfo = await imageFile.info();
+      const originalSize = (imageInfo.exists && imageInfo.size) ? imageInfo.size : 0;
       
       // Get the original image dimensions to calculate proper resize
       const originalImage = await Manipulator.manipulateAsync(imageUri, [], { base64: false });
@@ -149,8 +154,9 @@ const identify = () => {
       );
 
       // Get processed image size for logging
-      const processedInfo = await FileSystem.getInfoAsync(processedImage.uri);
-      const processedSize = processedInfo.exists ? processedInfo.size : 0;
+      const processedFile = new File(processedImage.uri);
+      const processedInfo = await processedFile.info();
+      const processedSize = (processedInfo.exists && processedInfo.size) ? processedInfo.size : 0;
 
       console.log(`Image processed: ${Math.round(originalSize / 1024)}KB -> ${Math.round(processedSize / 1024)}KB (${originalWidth}x${originalHeight} -> ${newWidth}x${newHeight})`);
       
@@ -184,36 +190,17 @@ const identify = () => {
         // Process the image immediately after capture
         const processedUri = await processImage(photo.uri);
         
-        // Create final filename - extract directory from processedUri
-        // expo-image-manipulator returns URIs like file:///path/to/file.jpg
-        const timestamp = new Date().getTime();
-        const lastSlashIndex = processedUri.lastIndexOf('/');
-        let finalUri: string;
-        
-        if (lastSlashIndex === -1) {
-          console.error('Invalid processed image URI format:', processedUri);
-          // Fallback: use processedUri directly if we can't extract directory
-          finalUri = processedUri;
-        } else {
-          const cacheDir = processedUri.substring(0, lastSlashIndex + 1);
-          finalUri = `${cacheDir}processed_photo_${currentImageIndex}_${timestamp}.jpg`;
-          
-          // Move processed image to final location
-          try {
-            await FileSystem.moveAsync({
-              from: processedUri,
-              to: finalUri
-            });
-          } catch (moveError) {
-            console.error('Error moving processed image:', moveError);
-            // If move fails, use the processedUri directly
-            finalUri = processedUri;
-          }
-        }
+        // Use the processed URI directly - expo-image-manipulator creates unique filenames
+        const finalUri = processedUri;
 
         // Clean up original photo if it's different from processed
         if (photo.uri !== processedUri) {
-          await FileSystem.deleteAsync(photo.uri, { idempotent: true }).catch(() => {});
+          try {
+            const originalFile = new File(photo.uri);
+            await originalFile.delete();
+          } catch (error) {
+            // Ignore errors when cleaning up
+          }
         }
 
         // Update state without causing a re-render that shows white screen
@@ -293,9 +280,10 @@ const identify = () => {
         const oldUri = imageUris[currentImageIndex];
         if (oldUri) {
           try {
-            const fileInfo = await FileSystem.getInfoAsync(oldUri);
+            const oldFile = new File(oldUri);
+            const fileInfo = await oldFile.info();
             if (fileInfo.exists) {
-              await FileSystem.deleteAsync(oldUri, { idempotent: true });
+              await oldFile.delete();
             }
           } catch (error) {
             console.log('Error deleting old file:', error);
@@ -305,34 +293,17 @@ const identify = () => {
         // Process new image
         const processedUri = await processImage(photo.uri);
         
-        const timestamp = new Date().getTime();
-        const lastSlashIndex = processedUri.lastIndexOf('/');
-        let finalUri: string;
-        
-        if (lastSlashIndex === -1) {
-          console.error('Invalid processed image URI format:', processedUri);
-          // Fallback: use processedUri directly if we can't extract directory
-          finalUri = processedUri;
-        } else {
-          const cacheDir = processedUri.substring(0, lastSlashIndex + 1);
-          finalUri = `${cacheDir}processed_photo_${currentImageIndex}_${timestamp}.jpg`;
-          
-          // Move processed image to final location
-          try {
-            await FileSystem.moveAsync({
-              from: processedUri,
-              to: finalUri
-            });
-          } catch (moveError) {
-            console.error('Error moving processed image:', moveError);
-            // If move fails, use the processedUri directly
-            finalUri = processedUri;
-          }
-        }
+        // Use the processed URI directly - expo-image-manipulator creates unique filenames
+        const finalUri = processedUri;
 
         // Clean up original photo
         if (photo.uri !== processedUri) {
-          await FileSystem.deleteAsync(photo.uri, { idempotent: true }).catch(() => {});
+          try {
+            const originalFile = new File(photo.uri);
+            await originalFile.delete();
+          } catch (error) {
+            // Ignore errors when cleaning up
+          }
         }
 
         // Update state without causing a re-render that shows white screen
@@ -458,9 +429,10 @@ const identify = () => {
       for (const uri of imageUris) {
         if (uri) {
           try {
-            const fileInfo = await FileSystem.getInfoAsync(uri);
+            const file = new File(uri);
+            const fileInfo = await file.info();
             if (fileInfo.exists) {
-              await FileSystem.deleteAsync(uri, { idempotent: true });
+              await file.delete();
             }
           } catch (error) {
             console.log('Error checking/deleting file:', error);
