@@ -392,7 +392,7 @@ const identify = () => {
       
       usePlantInformation.getState().setIdentifiedPlant({
         scientificName,
-        commonNames: finalCareInfo?.commonNames ?? plantCommonNames,
+        commonNames: finalCareInfo?.commonNames ?? [],
         confidence: results.confidence,
         careInfo: finalCareInfo,
         imageUri: validImageUris[0]
