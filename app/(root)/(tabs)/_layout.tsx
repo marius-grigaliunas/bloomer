@@ -6,6 +6,7 @@ import { icons } from '@/constants/icons'
 import colors from '@/constants/colors'
 import { AntDesign, Entypo, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { translate } from '@/lib/i18n/config'
 
 interface TabIconProps {
     focused: boolean;
@@ -63,10 +64,10 @@ const _layout = () => {
         <Tabs.Screen
             name='index'
             options={{
-                title: "Home",
+                title: translate('navigation.home'),
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
-                    <TabIcon focused={focused} title='Home' icon={
+                    <TabIcon focused={focused} title={translate('navigation.home')} icon={
                         <Entypo name="home" size={24} color={focused ? colors.primary.medium : colors.black} />
                     }/>
                 )
@@ -75,10 +76,10 @@ const _layout = () => {
         <Tabs.Screen
             name='care'
             options={{
-                title: "Schedule",
+                title: translate('navigation.schedule'),
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
-                    <TabIcon focused={focused} title='Schedule' icon={
+                    <TabIcon focused={focused} title={translate('navigation.schedule')} icon={
                         <FontAwesome5 name="calendar-day" size={24} color={focused ? colors.primary.medium : colors.black} />
                     }/>
                 )
@@ -87,10 +88,10 @@ const _layout = () => {
         <Tabs.Screen
             name='identify'
             options={{
-                title: "Identify",
+                title: translate('navigation.identify'),
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
-                    <TabIcon focused={focused} title='Identify' icon={
+                    <TabIcon focused={focused} title={translate('navigation.identify')} icon={
                         <Ionicons
                             name="search"
                             size={24}
@@ -103,10 +104,10 @@ const _layout = () => {
         <Tabs.Screen
             name='profile'
             options={{
-                title: "Settings",
+                title: translate('navigation.settings'),
                 headerShown: false,
                 tabBarIcon: ({focused}) => (
-                    <TabIcon focused={focused} title='Settings' icon={
+                    <TabIcon focused={focused} title={translate('navigation.settings')} icon={
                         <AntDesign
                             name='setting'
                             size={24}

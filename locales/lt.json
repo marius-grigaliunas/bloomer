@@ -345,6 +345,12 @@
     "cannotAddTitle": "Kodėl negaliu pridėti šio augalo?",
     "cannotAddDescription": "Identifikavimo patikimumas per mažas, kad būtų užtikrintas tikslumas. Pabandykite fotografuoti aiškesnes nuotraukas arba iš kitų kampų.",
     "identifyAnother": "Identifikuoti kitą augalą"
+  },
+  "navigation": {
+    "home": "Pagrindinis",
+    "schedule": "Tvarkaraštis",
+    "identify": "Identifikuoti",
+    "settings": "Nustatymai"
   }
 }
 

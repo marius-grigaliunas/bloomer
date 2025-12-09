@@ -345,6 +345,12 @@
     "cannotAddTitle": "Why can't I add this plant?",
     "cannotAddDescription": "The identification confidence is too low to ensure accuracy. Please try taking clearer photos or different angles for better identification.",
     "identifyAnother": "Identify Another Plant"
+  },
+  "navigation": {
+    "home": "Home",
+    "schedule": "Schedule",
+    "identify": "Identify",
+    "settings": "Settings"
   }
 }
 

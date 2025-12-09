@@ -345,5 +345,11 @@
     "cannotAddTitle": "De ce nu pot adăuga această plantă?",
     "cannotAddDescription": "Nivelul de încredere al identificării este prea scăzut pentru a garanta acuratețea. Încearcă fotografii mai clare sau din alte unghiuri pentru o identificare mai bună.",
     "identifyAnother": "Identifică o altă plantă"
+  },
+  "navigation": {
+    "home": "Acasă",
+    "schedule": "Program",
+    "identify": "Identifică",
+    "settings": "Setări"
   }
 }
