@@ -1,46 +1,211 @@
-# Plant care app - Bloomer
+# Bloomer
 
-## react.native  + expo app + appwrite
+## AI-powered plant care assistant, with plant identification and personalized care guides
 
-### features
+> A feature-rich React Native mobile application that combines AI-powered plant identification, intelligent care scheduling, and real-time environmental monitoring to help users maintain healthy plants.
 
-- Authentication
-- Plant Gallery
-- Plant Detail View
-- Camera Integration
-- Image Processing
-- Notification Management
-- Plant Identification
-- Care Calendar
-- Localization
+**[Download on Google Play](https://play.google.com/store/apps/details?id=com.grimar.bloomer&pcampaignid=web_share)** | **[Report Bug](https://bloomerapp.info/contact/)**
 
-### TODO
+---
 
-- [x] In the calendar, when selecting another day, the needs to be colored a different color on the calendar.
-- [x] Show how many days overdue in the plant details tab
-- [x] Forms in the settings screen need form validation
-  - implemented selectables only.
-- [x] User is seeing the image steps and loading message while waiting for the response, make it look cohesive
-- [x] Add a flash to the camera
-- [x] after renaming the plant the newest name is showing on the screen, the app needs to be refreshed to show the latest change
+## Overview
 
-- [x] Redesing the app
-  - [x] Redesign the home tab
-  - [x] Redesign the care tab
-  - [x] Redesign the camera tab
-  - [x] Redesign the profile tab
-  - [x] Redesign the identified plant tab
-  - [x] Redesign the plant details tab
+Bloomer is a production-ready Android application made for people who want plants in their life, but don't have the actual interest in taking care of them. It's for people like me, my main problem is forgetting to water the plants for a long time, and I created this app as tool for me, and people like me, to care of the green friends.
 
-- [x] Photos inside the plant details and identified plant pages need to be fixed, current aspect ratio morfs the photos.
-- [x] add a report a bug section in the setting menu
-- [x] add a contact form in the settings menu
-- [x] when plant is watered, no immediate response, fix that
-- [x] Terms and conditions
-- [x] Implement terms and conditions into the app
-- [x] option to delete account
-- [x] Need a served function to delete the auth record of the user
-- [x] loading state while signing in
-- [x] Test everything
-- [x] Deploy
-- [ ] Translate the app to Romanian and Lithuanian.
+### Achievements
+
+- **Published on Google Play Store** with production-ready quality
+- **Plant identification** using PlantNet API integration
+- **AI integration** using DeepSeek-V3-0324 LLM to get personalized plant care guides
+- **Smart care scheduling** with calendar visualization and notifications
+- **Multi-language support** (English, Romanian, Lithuanian)
+- **Cloud-native architecture** with Appwrite backend
+- **Modern UI/UX** responsive and attractive UI built with NativeWind (Tailwind CSS for React Native)
+
+---
+
+## Features
+
+### AI-Powered Plant Identification
+
+- **Camera integration** with real-time image capture and size compression
+- **PlantNet API** integration for accurate plant species recognition
+- **DeepSeek AI** using DeepSeek-V3-0324 LLM to get personalized plant care guides
+
+### Intelligent Care Management
+
+- **Automated watering schedules** based on plant-specific needs
+- **Visual calendar** with weekly/monthly views
+- **Overdue care alerts** with priority indicators
+- **Care history tracking** for each plant
+- **Customizable reminders** with timezone support
+
+### Environmental Monitoring
+
+- **Real-time weather integration** via OpenWeatherMap API
+- **Location-based** weather data with user permissions
+
+### User Authentication & Management
+
+- **Google OAuth 2.0** integration via Appwrite
+- **Secure session management**
+- **User preferences** (language, units, calendar settings)
+- **Profile customization**
+- **Account deletion** with data cleanup
+
+### Smart Notifications
+
+- **Push notifications** using Expo Notifications
+- **Customizable notification times**
+
+### Localization
+
+- **Multi-language support** (English, Romanian, Lithuanian)
+- **Dynamic language switching**
+- **Regional unit preferences** (metric/imperial)
+
+### Modern UI/UX
+
+- **NativeWind styling** for consistent design
+- **Smooth animations** using React Native Reanimated
+- **Responsive layouts** for various screen sizes
+
+---
+
+## Technology Stack
+
+### Frontend
+
+- **React Native 0.81** - Cross-platform mobile framework
+- **Expo 54** - Development and build toolchain
+- **TypeScript 5.3** - Type-safe development
+- **Expo Router** - File-based navigation system
+- **NativeWind 4.2** - Tailwind CSS for React Native
+- **Zustand** - Lightweight state management
+- **React Native Reanimated** - Advanced animations
+
+### Backend & Services
+
+- **Appwrite** - Backend-as-a-Service (BaaS)
+  - Authentication (OAuth 2.0)
+  - Database (NoSQL)
+  - Storage (image hosting)
+  - Cloud Functions (serverless)
+- **PlantNet API** - Plant identification
+- **DeepSeek AI** - Care information generation
+- **OpenWeatherMap API** - Weather data
+
+### Development Tools
+
+- **ESLint** - Code quality
+- **Babel** - JavaScript transpilation
+- **Metro** - React Native bundler
+
+---
+
+## Architecture
+
+### Design Patterns
+
+- **Component-based architecture** with reusable UI components
+- **Custom hooks** for shared logic (`useWateringDays`, `useAppwrite`)
+- **Service layer** for API integrations and business logic
+- **Store pattern** with Zustand for global state
+- **Context API** for user session management
+
+### Project Structure
+
+```bash
+
+bloomer/
+├── app/                    # Expo Router screens
+│   ├── (root)/
+│   │   └── (tabs)/        # Tab navigation screens
+│   └── plants/            # Plant detail screens
+├── components/            # Reusable UI components
+├── lib/
+│   ├── services/          # API integrations
+│   ├── hooks/             # Custom React hooks
+│   └── i18n/             # Localization config
+├── interfaces/            # TypeScript type definitions
+├── constants/             # App-wide constants
+└── locales/              # Translation files
+
+```
+
+## Contributing
+
+This is a showcase project and is not actively seeking contributions. However, feel free to fork and adapt for your own use!
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Author
+
+**Marius Grigaliūnas** - [GitHub](https://github.com/marius-grigaliunas) | [LinkedIn](https://www.linkedin.com/in/marius-grigaliunas-2808b91b9/)
+
+---
+
+## Acknowledgments
+
+- **PlantNet** for plant identification API
+- **Appwrite** for backend infrastructure
+- **Expo** for development framework
+- **OpenWeatherMap** for weather data
+
+---
+
+## Screenshots
+
+### Home Screen
+
+![Home screen screenshot](/assets/images/home.jpg?raw=true "Home screen")
+
+- Quick actions for plant identification and care schedule
+- Weather widget with location data
+- Today's care tasks with urgent alerts
+- Plant gallery overview
+
+### Care Calendar
+
+![Home screen screenshot](/assets/images/schedule.jpg?raw=true "Home screen")
+
+- Monthly calendar view with watering indicators
+- Day selection with task details
+- Color-coded priorities (red for overdue, green for scheduled)
+
+### Plant Identification
+
+![Home screen screenshot](/assets/images/identify.jpg.jpg?raw=true "Home screen")
+
+- Camera interface with flash support
+- Multi-image capture (up to 5 photos)
+
+### Plant view
+
+![Home screen screenshot](/assets/images/plantview1.jpg.jpg?raw=true "Home screen")
+
+![Home screen screenshot](/assets/images/plantview2.jpg.jpg?raw=true "Home screen")
+
+![Home screen screenshot](/assets/images/plantview3.jpg.jpg?raw=true "Home screen")
+
+- AI-powered identification results
+- Detailed care information
+
+---
+
+## Future Enhancements
+
+- [ ] iOS version
+- [ ] Plant disease detection
+- [ ] Social features (share plants with friends)
+- [ ] Integration with smart home devices
+- [ ] Offline mode with local database sync
+- [ ] Plant growth tracking with photo timeline
+- [ ] Community plant database
+- [ ] In-app plant care guides
