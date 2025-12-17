@@ -2,8 +2,6 @@
 
 ## AI-powered plant care assistant, with plant identification and personalized care guides
 
-> A feature-rich React Native mobile application that combines AI-powered plant identification, intelligent care scheduling, and real-time environmental monitoring to help users maintain healthy plants.
-
 **[Download on Google Play](https://play.google.com/store/apps/details?id=com.grimar.bloomer&pcampaignid=web_share)** | **[Report Bug](https://bloomerapp.info/contact/)**
 
 ---
@@ -139,12 +137,6 @@ This is a showcase project and is not actively seeking contributions. However, f
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 ## Author
 
 **Marius Grigaliūnas** - [GitHub](https://github.com/marius-grigaliunas) | [LinkedIn](https://www.linkedin.com/in/marius-grigaliunas-2808b91b9/)
@@ -173,7 +165,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Care Calendar
 
-![Home screen screenshot](/assets/images/schedule.jpg?raw=true "Home screen")
+![Schedule screenshot with tasks](/assets/images/schedule.jpg?raw=true "Schedule")
 
 - Monthly calendar view with watering indicators
 - Day selection with task details
@@ -181,18 +173,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Plant Identification
 
-![Home screen screenshot](/assets/images/identify.jpg.jpg?raw=true "Home screen")
+![Identification screenshot](/assets/images/identify.jpg?raw=true "Identification")
 
 - Camera interface with flash support
 - Multi-image capture (up to 5 photos)
 
 ### Plant view
 
-![Home screen screenshot](/assets/images/plantview1.jpg.jpg?raw=true "Home screen")
+![Plant view 1, showing the header, name and species](/assets/images/plantview1.jpg?raw=true "Plant view 1")
 
-![Home screen screenshot](/assets/images/plantview2.jpg.jpg?raw=true "Home screen")
+![Plant view 2, showing the temperature, humidity, light preferences](/assets/images/plantview2.jpg?raw=true "Plant view 2")
 
-![Home screen screenshot](/assets/images/plantview3.jpg.jpg?raw=true "Home screen")
+![Plant view 3, showing common issues, tips and history](/assets/images/plantview3.jpg?raw=true "Plant view 3")
 
 - AI-powered identification results
 - Detailed care information
