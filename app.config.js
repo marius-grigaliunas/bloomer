@@ -37,7 +37,7 @@ export default {
             "android.permission.WRITE_EXTERNAL_STORAGE",
             "android.permission.POST_NOTIFICATIONS"
         ],
-        "package": "com.grimar.bloomer",
+        "package": "com.margri.bloomer",
         "packagingOptions": {
             "jniLibs": {
                 "useLegacyPackaging": false

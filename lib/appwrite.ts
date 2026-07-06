@@ -21,6 +21,33 @@ export const client = new Client()
 
 const functions = new Functions(client);
 
+const FUNCTION_POLL_INTERVAL_MS = 2000;
+const FUNCTION_MAX_WAIT_MS = 120000;
+
+async function waitForFunctionExecution(
+    functionId: string,
+    executionId: string,
+    maxWaitMs = FUNCTION_MAX_WAIT_MS
+): Promise<Models.Execution> {
+    const deadline = Date.now() + maxWaitMs;
+
+    while (Date.now() < deadline) {
+        const execution = await functions.getExecution(functionId, executionId);
+
+        if (execution.status === 'completed') {
+            return execution;
+        }
+
+        if (execution.status === 'failed') {
+            throw new Error(execution.errors || 'Function execution failed');
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, FUNCTION_POLL_INTERVAL_MS));
+    }
+
+    throw new Error('Function execution timed out while waiting for result');
+}
+
 export const avatar = new Avatars(client);
 export const account = new Account(client);
 export const databases = new Databases(client);
@@ -104,23 +131,31 @@ export async function login() {
             redirectUri
         );
 
-        console.log("OAuth Token URL:", loginUrl);
+        if (__DEV__) {
+            console.log("OAuth Token URL:", loginUrl);
+        }
 
         const result = await WebBrowser.openAuthSessionAsync(`${loginUrl}`, redirectUri);
 
-        console.log("AuthSession result:", result);
+        if (__DEV__) {
+            console.log("AuthSession result:", result);
+        }
 
         if (result.type === 'success' && result.url) {
             try {
-                console.log("Success URL:", result.url);
+                if (__DEV__) {
+                    console.log("Success URL received");
+                }
                 
                 // Extract credentials from OAuth redirect URL
                 const url = new URL(result.url);
                 const secret = url.searchParams.get('secret');
                 const userId = url.searchParams.get('userId');
 
-                console.log("Extracted secret:", secret ? "present" : "missing");
-                console.log("Extracted userId:", userId ? "present" : "missing");
+                if (__DEV__) {
+                    console.log("Extracted secret:", secret ? "present" : "missing");
+                    console.log("Extracted userId:", userId ? "present" : "missing");
+                }
 
                 if (!secret || !userId) {
                     console.error("Missing OAuth parameters");
@@ -350,6 +385,10 @@ export const uploadPlantPicture = async (fileUri: string, id: string) => {
             throw new Error(`File does not exist: ${fileUri}`);
         }
 
+        if (fileInfo.size == null) {
+            throw new Error(`Could not read file size: ${fileUri}`);
+        }
+
         // Upload the file
         await storage.createFile(
             plantImageStorageId,
@@ -483,7 +522,9 @@ export const updateUserPushToken = async (userId: string, pushToken: string | nu
                 notificationsEnabled: !!pushToken
             }
         )
-        console.log(`push token: ${pushToken}, updated`);
+        if (__DEV__) {
+            console.log(`push token updated for user ${userId}`);
+        }
         
     } catch (error) {
         console.error('Error updating push token:', error);
@@ -631,14 +672,13 @@ export async function getPlantCareFunction(plant: string, commonNames: string[],
             return "Chutes API not configured, unable to get plant data"
         }
 
-        const response = await functions.createExecution(
+        const execution = await functions.createExecution(
             functionId,
-            JSON.stringify({ plant, commonNames, preferredLanguage })
+            JSON.stringify({ plant, commonNames, preferredLanguage }),
+            true
         );
 
-        if (response.status !== 'completed') {
-            throw new Error(`Function execution failed with status: ${response.status}`);
-        }
+        const response = await waitForFunctionExecution(functionId, execution.$id);
 
         let parsedResponse;
         try {

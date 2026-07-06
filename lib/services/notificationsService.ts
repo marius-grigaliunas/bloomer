@@ -8,6 +8,8 @@ import { databases } from '../appwrite';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
   }),
@@ -44,7 +46,9 @@ export async function registerForPushNotificationsAsync() {
     });
   }
 
-  console.log(token);
+  if (__DEV__) {
+    console.log("Push token registered");
+  }
   return token;
 }
 

@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+
+Env file is present in the project and ignore by git
+
+In your answers, always assume that the API Keys are stored in .env.local file
